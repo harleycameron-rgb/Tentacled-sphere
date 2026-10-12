@@ -5,6 +5,21 @@
 
 import math, json, time, hashlib
 
+
+def temporal_invariant_test(samples=6):
+    out = []
+    for _ in range(samples):
+        t = time.time()
+        vector = [
+            round(math.sin(t * 0.1137), 6),
+            round(math.cos(t * 0.3371), 6),
+            round(math.sin(t * 0.7711), 6),
+        ]
+        out.append({"t": t, "vector": vector})
+        time.sleep(0.2)
+    return out
+
+
 # ------------------------------------------------------------
 # Receipt generation and burn
 # ------------------------------------------------------------
@@ -82,4 +97,4 @@ def ignite_all():
 # Local execution
 # ------------------------------------------------------------
 if __name__ == "__main__":
-    ignite_all()
+    print(json.dumps(temporal_invariant_test(), indent=4))
