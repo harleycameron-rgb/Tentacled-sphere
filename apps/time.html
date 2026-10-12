@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <title>Time | Tentacled Sphere</title>
+    <link rel="stylesheet" href="/web/style.css">
+    <script src="/web/geometry.js" defer></script>
+    <script src="/web/protocol.js" defer></script>
+    <script src="/web/audio.js" defer></script>
+    <script src="/web/app.js" defer></script>
+  </head>
+  <body data-app="time">
+    <header class="site-header">
+      <a class="brand" href="/">Tentacled Sphere</a>
+      <nav aria-label="Apps">
+        <a href="/apps/tap.html">Tap</a>
+        <a href="/apps/surface.html">Surface</a>
+        <a href="/apps/spiritlevel.html">SpiritLevel</a>
+        <a href="/apps/gain.html">Gain</a>
+        <a href="/apps/habitat.html">Habitat</a>
+        <a href="/apps/time.html">Time</a>
+        <a href="/apps/space.html">Space</a>
+        <a href="/apps/lineage.html">Lineage</a>
+      </nav>
+    </header>
+    <main>
+      <section id="home-panel" hidden>
+        <div class="intro">
+          <p class="eyebrow">EIGHT-ARM GEOMETRY CLIENT</p>
+          <h1>Tentacled Sphere</h1>
+          <p>The API model remains the default. Cube–octahedron is a separate
+            selectable model. A rigid pulse moves arms and ports together;
+            harmonic mode changes arm relationships.</p>
+          <p id="home-status" class="status" role="status">Loading the Python geometry API…</p>
+        </div>
+        <div class="layout">
+          <section class="card">
+            <h2>Shared sphere</h2>
+            <div class="sphere-wrap">
+              <svg id="sphere" viewBox="0 0 420 360" role="img" aria-label="Eight geometry arms and six dual reference ports"></svg>
+            </div>
+            <p id="geometry-report" class="muted">Geometry checks are pending.</p>
+            <div class="control-grid">
+              <label>View rotation yaw <output id="view-yaw-value">0°</output>
+                <input id="view-yaw" type="range" min="-180" max="180" value="0">
+              </label>
+              <label>View rotation tilt <output id="view-tilt-value">0°</output>
+                <input id="view-tilt" type="range" min="-90" max="90" value="0">
+              </label>
+            </div>
+            <label>Selected arm
+              <select id="selected-arm">
+                <option value="0">Tap · 0</option><option value="1">Surface · 1</option>
+                <option value="2">SpiritLevel · 2</option><option value="3">Gain · 3</option>
+                <option value="4">Habitat · 4</option><option value="5">Time · 5</option>
+                <option value="6">Space · 6</option><option value="7">Lineage · 7</option>
+              </select>
+            </label>
+            <p id="incidence-report" class="muted">Selected-arm incidence appears for the cube model.</p>
+          </section>
+          <section class="card">
+            <h2>Shared centre and Sentinel</h2>
+            <div class="control-grid">
+              <label>Geometry model
+                <select id="geometry-model">
+                  <option value="api">API baseline (default)</option>
+                  <option value="cube">Cube–octahedron dual</option>
+                </select>
+              </label>
+              <label>Pulse behavior
+                <select id="pulse-mode">
+                  <option value="rigid">Shared rigid rotation</option>
+                  <option value="harmonic">Arm-only harmonic shift</option>
+                </select>
+              </label>
+              <label>Centre yaw <output id="yaw-value">0°</output>
+                <input id="yaw" type="range" min="-180" max="180" value="0">
+              </label>
+              <label>Centre tilt <output id="tilt-value">0°</output>
+                <input id="tilt" type="range" min="-90" max="90" value="0">
+              </label>
+              <label>Radius <output id="radius-value">1.00</output>
+                <input id="radius" type="range" min="0.2" max="2.5" value="1" step="0.01">
+              </label>
+              <label>Sentinel amplitude <output id="amplitude-value">0.1137 rad</output>
+                <input id="amplitude" type="range" min="-0.2" max="0.2" value="0.1137" step="0.0001">
+              </label>
+            </div>
+            <div class="button-row">
+              <button id="apply-centre" class="primary" type="button">Apply centre / ignite</button>
+              <button id="fire-sentinel" type="button">Fire Sentinel</button>
+              <button id="undo-sentinel" class="secondary" type="button">Undo</button>
+            </div>
+            <p id="ack-summary" class="muted">Complete-run receipt is disabled until all eight apps acknowledge the same revision.</p>
+            <ul id="ack-list" class="ack-list"></ul>
+            <button id="download-receipt" class="secondary" type="button" disabled>Download complete run receipt</button>
+          </section>
+        </div>
+        <section class="card">
+          <h2>Eight app views</h2>
+          <div id="app-tabs" class="app-tabs"></div>
+          <div id="app-frames"></div>
+        </section>
+      </section>
+      <section class="intro">
+        <p class="eyebrow">LOCAL GEOMETRY CLIENT</p>
+        <h1>Time</h1>
+        <p>Device data can orient this arm only. It does not measure identity,
+          intention, ancestry, personality, or other symbolic interpretations.</p>
+        <p id="app-status" class="status" role="status">Loading the API geometry…</p>
+      </section>
+      <section class="card app-controls" aria-label="App controls">
+        <h2>App feed</h2>
+        <div class="button-row">
+          <button id="start-sensors" type="button">Enable device orientation</button>
+          <button id="start-clock" type="button" hidden>Use local clock geometry</button>
+          <button id="pause-app" type="button">Pause app</button>
+        </div>
+        <p id="feed-status" class="muted">API baseline will be used until a valid feed is available.</p>
+        <h2>Optional camera preview</h2>
+        <div class="button-row">
+          <button id="camera-toggle" type="button">Start camera preview</button>
+          <button id="cancel-camera" type="button">Cancel pending camera request</button>
+        </div>
+        <video id="camera-preview" autoplay playsinline hidden></video>
+        <p class="muted">Video only; no microphone, recording, upload, or analysis.</p>
+      </section>
+      <section class="card sound-controls" aria-label="Local Web Audio controls">
+        <h2>Local sound</h2>
+        <p id="sound-status" class="muted">Sound is off. Enable it from this page by a direct gesture.</p>
+        <div class="control-grid">
+          <label>Waveform
+            <select id="waveform">
+              <option value="sine">Sine</option>
+              <option value="triangle">Triangle</option>
+              <option value="square">Square</option>
+              <option value="sawtooth">Sawtooth</option>
+            </select>
+          </label>
+          <label>Volume <output id="volume-value">25%</output>
+            <input id="volume" type="range" min="0" max="1" step="0.01" value="0.25">
+          </label>
+          <label>Tone <output id="tone-value">440 Hz</output>
+            <input id="tone" type="range" min="40" max="2000" step="1" value="440">
+          </label>
+        </div>
+        <div class="button-row sound-buttons">
+          <button data-sound="live" type="button">Enable live sound</button>
+          <button data-sound="tone" type="button">Tone</button>
+          <button data-sound="pulse" type="button">Pulse</button>
+          <button data-sound="kick" type="button">Kick</button>
+          <button data-sound="snare" type="button">Snare</button>
+          <button data-sound="hi-hat" type="button">Hi-hat</button>
+          <button data-sound="wobble" type="button">Wobble</button>
+          <button data-sound="chord" type="button">Chord</button>
+          <button data-sound="stop" class="secondary" type="button">Stop all sound</button>
+        </div>
+        <p id="sound-source" class="muted">Live sound uses the accepted geometry arm when available.</p>
+      </section>
+      <section class="card">
+        <h2>Applied arm position</h2>
+        <output id="applied-position" class="vector">Waiting for geometry…</output>
+        <p id="ack-status" class="muted">This app has not acknowledged a shared snapshot.</p>
+      </section>
+    </main>
+    <footer><a href="/">Integrated geometry view</a></footer>
+  </body>
+</html>

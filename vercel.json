@@ -1,13 +1,23 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "api/index.py", "use": "@vercel/python" }
-  ],
-  "routes": [
-    { "src": "/api/tentacled-sphere", "dest": "/api/index.py" }
-  ],
-  "env": {
-    "SEED": "1.0",
-    "DELTA": "0.1137"
-  }
+  "buildCommand": "python3 scripts/build_web.py --output public",
+  "outputDirectory": "public",
+  "rewrites": [
+    { "source": "/api/tentacled-sphere", "destination": "/api/index.py" },
+    { "source": "/tap", "destination": "/apps/tap.html" },
+    { "source": "/tap/", "destination": "/apps/tap.html" },
+    { "source": "/surface", "destination": "/apps/surface.html" },
+    { "source": "/surface/", "destination": "/apps/surface.html" },
+    { "source": "/spiritlevel", "destination": "/apps/spiritlevel.html" },
+    { "source": "/spiritlevel/", "destination": "/apps/spiritlevel.html" },
+    { "source": "/gain", "destination": "/apps/gain.html" },
+    { "source": "/gain/", "destination": "/apps/gain.html" },
+    { "source": "/habitat", "destination": "/apps/habitat.html" },
+    { "source": "/habitat/", "destination": "/apps/habitat.html" },
+    { "source": "/time", "destination": "/apps/time.html" },
+    { "source": "/time/", "destination": "/apps/time.html" },
+    { "source": "/space", "destination": "/apps/space.html" },
+    { "source": "/space/", "destination": "/apps/space.html" },
+    { "source": "/lineage", "destination": "/apps/lineage.html" },
+    { "source": "/lineage/", "destination": "/apps/lineage.html" }
+  ]
 }
