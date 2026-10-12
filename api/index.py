@@ -1,106 +1,91 @@
 import json
 import math
-import time
-from http.server import BaseHTTPRequestHandler
+import os
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlsplit
 
 
-class TentacledSphere:
-    """Standalone geometry engine with eight geometry functions."""
+def geometry(seed=1.0, delta=0.1137):
+    if not math.isfinite(seed) or not math.isfinite(delta):
+        raise ValueError("seed and delta must be finite numbers")
 
-    def __init__(self, seed=1.0, delta=0.1137):
-        self.seed = seed
-        self.delta = delta
-        self.tentacles = {
-            "TAP_CONVEX": self.geom_convex,
-            "SURFACE_CONCAVE": self.geom_concave,
-            "GAIN_PSYCHOSOCIAL": self.geom_gain,
-            "HABITATAT_DOMAIN": self.geom_habitat,
-            "TIME_CHRONO": self.geom_time,
-            "SPACE_CHRONO": self.geom_space,
-            "SCANROOT_LINEAGE": self.geom_lineage,
-            "SCANDOCZERO_AUDIT": self.geom_audit,
-        }
+    tentacles = []
+    for index in range(8):
+        value = seed + index * delta
+        if not math.isfinite(value):
+            raise ValueError("geometry sequence must remain finite")
+        z = 1 - 2 * (index + 0.5) / 8
+        radius = math.sqrt(1 - z * z)
+        tentacles.append({
+            "index": index,
+            "value": value,
+            "vector": [radius * math.cos(value), radius * math.sin(value), z],
+            "curvature": 1 / radius,
+        })
 
-    def geom_convex(self, s):
-        return self._pack("convex", math.sin(s), math.cos(s), math.sin(s * 0.5))
+    curvatures = [tentacle["curvature"] for tentacle in tentacles]
+    return {
+        "seed": seed,
+        "delta": delta,
+        "tentacles": tentacles,
+        "curvature": {
+            "min": min(curvatures),
+            "max": max(curvatures),
+            "mean": sum(curvatures) / len(curvatures),
+        },
+    }
 
-    def geom_concave(self, s):
-        return self._pack(
-            "concave",
-            math.sin(s * 0.337),
-            math.cos(s * 0.771),
-            math.sin(s * 0.1137),
-        )
 
-    def geom_gain(self, s):
-        return self._pack(
-            "psychosocial",
-            math.sin(s * 0.1137),
-            math.cos(s * 0.3371),
-            math.sin(s * 0.7711),
-        )
-
-    def geom_habitat(self, s):
-        return self._pack(
-            "domain",
-            math.sin(s * 0.8869),
-            math.cos(s * 0.6065),
-            math.sin(s * 0.7170),
-        )
-
-    def geom_time(self, s):
-        return self._pack("chrono_time", s * 0.1137, s * 0.3371, s * 0.7711)
-
-    def geom_space(self, s):
-        return self._pack(
-            "chrono_space", math.sin(s), math.sin(s * 2), math.sin(s * 3)
-        )
-
-    def geom_lineage(self, s):
-        return self._pack(
-            "lineage", math.cos(s), math.cos(s * 2), math.cos(s * 3)
-        )
-
-    def geom_audit(self, s):
-        return self._pack(
-            "audit",
-            math.sin(s * 0.1137),
-            math.cos(s * 0.3371),
-            math.sin(s * 0.7711) * math.cos(s * 0.8869),
-        )
-
-    @staticmethod
-    def _pack(label, x, y, z):
-        return {
-            "label": label,
-            "vector": [round(x, 6), round(y, 6), round(z, 6)],
-            "curvature": round(abs(x * y * z) * 0.1137, 6),
-            "timestamp": time.time(),
-        }
-
-    def actuate(self):
-        value = self.seed
-        output = {}
-
-        for name, function in self.tentacles.items():
-            output[name] = function(value)
-            value += self.delta
-
-        return output
+def parameter(query, name, default):
+    values = query.get(name)
+    if values is not None and len(values) != 1:
+        raise ValueError(f"{name} must be specified once")
+    raw = values[0] if values is not None else os.environ.get(name.upper(), default)
+    try:
+        value = float(raw)
+    except (ValueError, OverflowError):
+        raise ValueError(f"{name} must be a finite number") from None
+    if not math.isfinite(value):
+        raise ValueError(f"{name} must be a finite number")
+    return value
 
 
 class handler(BaseHTTPRequestHandler):
-    """Vercel-compatible API handler."""
-
     def do_GET(self):
-        response = json.dumps(TentacledSphere().actuate(), indent=4).encode("utf-8")
+        url = urlsplit(self.path)
+        if url.path != "/api/tentacled-sphere":
+            self.send_json(404, {"error": "Not found"})
+            return
+        try:
+            query = parse_qs(url.query, keep_blank_values=True, max_num_fields=32)
+            result = geometry(
+                parameter(query, "seed", "1.0"),
+                parameter(query, "delta", "0.1137"),
+            )
+        except ValueError as error:
+            self.send_json(400, {"error": str(error)})
+            return
+        self.send_json(200, result)
 
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(response)))
+    def send_json(self, status, data):
+        body = json.dumps(data, allow_nan=False).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
         self.end_headers()
-        self.wfile.write(response)
+        self.wfile.write(body)
+
+    def log_message(self, format, *args):
+        pass
 
 
 if __name__ == "__main__":
-    print(json.dumps(TentacledSphere().actuate(), indent=4))
+    server = ThreadingHTTPServer(("127.0.0.1", int(os.environ.get("PORT", "8000"))), handler)
+    print(f"Listening at http://127.0.0.1:{server.server_port}/api/tentacled-sphere")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
