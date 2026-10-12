@@ -69,6 +69,9 @@ python -m unittest discover -s tests
    (for a project named `tentacled-sphere`, use
    `https://tentacled-sphere.vercel.app/api/tentacled-sphere`).
 
+To use a custom domain, add it in the Vercel project settings and configure the
+DNS records Vercel provides; custom domains cannot be assigned in `vercel.json`.
+
 For the GitHub Actions auto-deploy pipeline, add `VERCEL_TOKEN`,
 `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` as **GitHub repository Actions secrets**.
 Pushes to `main` run the tests and deploy to production only if they pass.
