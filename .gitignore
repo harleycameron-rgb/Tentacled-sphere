@@ -1,7 +1,10 @@
 __pycache__/
-*.py[cod]
-.venv/
+*.pyc
 .env
 .env.*
+*.json
+!vercel.json
+*.py[cod]
+.venv/
 *.log
 .vercel/

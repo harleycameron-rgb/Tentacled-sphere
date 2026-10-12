@@ -5,5 +5,9 @@
   ],
   "routes": [
     { "src": "/api/tentacled-sphere", "dest": "/api/index.py" }
-  ]
+  ],
+  "env": {
+    "SEED": "1.0",
+    "DELTA": "0.1137"
+  }
 }
