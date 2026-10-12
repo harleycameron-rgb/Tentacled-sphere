@@ -15,6 +15,15 @@
     if (element) element.textContent = value;
   }
 
+  function createIdentifier() {
+    if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+    if (typeof crypto.getRandomValues !== "function") {
+      throw new Error("Secure random identifiers are unavailable in this browser.");
+    }
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+
   function apiVectorsFrom(data) {
     if (!data || !Array.isArray(data.tentacles) || data.tentacles.length !== 8) {
       throw new Error("The geometry API did not return exactly eight arms.");
@@ -294,9 +303,7 @@
   function initHome(apiData, apiVectors) {
     const homeStatus = document.getElementById("home-status");
     const apiBaselineVectors = apiVectors;
-    const sessionId = (typeof crypto.randomUUID === "function")
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const sessionId = createIdentifier();
     const feeds = {};
     const frames = new Map();
     let revisionSequence = 0;
@@ -596,9 +603,7 @@
       }
       configuration = { ...config };
       updateControls(configuration);
-      const ignitionId = (typeof crypto.randomUUID === "function")
-        ? crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const ignitionId = createIdentifier();
       const nextRevision = revisionSequence + 1;
       const snapshot = makeSnapshot(configuration, ignitionId, nextRevision, previousHash);
       const envelope = await P.hashSnapshot(snapshot);
@@ -694,9 +699,7 @@
         ...configuration,
         count: configuration.count + 1,
       };
-      const ignitionId = (typeof crypto.randomUUID === "function")
-        ? crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const ignitionId = createIdentifier();
       configuration = next;
       updateControls(next);
       const nextRevision = revisionSequence + 1;
