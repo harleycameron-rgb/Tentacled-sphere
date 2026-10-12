@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Spirit Level — Pure Gravity Orientation</title>
+    <link rel="stylesheet" href="app.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body data-app="Spirit Level" data-geometry="Pure Gravity Orientation">
+    <h1>Spirit Level</h1>
+    <p class="description">Pure Gravity Orientation</p>
+    <div class="controls">
+      <button id="start-sensors" type="button">Enable motion sensors</button>
+      <button id="start-camera" type="button">Start camera</button>
+    </div>
+    <p id="status" role="status">Enable sensors and camera access to begin.</p>
+    <video id="camera" autoplay playsinline hidden></video>
+    <h2>Live sensor data</h2>
+    <pre id="output" aria-live="off"></pre>
+  </body>
+</html>

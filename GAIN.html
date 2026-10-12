@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gain — Psychosocial Geometry</title>
+    <link rel="stylesheet" href="app.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body data-app="Gain" data-geometry="Psychosocial Geometry">
+    <h1>Gain</h1>
+    <p class="description">Psychosocial Geometry</p>
+    <div class="controls">
+      <button id="start-sensors" type="button">Enable motion sensors</button>
+      <button id="start-camera" type="button">Start camera</button>
+    </div>
+    <p id="status" role="status">Enable sensors and camera access to begin.</p>
+    <video id="camera" autoplay playsinline hidden></video>
+    <h2>Live sensor data</h2>
+    <pre id="output" aria-live="off"></pre>
+  </body>
+</html>
