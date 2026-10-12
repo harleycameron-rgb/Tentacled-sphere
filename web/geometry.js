@@ -26,9 +26,14 @@
         !vector.every(Number.isFinite)) {
       throw new TypeError("A vector must contain three finite numbers");
     }
-    const length = Math.hypot(...vector);
-    if (!(length > EPSILON)) throw new RangeError("A vector must be nonzero");
-    return vector.map((value) => value / length);
+    const scale = Math.max(...vector.map(Math.abs));
+    if (!(scale > 0)) throw new RangeError("A vector must be nonzero");
+    const scaled = vector.map((value) => value / scale);
+    const length = Math.hypot(...scaled);
+    if (!Number.isFinite(length) || !(length > EPSILON)) {
+      throw new RangeError("A vector must be nonzero");
+    }
+    return scaled.map((value) => value / length);
   }
 
   function dot(a, b) {
@@ -148,7 +153,10 @@
     return { ...model, arms, ports };
   }
 
-  function pairDistances(arms) {
+  function pairDistances(arms, scale = 1) {
+    if (!Number.isFinite(scale) || scale <= 0) {
+      throw new TypeError("Distance scale must be positive and finite");
+    }
     const distances = [];
     for (let left = 0; left < arms.length; left += 1) {
       for (let right = left + 1; right < arms.length; right += 1) {
@@ -156,7 +164,7 @@
         const b = normalize(arms[right]);
         distances.push({
           pair: [left, right],
-          distance: Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]),
+          distance: Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) * scale,
         });
       }
     }
@@ -189,12 +197,12 @@
     };
   }
 
-  function comparePairDistances(before, after, tolerance = 1e-10) {
+  function comparePairDistances(before, after, tolerance = 1e-10, scale = 1) {
     if (!Number.isFinite(tolerance) || tolerance < 0) {
       throw new TypeError("Distance tolerance must be a nonnegative finite number");
     }
-    const left = pairDistances(before);
-    const right = pairDistances(after);
+    const left = pairDistances(before, scale);
+    const right = pairDistances(after, scale);
     const comparisons = left.map((entry, index) => ({
       pair: entry.pair,
       before: entry.distance,
