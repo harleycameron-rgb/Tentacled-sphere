@@ -104,3 +104,78 @@ test("device feeds require a fresh monotonic sequence, timestamp, and nonzero fi
   assert.equal(protocol.validFeed({ ...fresh, source: "invented" }, previous, now), false);
   assert.equal(protocol.validFeed({ ...fresh, vector: [1.7e308, 1.7e308, 1.7e308] }, previous, now), true);
 });
+
+test("Structural Melting attaches only after separation and plotting for the current run", async () => {
+  const consumer = new protocol.StructuralMeltingConsumer();
+  const states = protocol.STRUCTURAL_MELTING_STATES;
+  assert.equal(consumer.state, null);
+  assert.equal(consumer.attach("run-1", "trajectory-1"), false);
+  assert.equal(consumer.markAssemblyReady("run-1"), true);
+  assert.equal(consumer.state, states.ASSEMBLY_READY);
+  assert.equal(consumer.completeSeparation("stale-run", "separation-1"), false);
+  assert.equal(consumer.beginTrajectoryPlotting("run-1", "trajectory-1"), false);
+  assert.equal(consumer.completeSeparation("run-1", "separation-1"), true);
+  assert.equal(consumer.state, states.SEPARATION_COMPLETE);
+  assert.equal(consumer.attach("run-1", "trajectory-1"), false);
+  assert.equal(consumer.beginTrajectoryPlotting("stale-run", "trajectory-1"), false);
+  assert.equal(consumer.beginTrajectoryPlotting("run-1", "trajectory-1"), true);
+  assert.equal(consumer.state, states.TRAJECTORY_PLOTTING);
+  assert.equal(consumer.attach("run-1", "wrong-trajectory"), false);
+  assert.equal(consumer.attach("run-1", "trajectory-1"), true);
+  assert.equal(consumer.state, states.MELTING_ATTACHED);
+  assert.deepEqual(consumer.transitions.map((entry) => entry.state), [
+    states.ASSEMBLY_READY,
+    states.SEPARATION_COMPLETE,
+    states.TRAJECTORY_PLOTTING,
+    states.MELTING_ATTACHED,
+  ]);
+
+  const point = {
+    runId: "run-1",
+    separationId: "separation-1",
+    trajectoryId: "trajectory-1",
+    sequence: 1,
+    timestamp: Math.max(Date.now(), consumer.separationTimestamp + 1),
+    data: { value: "simulation sample" },
+  };
+  assert.deepEqual(consumer.acceptTrajectoryPoint({
+    ...point, timestamp: consumer.separationTimestamp - 1,
+  }), { accepted: false });
+  assert.deepEqual(consumer.acceptTrajectoryPoint({ ...point, runId: "stale-run" }),
+    { accepted: false });
+  assert.deepEqual(consumer.acceptTrajectoryPoint({ ...point, trajectoryId: "stale-trajectory" }),
+    { accepted: false });
+  assert.deepEqual(consumer.acceptTrajectoryPoint({ ...point, separationId: "stale-separation" }),
+    { accepted: false });
+  assert.deepEqual(consumer.acceptTrajectoryPoint(point), { accepted: true });
+  assert.deepEqual(consumer.acceptTrajectoryPoint(point), { accepted: false });
+
+  const trajectoryReceipt = await consumer.makeTrajectoryReceipt();
+  const attachmentReceipt = await consumer.makeAttachmentReceipt();
+  assert.equal(trajectoryReceipt.receiptType, "post-separation-trajectory");
+  assert.equal(trajectoryReceipt.points.length, 1);
+  assert.equal(attachmentReceipt.receiptType, "structural-melting-attachment");
+  for (const receipt of [trajectoryReceipt, attachmentReceipt]) {
+    assert.equal(receipt.liveGate, "CLOSED");
+    assert.equal(receipt.sphereWrites, false);
+    assert.equal(receipt.receiptTrust, "UNVERIFIED");
+    const { receiptHash, ...payload } = receipt;
+    assert.equal(receiptHash, await protocol.sha512(payload));
+  }
+
+  assert.equal(consumer.stopPlotting(), true);
+  assert.equal(consumer.state, states.SEPARATION_COMPLETE);
+  assert.deepEqual(consumer.acceptTrajectoryPoint({ ...point, sequence: 2 }),
+    { accepted: false });
+  assert.equal(consumer.beginTrajectoryPlotting("run-1", "trajectory-1"), false);
+  assert.equal(consumer.beginTrajectoryPlotting("run-1", "trajectory-2"), true);
+  assert.equal(consumer.attach("run-1", "trajectory-2"), true);
+  assert.deepEqual(consumer.acceptTrajectoryPoint(point), { accepted: false });
+  consumer.reset();
+  assert.equal(consumer.state, null);
+  assert.deepEqual(consumer.acceptTrajectoryPoint({ ...point, trajectoryId: "trajectory-2" }),
+    { accepted: false });
+  assert.equal(consumer.markAssemblyReady("run-1"), false);
+  assert.equal(consumer.markAssemblyReady("run-2"), true);
+  assert.equal(consumer.completeSeparation("run-1", "separation-2"), false);
+});

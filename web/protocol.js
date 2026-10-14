@@ -184,6 +184,159 @@
     }
   }
 
+  const STRUCTURAL_MELTING_STATES = Object.freeze({
+    ASSEMBLY_READY: "ASSEMBLY_READY",
+    SEPARATION_COMPLETE: "SEPARATION_COMPLETE",
+    TRAJECTORY_PLOTTING: "TRAJECTORY_PLOTTING",
+    MELTING_ATTACHED: "MELTING_ATTACHED",
+  });
+
+  class StructuralMeltingConsumer {
+    constructor() {
+      this.usedRunIds = new Set();
+      this.reset();
+    }
+
+    reset() {
+      this.runId = null;
+      this.state = null;
+      this.separationId = null;
+      this.trajectoryId = null;
+      this.separationTimestamp = null;
+      this.lastSequence = 0;
+      this.lastTimestamp = null;
+      this.points = [];
+      this.transitions = [];
+      this.plotting = false;
+    }
+
+    markAssemblyReady(runId) {
+      if (typeof runId !== "string" || !runId || this.state !== null ||
+          this.usedRunIds.has(runId)) return false;
+      this.usedRunIds.add(runId);
+      this.runId = runId;
+      this._transition(STRUCTURAL_MELTING_STATES.ASSEMBLY_READY);
+      return true;
+    }
+
+    completeSeparation(runId, separationId) {
+      if (this.state !== STRUCTURAL_MELTING_STATES.ASSEMBLY_READY ||
+          runId !== this.runId || typeof separationId !== "string" || !separationId) {
+        return false;
+      }
+      this.separationId = separationId;
+      this.separationTimestamp = Date.now();
+      this.lastTimestamp = this.separationTimestamp;
+      this._transition(STRUCTURAL_MELTING_STATES.SEPARATION_COMPLETE);
+      return true;
+    }
+
+    beginTrajectoryPlotting(runId, trajectoryId) {
+      if (this.state !== STRUCTURAL_MELTING_STATES.SEPARATION_COMPLETE ||
+          runId !== this.runId || typeof trajectoryId !== "string" || !trajectoryId ||
+          trajectoryId === this.trajectoryId) return false;
+      this.trajectoryId = trajectoryId;
+      this.lastSequence = 0;
+      this.points = [];
+      this.plotting = true;
+      this._transition(STRUCTURAL_MELTING_STATES.TRAJECTORY_PLOTTING);
+      return true;
+    }
+
+    attach(runId, trajectoryId) {
+      if (!this.plotting ||
+          this.state !== STRUCTURAL_MELTING_STATES.TRAJECTORY_PLOTTING ||
+          !this.separationId || runId !== this.runId ||
+          trajectoryId !== this.trajectoryId) return false;
+      this._transition(STRUCTURAL_MELTING_STATES.MELTING_ATTACHED);
+      return true;
+    }
+
+    stopPlotting() {
+      if (!this.plotting) return false;
+      this.plotting = false;
+      this._transition(STRUCTURAL_MELTING_STATES.SEPARATION_COMPLETE);
+      return true;
+    }
+
+    acceptTrajectoryPoint(point) {
+      try {
+        if (this.state !== STRUCTURAL_MELTING_STATES.MELTING_ATTACHED ||
+            !point || typeof point !== "object" ||
+            point.runId !== this.runId ||
+            point.trajectoryId !== this.trajectoryId ||
+            point.separationId !== this.separationId ||
+            !Number.isSafeInteger(point.sequence) ||
+            point.sequence <= this.lastSequence ||
+            !Number.isFinite(point.timestamp) ||
+            point.timestamp <= this.lastTimestamp ||
+            !Object.prototype.hasOwnProperty.call(point, "data")) {
+          return { accepted: false };
+        }
+        canonicalValue(point.data);
+        const accepted = canonicalValue(point);
+        this.points.push(accepted);
+        this.lastSequence = point.sequence;
+        this.lastTimestamp = point.timestamp;
+        return { accepted: true };
+      } catch (_) {
+        return { accepted: false };
+      }
+    }
+
+    async makeTrajectoryReceipt() {
+      if (!this.separationId || !this.trajectoryId) return null;
+      return this._makeReceipt({
+        receiptType: "post-separation-trajectory",
+        runId: this.runId,
+        separationId: this.separationId,
+        separationTimestamp: this.separationTimestamp,
+        trajectoryId: this.trajectoryId,
+        plotting: this.plotting,
+        points: this.points,
+      });
+    }
+
+    async makeAttachmentReceipt() {
+      const attachment = [...this.transitions].reverse().find((entry) =>
+        entry.state === STRUCTURAL_MELTING_STATES.MELTING_ATTACHED);
+      if (!attachment) return null;
+      return this._makeReceipt({
+        receiptType: "structural-melting-attachment",
+        runId: attachment.runId,
+        separationId: attachment.separationId,
+        trajectoryId: attachment.trajectoryId,
+        attachedAt: attachment.timestamp,
+      });
+    }
+
+    _transition(state) {
+      this.state = state;
+      this.transitions.push({
+        state,
+        timestamp: Date.now(),
+        runId: this.runId,
+        separationId: this.separationId,
+        trajectoryId: this.trajectoryId,
+      });
+    }
+
+    async _makeReceipt(payload) {
+      const receipt = {
+        schemaVersion: 1,
+        ...payload,
+        liveGate: "CLOSED",
+        sphereWrites: false,
+        receiptTrust: "UNVERIFIED",
+        hashAlgorithm: "SHA-512",
+        canonicalization: "sorted-object-keys-json-v1",
+        authenticityNote: "A hash records content consistency; it is not authenticated proof of separation, plotting, or attachment.",
+      };
+      receipt.receiptHash = await sha512(receipt);
+      return receipt;
+    }
+  }
+
   function validFeed(feed, previous, now = Date.now(), maxAgeMs = 5000) {
     if (!feed || !Number.isSafeInteger(feed.sequence) || feed.sequence < 1 ||
         !Number.isFinite(feed.timestamp) ||
@@ -207,6 +360,8 @@
     verifyAcknowledgement,
     validateAppSnapshot,
     AcknowledgementBasket,
+    STRUCTURAL_MELTING_STATES,
+    StructuralMeltingConsumer,
     validFeed,
     APP_IDS: ids,
   };
