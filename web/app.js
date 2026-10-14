@@ -315,6 +315,7 @@
     let undoConfiguration = null;
     let operationQueue = Promise.resolve();
     let feedTimer = null;
+    const structuralConsumer = new P.StructuralMeltingConsumer();
 
     const initialConfiguration = {
       model: "api",
@@ -550,6 +551,44 @@
       document.getElementById("download-receipt").disabled = !complete;
     }
 
+    function updateStructuralDisplay() {
+      const state = structuralConsumer.state;
+      const status = {
+        [P.STRUCTURAL_MELTING_STATES.ASSEMBLY_READY]:
+          "ASSEMBLY_READY: all eight existing app acknowledgements match this run; separation has not completed.",
+        [P.STRUCTURAL_MELTING_STATES.SEPARATION_COMPLETE]:
+          "SEPARATION_COMPLETE: waiting for an explicit simulation declaration that trajectory plotting has started.",
+        [P.STRUCTURAL_MELTING_STATES.TRAJECTORY_PLOTTING]:
+          "TRAJECTORY_PLOTTING: the separated run has a trajectory identity; Structural Melting is not yet attached.",
+        [P.STRUCTURAL_MELTING_STATES.MELTING_ATTACHED]:
+          "MELTING_ATTACHED: consuming only records matching this run, separation, and trajectory identity.",
+      }[state] || "Waiting for the existing eight-app launch quorum.";
+      setText("structural-status", status);
+      setText("structural-binding",
+        `Run: ${structuralConsumer.runId || "—"} · Trajectory: ${structuralConsumer.trajectoryId || "—"} · Accepted trajectory records: ${structuralConsumer.points.length}`);
+      document.getElementById("complete-separation").disabled =
+        state !== P.STRUCTURAL_MELTING_STATES.ASSEMBLY_READY;
+      document.getElementById("start-trajectory").disabled =
+        state !== P.STRUCTURAL_MELTING_STATES.SEPARATION_COMPLETE;
+      document.getElementById("stop-trajectory").disabled = !structuralConsumer.plotting;
+      document.getElementById("download-trajectory-receipt").disabled =
+        !structuralConsumer.trajectoryId;
+      document.getElementById("download-melting-receipt").disabled =
+        !structuralConsumer.transitions.some((entry) =>
+          entry.state === P.STRUCTURAL_MELTING_STATES.MELTING_ATTACHED);
+    }
+
+    async function downloadStructuralReceipt(receiptPromise, filename) {
+      const receipt = await receiptPromise;
+      if (!receipt) return;
+      const blob = new Blob([JSON.stringify(receipt, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
     async function receiveAck(event) {
       if (event.origin !== location.origin || !event.data ||
           event.data.type !== "sphere:ack" || !currentBasket) return;
@@ -559,6 +598,8 @@
       const result = await currentBasket.accept(event.data.acknowledgement);
       updateAckDisplay();
       if (result.accepted && currentBasket.complete) {
+        structuralConsumer.markAssemblyReady(currentIgnitionId);
+        updateStructuralDisplay();
         setText("home-status", `Complete: all eight apps acknowledged revision ${currentEnvelope.snapshot.revisionSequence}. Browser hashes provide content consistency only.`);
         homeStatus.classList.remove("error");
       }
@@ -610,6 +651,7 @@
       currentIgnitionId = ignitionId;
       revisionSequence = nextRevision;
       currentEnvelope = envelope;
+      structuralConsumer.reset();
       currentBasket = new P.AcknowledgementBasket({
         snapshotHash: envelope.hash,
         revisionSequence: snapshot.revisionSequence,
@@ -619,6 +661,7 @@
       previousHash = envelope.hash;
       sentinelReceipt = details.receipt || null;
       updateAckDisplay();
+      updateStructuralDisplay();
       renderScene();
       setText("home-status", `Revision ${snapshot.revisionSequence} is awaiting matching acknowledgements from eight app pages…`);
       homeStatus.classList.remove("error");
@@ -717,6 +760,8 @@
       });
       sentinelReceipt = await makeSentinelReceipt(before, beforeBasket, envelope, ignitionId);
       updateAckDisplay();
+      structuralConsumer.reset();
+      updateStructuralDisplay();
       renderScene();
       setText("home-status", `Sentinel ${next.pulseMode} pulse applied as revision ${nextRevision}; verifying all eight acknowledgements.`);
       G.APP_IDS.forEach(sendSnapshotTo);
@@ -751,6 +796,32 @@
       URL.revokeObjectURL(link.href);
     });
 
+    document.getElementById("complete-separation").addEventListener("click", () => {
+      structuralConsumer.completeSeparation(currentIgnitionId, createIdentifier());
+      updateStructuralDisplay();
+    });
+    document.getElementById("start-trajectory").addEventListener("click", () => {
+      const started = structuralConsumer.beginTrajectoryPlotting(
+        currentIgnitionId, createIdentifier(),
+      );
+      if (started) structuralConsumer.attach(currentIgnitionId, structuralConsumer.trajectoryId);
+      updateStructuralDisplay();
+    });
+    document.getElementById("stop-trajectory").addEventListener("click", () => {
+      structuralConsumer.stopPlotting();
+      updateStructuralDisplay();
+    });
+    document.getElementById("download-trajectory-receipt").addEventListener("click", () =>
+      downloadStructuralReceipt(
+        structuralConsumer.makeTrajectoryReceipt(),
+        `tentacled-sphere-trajectory-${structuralConsumer.trajectoryId}.json`,
+      ));
+    document.getElementById("download-melting-receipt").addEventListener("click", () =>
+      downloadStructuralReceipt(
+        structuralConsumer.makeAttachmentReceipt(),
+        `tentacled-sphere-melting-attachment-${structuralConsumer.runId}.json`,
+      ));
+
     for (const id of ["yaw", "tilt", "radius", "amplitude", "geometry-model", "pulse-mode"]) {
       document.getElementById(id).addEventListener("input", () => {
         updateControls(readControls());
@@ -761,7 +832,9 @@
         currentBasket = null;
         sentinelReceipt = null;
         undoConfiguration = null;
+        structuralConsumer.reset();
         updateAckDisplay();
+        updateStructuralDisplay();
         homeStatus.textContent = "Settings changed; the displayed snapshot and any previous receipt are stale. Apply centre / ignite to create a new revision.";
         homeStatus.classList.remove("error");
       });
@@ -806,6 +879,7 @@
     });
     window.addEventListener("pagehide", () => {
       if (feedTimer !== null) clearTimeout(feedTimer);
+      structuralConsumer.stopPlotting();
       for (const frame of frames.values()) frame.contentWindow?.postMessage(
         { type: "sphere:deactivate" }, location.origin);
     });
