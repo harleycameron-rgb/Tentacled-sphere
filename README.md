@@ -105,6 +105,32 @@ store session data in localStorage, IndexedDB, or cookies. Browser hashes check
 content consistency; they do not authenticate identity, establish trusted
 qualification, prove physical measurements, or publish a Zenodo record.
 
+### Structural Melting simulation contract
+
+Structural Melting is a downstream trajectory consumer and is not included in
+the existing eight-app launch acknowledgement basket. The browser simulation
+requires the distinct sequence `ASSEMBLY_READY` (all eight matching
+acknowledgements), `SEPARATION_COMPLETE`, `TRAJECTORY_PLOTTING`, then
+`MELTING_ATTACHED`. Separation and plotting are explicit simulation
+declarations; attachment requires both and is bound to the current run,
+separation, and trajectory identifiers. Pre-separation timestamps, stale run
+identifiers, mismatched trajectory/separation identifiers, and non-monotonic
+records are rejected. Stopping plotting detaches the consumer; restarting
+requires a new trajectory identifier. Resetting a run clears its downstream
+state.
+
+Launch receipts remain separate from post-separation trajectory and Structural
+Melting attachment receipts. Simulation receipts (launch, trajectory, and
+attachment) carry `liveGate="CLOSED"`, `sphereWrites=false`, and
+`receiptTrust="UNVERIFIED"`.
+Their SHA-512 hashes record content consistency only, not authenticated proof
+of separation, plotting, or attachment. This repository does not define a
+separation formula, a trajectory formula or data source, or derived time-axis
+endpoint definitions; the simulation does not invent them. The six named
+legacy launch towers in `index.py` remain distinct from the browser's eight
+app identities, and the legacy temporal samples do not define later time-axis
+endpoints.
+
 The Python endpoint is stateless and does not store submitted geometry inputs.
 This does not describe Vercel or other hosting access logs: the hosting provider
 may process request metadata under its own policies.

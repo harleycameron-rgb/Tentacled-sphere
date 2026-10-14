@@ -98,6 +98,23 @@
             <button id="download-receipt" class="secondary" type="button" disabled>Download complete run receipt</button>
           </section>
         </div>
+        <section class="card" aria-labelledby="structural-melting-title">
+          <h2 id="structural-melting-title">Post-separation trajectory and Structural Melting</h2>
+          <p id="structural-status" class="status" role="status">Waiting for the existing eight-app launch quorum.</p>
+          <p class="muted">Simulation only: liveGate=CLOSED, sphereWrites=false, receiptTrust=UNVERIFIED.
+            Structural Melting is a downstream consumer, not a launch app or quorum acknowledgement.
+            No separation or trajectory formula or trajectory data source is defined.</p>
+          <p id="structural-binding" class="muted">Run: — · Trajectory: — · Accepted trajectory records: 0</p>
+          <div class="button-row">
+            <button id="complete-separation" type="button" disabled>Declare simulated separation complete</button>
+            <button id="start-trajectory" type="button" disabled>Declare trajectory plotting started</button>
+            <button id="stop-trajectory" class="secondary" type="button" disabled>Stop trajectory plotting</button>
+          </div>
+          <div class="button-row">
+            <button id="download-trajectory-receipt" class="secondary" type="button" disabled>Download trajectory receipt</button>
+            <button id="download-melting-receipt" class="secondary" type="button" disabled>Download attachment receipt</button>
+          </div>
+        </section>
         <section class="card">
           <h2>Eight app views</h2>
           <div id="app-tabs" class="app-tabs"></div>

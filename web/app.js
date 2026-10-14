@@ -595,10 +595,13 @@
       const appId = event.data.acknowledgement?.appId;
       const frame = frames.get(appId);
       if (!frame || event.source !== frame.contentWindow) return;
-      const result = await currentBasket.accept(event.data.acknowledgement);
+      const basket = currentBasket;
+      const runId = currentIgnitionId;
+      const result = await basket.accept(event.data.acknowledgement);
+      if (basket !== currentBasket || runId !== currentIgnitionId) return;
       updateAckDisplay();
-      if (result.accepted && currentBasket.complete) {
-        structuralConsumer.markAssemblyReady(currentIgnitionId);
+      if (result.accepted && basket.complete) {
+        structuralConsumer.markAssemblyReady(runId);
         updateStructuralDisplay();
         setText("home-status", `Complete: all eight apps acknowledged revision ${currentEnvelope.snapshot.revisionSequence}. Browser hashes provide content consistency only.`);
         homeStatus.classList.remove("error");
@@ -707,6 +710,9 @@
         changedPairTolerance: 1e-10,
         changedPairs: pairwiseChanges.filter((pair) => Math.abs(pair.delta) > 1e-10).length,
         maximumAbsoluteDistanceChange: Math.max(...pairwiseChanges.map((pair) => Math.abs(pair.delta))),
+        liveGate: "CLOSED",
+        sphereWrites: false,
+        receiptTrust: "UNVERIFIED",
         centerPreserved: JSON.stringify(before.center) === JSON.stringify(after.center),
         radialPreserved: before.finalArms.every((arm, index) =>
           Math.abs(
@@ -758,10 +764,10 @@
         ignitionId,
         positions: Object.fromEntries(snapshot.finalArms.map((arm) => [arm.appId, arm.position])),
       });
-      sentinelReceipt = await makeSentinelReceipt(before, beforeBasket, envelope, ignitionId);
-      updateAckDisplay();
       structuralConsumer.reset();
       updateStructuralDisplay();
+      sentinelReceipt = await makeSentinelReceipt(before, beforeBasket, envelope, ignitionId);
+      updateAckDisplay();
       renderScene();
       setText("home-status", `Sentinel ${next.pulseMode} pulse applied as revision ${nextRevision}; verifying all eight acknowledgements.`);
       G.APP_IDS.forEach(sendSnapshotTo);
@@ -781,6 +787,9 @@
         snapshot: currentEnvelope.snapshot,
         snapshotHash: currentEnvelope.hash,
         acknowledgements: currentBasket.values(),
+        liveGate: "CLOSED",
+        sphereWrites: false,
+        receiptTrust: "UNVERIFIED",
         createdAt: new Date().toISOString(),
         hashAlgorithm: "SHA-512",
         canonicalization: "sorted-object-keys-json-v1",

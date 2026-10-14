@@ -193,6 +193,7 @@
 
   class StructuralMeltingConsumer {
     constructor() {
+      this.usedRunIds = new Set();
       this.reset();
     }
 
@@ -202,15 +203,17 @@
       this.separationId = null;
       this.trajectoryId = null;
       this.separationTimestamp = null;
-      this.attachmentTimestamp = null;
       this.lastSequence = 0;
+      this.lastTimestamp = null;
       this.points = [];
       this.transitions = [];
       this.plotting = false;
     }
 
     markAssemblyReady(runId) {
-      if (typeof runId !== "string" || !runId || this.state !== null) return false;
+      if (typeof runId !== "string" || !runId || this.state !== null ||
+          this.usedRunIds.has(runId)) return false;
+      this.usedRunIds.add(runId);
       this.runId = runId;
       this._transition(STRUCTURAL_MELTING_STATES.ASSEMBLY_READY);
       return true;
@@ -223,6 +226,7 @@
       }
       this.separationId = separationId;
       this.separationTimestamp = Date.now();
+      this.lastTimestamp = this.separationTimestamp;
       this._transition(STRUCTURAL_MELTING_STATES.SEPARATION_COMPLETE);
       return true;
     }
@@ -244,7 +248,6 @@
           this.state !== STRUCTURAL_MELTING_STATES.TRAJECTORY_PLOTTING ||
           !this.separationId || runId !== this.runId ||
           trajectoryId !== this.trajectoryId) return false;
-      this.attachmentTimestamp = Date.now();
       this._transition(STRUCTURAL_MELTING_STATES.MELTING_ATTACHED);
       return true;
     }
@@ -266,7 +269,7 @@
             !Number.isSafeInteger(point.sequence) ||
             point.sequence <= this.lastSequence ||
             !Number.isFinite(point.timestamp) ||
-            point.timestamp < this.separationTimestamp ||
+            point.timestamp <= this.lastTimestamp ||
             !Object.prototype.hasOwnProperty.call(point, "data")) {
           return { accepted: false };
         }
@@ -274,6 +277,7 @@
         const accepted = canonicalValue(point);
         this.points.push(accepted);
         this.lastSequence = point.sequence;
+        this.lastTimestamp = point.timestamp;
         return { accepted: true };
       } catch (_) {
         return { accepted: false };
