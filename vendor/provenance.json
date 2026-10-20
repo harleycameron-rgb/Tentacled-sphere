@@ -19,9 +19,9 @@
   "modification_notes": {
     "tap-local-lifecycle": "Explicitly disable service-worker registration; load the adjacent lifecycle and shared text-status bridge. Track clocks, animation and scheduled tone callbacks; invalidate pending permission/audio work on hide; track and stop audio sources, detach motion/orientation, close audio and clear clocks on pagehide. Preserve canvas, sound, motion, sky and control algorithms. Tap exports no derived measurements.",
     "surface-local-lifecycle": "Add an aggregate-only publication hook immediately after the real emit/model-seeding flow, label keyboard output explicitly and untrusted/dispatched pointer events as fixtures, release captured pointers, invalidate pending audio work on hide, cancel animation and disconnect resize/close audio on pagehide. Preserve the original classifier, rhythm, traces, optional tilt and sound.",
-    "surface-entry": "Load source-preserving adjacent adapters and shared bridge; replace the unavailable upstream hub link with the local shell link; disclose the bounded same-origin aggregate handoff instead of claiming no transport.",
+    "surface-entry": "Load source-preserving adjacent adapters and shared bridge; replace the unavailable upstream hub link with /invariant and a same-origin, active-frame-validated invariant:return/v1 navigation message, without permitting sandbox top-navigation; disclose the bounded same-origin aggregate handoff instead of claiming no transport.",
     "offline-font": "Remove only the optional remote Fontshare import; retain the original stylesheet, font names and existing sans-serif fallback so the instrument makes no external font request.",
-    "preview-core-export": "Isolate the original core in a closure, guard DOM mounting and expose reusable synthetic evidence/science functions and the memory-only Communicate policy engine through CommonJS and named browser globals. Standalone pages retain their original implementations and controls. No live engine or external inference is introduced."
+    "preview-core-export": "Adapted original cores with IIFE namespace isolation, actual-page DOM initialization guards, and browser/CommonJS reusable exports. Manifest/Display expose InvariantEvidence (also ManifestCore/DisplayCore) using original content binding, synthetic evidence recomputation, and strict verification; verification snapshots caller input before async hashing. Science exports ScienceCore.inspectExperiment extracted from the original science() comparison; no credit prerequisite and dormant legacy communicate policy stays unexported. Communicate exports InvariantCredit (also CommunicateCore): createEngine() and mounted session use the same original communicate-rules-preview-2 staged action closures, with cloned inspection snapshots and explicit API input/concurrency rejection. Original sample/policy algorithms, preview schemas, pages, limitations and unverified provenance remain retained."
   },
   "local_adapters": [
     "vendor/instrument-bridge.js",
@@ -29,6 +29,20 @@
     "vendor/previews/site/surface/derived-output.js",
     "vendor/previews/site/surface/integration.js"
   ],
+  "adapted_sha256": {
+    "vendor/tap/index.html": "46498a3b63e6dd065e141475d9106ad98733db313ca10106b9bdb1428c34ec4d",
+    "vendor/previews/site/communicate/core.js": "2586b16a6cb4864cdf46d8903246275fc415ef13d6ef7983086230f947fb4b5c",
+    "vendor/previews/site/communicate/style.css": "5802c17a9fc5f93cd46d91e4a2b38b0e1cc0a12cce3e5b6417ea3ee1553839f3",
+    "vendor/previews/site/display/core.js": "2b0bc08078b1ec4eb905cb40ca7014c9153879d7e199a7d7ab4136e14e400922",
+    "vendor/previews/site/display/style.css": "5802c17a9fc5f93cd46d91e4a2b38b0e1cc0a12cce3e5b6417ea3ee1553839f3",
+    "vendor/previews/site/manifest/core.js": "f6653c9bcac3a91466648672507871acc4693a7c97e7bbbda0c21f83f04c9ef8",
+    "vendor/previews/site/manifest/style.css": "5802c17a9fc5f93cd46d91e4a2b38b0e1cc0a12cce3e5b6417ea3ee1553839f3",
+    "vendor/previews/site/science/core.js": "340743a2dc5ac12676b4c70f48be95eed46c9e03d60bdea324189008d2492904",
+    "vendor/previews/site/science/style.css": "5802c17a9fc5f93cd46d91e4a2b38b0e1cc0a12cce3e5b6417ea3ee1553839f3",
+    "vendor/previews/site/surface/app.js": "a83b0733b6ad0523b79de1effa580f9eb0e1c69e47f85746e0b00050d86fe697",
+    "vendor/previews/site/surface/base.css": "5802c17a9fc5f93cd46d91e4a2b38b0e1cc0a12cce3e5b6417ea3ee1553839f3",
+    "vendor/previews/site/surface/index.html": "bbceaa035110d85b73442b5646c1a29de6701f5cee05b06aac2619728556ce77"
+  },
   "derived_output_contract": {
     "schema": "instrument-output/v1",
     "instrument": "surface",

@@ -192,6 +192,14 @@ class InvariantBrowserTests(unittest.TestCase):
         self.assertIn("Reopen instrument", self.script(
             "return document.getElementById('workspace').textContent"))
 
+    def test_source_return_link_uses_validated_shell_navigation(self):
+        self.navigate("/invariant/surface")
+        self.wait("return !!document.querySelector('iframe')?.contentDocument?.getElementById('invariant-return')")
+        self.script("document.querySelector('iframe').contentDocument.getElementById('invariant-return').click()")
+        self.wait("return document.querySelector('h1').textContent === 'Sphere / shared state'")
+        self.assertEqual(self.script("return location.pathname"), "/invariant")
+        self.assertEqual(self.script("return document.querySelectorAll('iframe').length"), 0)
+
     def test_origin_source_schema_checks_and_knowledge_without_credit(self):
         self.navigate("/invariant/surface")
         self.wait("return !!document.querySelector('iframe')?.contentDocument?.querySelector('canvas')")

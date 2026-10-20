@@ -104,6 +104,33 @@ physical compass/motion calibration, audible hardware output, unavailable
 backend admission/execution/disclosure or production hosting. No merge,
 release, purchase or deployment is part of this stage.
 
+Executed browser checks cover all six direct routes and reloads, actual trusted
+pointer input through the Surface adapter/session into Tap feedback, back/forward
+and Sphere return navigation, synthetic Evidence recomputation, unsupported
+authority/schema rejection, knowledge access without credit, no registered
+workers, explicit reopening after deactivation, and actual Surface audio/node/
+tilt cleanup on removal. A delayed-real-SHA-256 regression also checks that
+navigation during admission invalidates superseded feedback. The source
+Surface return link also uses an active-frame-validated navigation message
+without relaxing sandbox navigation permissions. All seven Chromium
+tests passed. Node core tests use computational checks and some DOM mocks;
+those are separate from these browser executions.
+
+The full Python discovery run completed 31 tests successfully (25 passed,
+six opt-in browser cases skipped). The final return-link regression was then
+added and passed with the other six browser cases above. This includes
+the existing API, generated-page and coordinate-decoration checks. The Node
+suite retains all 19 coordinate tests and all 12 coordinate-adapter tests,
+alongside the source, session, evidence, credit and knowledge checks.
+
+Read-only integration review identified an asynchronous stale-feedback race;
+it was fixed and the reviewer confirmed the fix. Final automated parallel
+review/CodeQL validation timed out repeatedly and opened its circuit breaker:
+it is **not** reported as a successful final automated security scan. GitHub
+Actions for this draft requires approval and has not executed jobs. Secret
+scanning reported no secrets. Physical-device and unavailable-backend checks
+remain unexecuted; local tests do not replace them.
+
 ## Legacy geometry / API compatibility
 
 The repository contains a stateless Python geometry endpoint and a browser-local

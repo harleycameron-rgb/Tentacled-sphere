@@ -228,8 +228,12 @@
     render();
   });
   window.addEventListener("message", (event) => {
-    if (event.origin !== location.origin || !frame || event.source !== frame.contentWindow ||
-        route !== "surface" || event.data?.type !== "invariant:instrument-output") return;
+    if (event.origin !== location.origin || !frame || event.source !== frame.contentWindow) return;
+    if (event.data?.type === "invariant:return/v1" && Object.keys(event.data).length === 1) {
+      navigate("sphere");
+      return;
+    }
+    if (route !== "surface" || event.data?.type !== "invariant:instrument-output") return;
     if (committing) return;
     const activeGeneration = generation;
     const output = event.data.record;

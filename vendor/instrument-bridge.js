@@ -12,6 +12,13 @@
     status.textContent = 'Local integration: derived results are unverified; not activation, launch or sensor calibration.';
     host.document.body.append(status);
     let disposed = false;
+    const returnLink = host.document.getElementById('invariant-return');
+    function returnToSphere(event) {
+      if (disposed || origin === 'null' || host.parent === host) return;
+      event.preventDefault();
+      host.parent.postMessage({ type: 'invariant:return/v1' }, origin);
+    }
+    returnLink?.addEventListener('click', returnToSphere);
     function receive(event) {
       if (disposed || host.document.hidden || origin === 'null' ||
           host.parent === host || event.source !== host.parent || event.origin !== origin) return;
@@ -32,6 +39,7 @@
       host.removeEventListener('message', receive);
       host.removeEventListener('pagehide', dispose);
       host.document.removeEventListener('visibilitychange', clear);
+      returnLink?.removeEventListener('click', returnToSphere);
       status.textContent = 'Local outputs stopped.';
     }
     host.addEventListener('message', receive);

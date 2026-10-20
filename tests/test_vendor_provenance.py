@@ -39,6 +39,11 @@ class VendorProvenanceTests(unittest.TestCase):
             data = (ROOT / destination).read_bytes()
             changed = hashlib.sha256(data).hexdigest() != entry["original_sha256"]
             self.assertEqual(changed, bool(entry["changes"]), str(destination))
+            if changed:
+                self.assertEqual(
+                    hashlib.sha256(data).hexdigest(),
+                    self.record["adapted_sha256"][destination.as_posix()],
+                )
             for explanation in entry["changes"]:
                 self.assertTrue(self.record["modification_notes"][explanation])
         expected = set()

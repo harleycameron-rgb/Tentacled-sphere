@@ -294,7 +294,7 @@ function tap() {
   h.load('vendor/tap/sentinel_dot.js');
   h.load('vendor/instrument-bridge.js');
   const html = fs.readFileSync(path.join(__dirname, '../vendor/tap/index.html'), 'utf8');
-  const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
+  const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/gi)];
   assert.equal(scripts.length, 1);
   vm.runInContext(scripts[0][1], h.context);
   h.load('vendor/tap/lifecycle.js');
