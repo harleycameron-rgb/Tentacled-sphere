@@ -1,87 +1,79 @@
-# Coordinate contract and verification
+# Coordinate contract and browser adapter
 
-## Scope
+## Scope and browser wiring
 
-Pure reference helpers for spherical coordinates. The existing geometry API,
-yaw/tilt rotations, app identities, launch gates and cryptographic behavior are
-unchanged. The build copies coordinates.js, but no HTML script tag or active
-browser adapter is added. This patch does not complete the six-interface build.
+The coordinate helpers are connected to web/coordinate-adapter.js. The adapter
+adds an explicit declared-coordinate form to supported standalone generated pages
+and the integrated homepage. It does not create duplicate panels inside app
+iframes. Geocentric latitude and longitude are entered in degrees and converted
+to radians; radius and radial height must share caller-declared units.
 
-## Orthogonal chart
+No location is inferred. The adapter requests no geolocation, sensors, camera,
+network, storage or feed submission. It does not fire Sentinel or change shared
+snapshots, API vectors, yaw/tilt rotations, app identities or launch gates. This
+is an active read-only coordinate calculation, not six-interface integration.
+Blank locations reject; the model radius defaults to 1 and height to 0. Form
+results are ephemeral. Clear, page hiding and page exit remove location inputs
+and results, restoring radius/height defaults.
 
-Assume an Earth-centred Cartesian frame, k=[0,0,1], geocentric latitude phi,
-longitude lambda, and radian angles. This is a spherical model, not an
-ellipsoidal geodetic conversion or phone-sensor calibration.
+Production publication decorates HTML built outside the repository root with
+coordinates.js followed by coordinate-adapter.js before app.js, all deferred.
+The supported development server applies the same idempotent decoration to HTML
+responses. Canonical root generated pages remain unchanged for existing --check
+consistency checks. A generic static server serving those undecorated root pages
+does not load the adapter; use scripts/dev_server.py or the published build.
+
+## Orthogonal chart and physical mapping
+
+Use an Earth-centred Cartesian frame, k=[0,0,1], spherical geocentric latitude
+phi and longitude lambda in radians. This is not an ellipsoidal geodetic
+conversion or phone-sensor calibration.
 
 n=[cos(phi)cos(lambda),cos(phi)sin(lambda),sin(phi)]
 e=[-sin(lambda),cos(lambda),0]
 t_N=(k-sin(phi)n)/cos(phi), for |phi|<pi/2.
 
-The helper uses the stable equivalent
+The implementation uses the stable equivalent
  t_N=[-sin(phi)cos(lambda),-sin(phi)sin(lambda),cos(phi)].
-B=[n e t_N] is orthonormal and right-handed. Its column order is Up, East,
-tangent North (UEN), not conventional East, North, Up (ENU).
-
-## Nonorthogonal physical-axis mapping
+B=[n e t_N] is orthonormal and right-handed. Its columns are Up, East, tangent
+North (UEN), not conventional East, North, Up (ENU).
 
 A=[n e k]=B S, with
 
     S=[[1,0,sin(phi)],[0,1,0],[0,0,cos(phi)]].
 
 The radial and Earth-axis columns have inner product sin(phi); det(A)=cos(phi).
-At nonzero latitude in the available chart this is shear/scale, not a rigid
-rotation. The equator is the orthogonal special case. Do not normalize mapped
-points and then claim original distances or a physical cube were preserved.
+Nonzero latitude in the available chart gives shear/scale, not a rigid rotation.
+The equator is the orthogonal special case. Normalizing mapped points does not
+establish preservation of their original distances.
 
-## Polar availability
+## Availability and geographic sightline
 
-The latitude chart degenerates at |phi|=pi/2; a physical cube does not collapse.
-The implementation additionally excludes |cos(phi)|<=1e-12 as an explicit
-numerical policy, not an exact mathematical singularity away from the poles.
-Unavailable tangent directions/basis are null; radial and global axis directions
-remain available. No arbitrary polar East gauge is silently supplied.
+The chart degenerates at |phi|=pi/2; no physical cube collapse is implied.
+|cos(phi)|<=1e-12 is the additional declared numerical exclusion band. Missing
+tangent basis/directions are null, not substituted axes.
 
-## Geographic North-Pole sightline
+k=sin(phi)n+cos(phi)t_N is the axis direction. The geographic North-Pole
+sightline is q_N=normalize(R*k-(R+h)*n) for nonzero displacement, R>0, h>=0.
+Rescaling avoids overflow of R+h. At phi exactly pi/2, displacement is -h*k:
+h>0 returns [0,0,-1] before h/R can underflow; h=0 is undefined. The exact-pole
+branch is not used for merely near-pole positions. Chart and sightline
+availability are displayed separately. Geographic and celestial-pole directions
+are distinct; existing celestial Sight Pole controls are unchanged.
 
-k=sin(phi)n+cos(phi)t_N is the Earth-axis direction, not a geographic sightline.
-For R>0 and h>=0 in matching units:
+Numeric inputs carry no unit metadata; the caller must keep R and h consistent.
+No universal accuracy claim for extreme finite inputs is made. Exact zero
+vectors have no unit direction. Sensor deadbands require separate policies.
 
-    q_N=normalize(R*k-(R+h)*n), when the displacement is nonzero.
+## Protocol boundary and verification
 
-Away from the exact north pole, the helper rescales R*(k-n)-h*n to avoid overflow
-of R+h. At latitude exactly pi/2, displacement is -h*k: h>0 returns [0,0,-1]
-without dividing h by R; h=0 returns undefined. This prevents positive height
-being mistaken for target coincidence when h/R underflows. The exact-pole branch
-is not applied to merely near-pole positions. A near-pole numerical chart may
-be unavailable while its geographic sightline remains defined.
+This adapter supplies no entropy source, key derivation, ratchet, threshold
+sharing, replay storage, timestamp, world-contact claim or launch decision.
 
-This model uses radial height and geocentric latitude. Numeric inputs carry no
-unit metadata: callers must ensure R and h share units. It does not claim robust
-accuracy for every extreme finite input. The geographic-pole sightline is not
-the celestial-pole direction. Existing Tap celestial Sight Pole controls remain
-unchanged.
-
-## Undefined directions and protocol separation
-
-Exact zero displacement or velocity supplies no unit direction.
-directionOrNull returns null for zero, does not invent an axis, and does not
-fire Sentinel. Event references may remain recorded without directional arrows.
-Sensor deadbands require a separately declared policy.
-
-These helpers implement no entropy source, key derivation, threshold sharing,
-ratchet, replay store, timestamp or transcript-closure launch decision.
-
-## Executed verification
-
-The exact proposed module and all 19 coordinate tests were executed in an
-isolated temporary tree with Node v20.20.1: 19 passed, 0 failed; node --check
-also passed. Python compilation of the modified build script passed.
-
-    node --check web/coordinates.js
-    node --test tests/web_coordinates.test.js
-
-This is not a complete repository checkout run. Repository-wide Python/Node
-suites, the full static build, CI, browser/device behavior and deployment were
-not verified by these local checks. The existing tests/web_*.test.js CI glob
-includes the new test file. No claim of universal numerical or physical
-validation follows from these sample and regression checks.
+The coordinate module previously passed its 19 local coordinate tests. The new
+adapter has 12 executed Node tests with DOM mocks, including browser script
+execution via node:vm; these are not real-browser or hardware tests. Three
+Python decoration tests were executed, along with isolated nine-page publication
+and canonical-generation checks using fixture HTML/assets. JavaScript syntax and
+Python compilation checks passed. Repository-wide suites, deployed routes and
+live browser/device operation have not been verified by this work.

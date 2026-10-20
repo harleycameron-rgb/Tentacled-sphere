@@ -22,6 +22,17 @@ def render(template: str, app_id: str, title: str) -> str:
     return template.replace("__APP_ID__", app_id).replace("__TITLE__", title)
 
 
+def browser_page(page: str) -> str:
+    """Decorate served/published pages without changing canonical source pages."""
+    anchor = '    <script src="/web/app.js" defer></script>'
+    adapter = '    <script src="/web/coordinate-adapter.js" defer></script>'
+    if anchor not in page or adapter in page:
+        return page
+    scripts = ('    <script src="/web/coordinates.js" defer></script>\n'
+               + adapter + '\n')
+    return page.replace(anchor, scripts + anchor, 1)
+
+
 def display_path(path: Path) -> str:
     try:
         return str(path.relative_to(ROOT))
@@ -36,7 +47,9 @@ def build(output: Path, check: bool = False) -> bool:
         output / "apps" / f"{app_id}.html": render(template, app_id, title)
         for app_id, title in APPS
     })
-    assets = ("geometry.js", "coordinates.js", "protocol.js", "audio.js", "app.js", "style.css")
+    if output.resolve() != ROOT.resolve():
+        generated = {path: browser_page(page) for path, page in generated.items()}
+    assets = ("geometry.js", "coordinates.js", "coordinate-adapter.js", "protocol.js", "audio.js", "app.js", "style.css")
     correct = True
     for path, contents in generated.items():
         if check:
