@@ -1,0 +1,166 @@
+{
+  "schema": "scandoc-preview-source-import/1",
+  "date": "2026-10-10",
+  "imports": [
+    {
+      "app": "scandoc-six-leg",
+      "destination": "site/app.js",
+      "original_sha256": "578c15d55210386c1248ba8e7ff3d5f70b9ed2f5327c3eb024d88e553b30b205"
+    },
+    {
+      "app": "scandoc-six-leg",
+      "destination": "site/base.css",
+      "original_sha256": "89636917da52fd44e9ccda0636684849b1a5b4e365c48ca6d94b97aa85b82a7a"
+    },
+    {
+      "app": "scandoc-six-leg",
+      "destination": "site/index.html",
+      "original_sha256": "1f8d7fb592089a8203ab5d7b7fcded3f3e9a2769d389a8f4cacfa31a2166d4aa"
+    },
+    {
+      "app": "scandoc-six-leg",
+      "destination": "site/style.css",
+      "original_sha256": "ea51fac85f39dc7038093ffe06e81849891af2f63cdb607303f867725e4c43aa"
+    },
+    {
+      "app": "invarianttap-html",
+      "destination": "site/tap/icon-180.png",
+      "original_sha256": "64087c639703b835e34a925fbd36047873bfd006a80567f0f61cbc4faa8a4138"
+    },
+    {
+      "app": "invarianttap-html",
+      "destination": "site/tap/icon-192.png",
+      "original_sha256": "b6d7ed84ab4f8b2ed098457fd4e3183d520fc941ec3ead8b15094dc261705380"
+    },
+    {
+      "app": "invarianttap-html",
+      "destination": "site/tap/icon-512.png",
+      "original_sha256": "1d75e57b162cf46c60287aed90e11e8e10a1112b45fa7126a789da1c9b1f4a1a"
+    },
+    {
+      "app": "invarianttap-html",
+      "destination": "site/tap/index.html",
+      "original_sha256": "5d99a8f7879313b675c9cc90c7c1e61aa0e67eb9f621ebf59aa38566f4426236"
+    },
+    {
+      "app": "invarianttap-html",
+      "destination": "site/tap/manifest.webmanifest",
+      "original_sha256": "71e2829a80bb66aadfe011a176af920fa2f97879627d16c3818cd2ccda02acf7"
+    },
+    {
+      "app": "invarianttap-html",
+      "destination": "site/tap/sentinel_dot.js",
+      "original_sha256": "1160163cbeb7c7a2515ee12a34e0609220c3dd080d093f3e98e6acd47bace58f"
+    },
+    {
+      "app": "invarianttap-html",
+      "destination": "site/tap/sw.js",
+      "original_sha256": "b41ca74cf5c5377f90460166491d59a7686b8335e7d116d1ab5ed82bc1046c1f"
+    },
+    {
+      "app": "invariant-surface-html",
+      "destination": "site/surface/index.html",
+      "original_sha256": "5f335c1a9d89adcb7ce8e04ef1cd04c3cfb69a6a50d9285f0eef561387ded90d"
+    },
+    {
+      "app": "scandoc-science",
+      "destination": "site/science/core.js",
+      "original_sha256": "f8482d2755f0baa0d34ab5ed647b35d57863d572d3a1fbc48112113e687cadd3"
+    },
+    {
+      "app": "scandoc-science",
+      "destination": "site/science/index.html",
+      "original_sha256": "79dcc53db18fe5ea602ccbab076e4577c75ef093998ffcb74fa57f025e12bb4e"
+    },
+    {
+      "app": "scandoc-science",
+      "destination": "site/science/style.css",
+      "original_sha256": "89636917da52fd44e9ccda0636684849b1a5b4e365c48ca6d94b97aa85b82a7a"
+    },
+    {
+      "app": "scandoc-communicate",
+      "destination": "site/communicate/core.js",
+      "original_sha256": "b141b45e0dcc845855a694fd92e8141080d83e2f0f9412fedd97de0668560c8e"
+    },
+    {
+      "app": "scandoc-communicate",
+      "destination": "site/communicate/index.html",
+      "original_sha256": "4174aeec0a012df255a7751b38ed4250f08e03432074cefc571526274f8b4f93"
+    },
+    {
+      "app": "scandoc-communicate",
+      "destination": "site/communicate/style.css",
+      "original_sha256": "89636917da52fd44e9ccda0636684849b1a5b4e365c48ca6d94b97aa85b82a7a"
+    },
+    {
+      "app": "scandoc-manifest",
+      "destination": "site/manifest/core.js",
+      "original_sha256": "5bd0478ad7dd5ecdb12600ea1d97191382e6c29736b7a659d7dd4ac5df6121c2"
+    },
+    {
+      "app": "scandoc-manifest",
+      "destination": "site/manifest/facets.css",
+      "original_sha256": "e5f6b6f64244e78c0ec8532e114c79bc69d6ab5432ccd802bd19faa1c331a8e4"
+    },
+    {
+      "app": "scandoc-manifest",
+      "destination": "site/manifest/index.html",
+      "original_sha256": "e40583fa6900999d6c5a54bb040e22be5aa0a238c50b8b53a32b4ca338b08c1e"
+    },
+    {
+      "app": "scandoc-manifest",
+      "destination": "site/manifest/style.css",
+      "original_sha256": "89636917da52fd44e9ccda0636684849b1a5b4e365c48ca6d94b97aa85b82a7a"
+    },
+    {
+      "app": "scandoc-display",
+      "destination": "site/display/core.js",
+      "original_sha256": "5bd0478ad7dd5ecdb12600ea1d97191382e6c29736b7a659d7dd4ac5df6121c2"
+    },
+    {
+      "app": "scandoc-display",
+      "destination": "site/display/facets.css",
+      "original_sha256": "e5f6b6f64244e78c0ec8532e114c79bc69d6ab5432ccd802bd19faa1c331a8e4"
+    },
+    {
+      "app": "scandoc-display",
+      "destination": "site/display/index.html",
+      "original_sha256": "efea9f5591aa4790604953bddddd7ecf7a3a09fa32ef12230ea8024ed324362b"
+    },
+    {
+      "app": "scandoc-display",
+      "destination": "site/display/style.css",
+      "original_sha256": "89636917da52fd44e9ccda0636684849b1a5b4e365c48ca6d94b97aa85b82a7a"
+    },
+    {
+      "app": "scandoc-harness",
+      "destination": "site/harness/app.js",
+      "original_sha256": "a2fc27808a88f00952447a1a33ec3ea5066942b4ad6f87466b13222acb082a83"
+    },
+    {
+      "app": "scandoc-harness",
+      "destination": "site/harness/base.css",
+      "original_sha256": "89636917da52fd44e9ccda0636684849b1a5b4e365c48ca6d94b97aa85b82a7a"
+    },
+    {
+      "app": "scandoc-harness",
+      "destination": "site/harness/fixture.json",
+      "original_sha256": "d5ee91928ec3e6ddeede25eb8cee538a92379a51d8997c70b132aeb3ace4d8c9"
+    },
+    {
+      "app": "scandoc-harness",
+      "destination": "site/harness/index.html",
+      "original_sha256": "72e709d0499d4a86cf85f389e6986d5addecdbc6c430ec7303ba8620200a8118"
+    },
+    {
+      "app": "scandoc-harness",
+      "destination": "site/harness/sentinel_dot.js",
+      "original_sha256": "1160163cbeb7c7a2515ee12a34e0609220c3dd080d093f3e98e6acd47bace58f"
+    },
+    {
+      "app": "scandoc-harness",
+      "destination": "site/harness/style.css",
+      "original_sha256": "f7c08d42bf1131d327ae236f8965deacf4b85ebb660dc3fe56e6f47cb80cab7e"
+    }
+  ]
+}

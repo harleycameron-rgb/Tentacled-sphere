@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en" data-mode="science">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Scandoc Zero · AGI Science</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="core.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to science workspace</a>
+    <header>
+      <div class="brand">
+        <svg viewBox="0 0 40 40" fill="none" role="img" aria-label="Scandoc Zero mark">
+          <circle cx="20" cy="20" r="9" stroke="currentColor" stroke-width="1.5" />
+          <path
+            d="M20 2v9m0 18v9M2 20h9m18 0h9M7 7l7 7m12 12 7 7M7 33l7-7m12-12 7-7"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+        </svg>
+        <div>SCANDOC ZERO<small>AGI SCIENCE / KNOWLEDGE ENVIRONMENT</small></div>
+      </div>
+      <nav aria-label="Page sections">
+        <a href="#topology">Topology</a><a href="#experiment">Experiment</a
+        ><a href="#notebook">Notebook</a
+        ><button id="theme" aria-label="Toggle light and dark theme">Light / dark</button>
+      </nav>
+    </header>
+    <main id="main">
+      <section class="intro">
+        <div>
+          <div class="eyebrow">A shared junction. A scientific intent.</div>
+          <h1>Knowledge without an incentive layer.</h1>
+          <p class="lede">
+            Tap and Surface are distinct instruments coupled at Scandoc Zero. Explore their
+            relations, formulate a question and retain what an experiment actually shows.
+          </p>
+        </div>
+        <span class="pill">LOCAL RESEARCH PREVIEW · NO LIVE AGI</span>
+      </section>
+      <section class="workspace" id="topology">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>The Scandoc Zero junction</h2>
+            <span class="muted">RELATION VIEW</span>
+          </div>
+          <div class="topology-note">
+            At this junction, the coupling is topology. The hidden balance is not reduced to a
+            detectable connection.
+          </div>
+          <div class="map-wrap">
+            <canvas
+              id="zero-map"
+              role="img"
+              aria-label="Scandoc Zero is the central topology junction linking distinct InvariantTap and Invariant Surface instruments with Science and Communicate environments."
+            ></canvas>
+          </div>
+          <div class="map-foot">
+            <span id="focus-status">Shared topology · distinct human intents</span
+            ><span>Conceptual relation map, not a measurement</span>
+          </div>
+        </article>
+        <aside class="panel controls">
+          <h2>The zero-data boundary</h2>
+          <p class="help">
+            In this preview, Zero is a boundary and a relation point, not a claim that no data
+            exists.
+          </p>
+          <div class="meta-line"><span>Raw media / sensors</span><strong>Not captured</strong></div>
+          <div class="meta-line">
+            <span>Identity / social score</span><strong>Not requested</strong>
+          </div>
+          <div class="meta-line"><span>Optional notes</span><strong>Local only</strong></div>
+          <div class="field" style="margin-top: var(--s5)">
+            <label for="map-focus">Inspect a relation</label
+            ><select id="map-focus">
+              <option value="science">Science environment</option>
+              <option value="tap">InvariantTap</option>
+              <option value="surface">Invariant Surface</option>
+              <option value="communicate">Communicate environment</option>
+            </select>
+          </div>
+          <div class="readout">
+            <strong>No rewards. No ranking.</strong>Questions, counterexamples and failures belong
+            in the notebook just as much as successful results.
+          </div>
+        </aside>
+      </section>
+      <section class="boundary">
+        <div>
+          <h3>Shared core balance</h3>
+          <p>
+            A design premise behind the instrument pair. This preview maps the relation; it does not
+            measure the hidden core.
+          </p>
+        </div>
+        <div>
+          <h3>Scientific distinction</h3>
+          <p>
+            A metric can change while a graph remains connected. State the relation being tested
+            before calling it invariant.
+          </p>
+        </div>
+        <div>
+          <h3>Sphere quarantine</h3>
+          <p>
+            The sphere benchmark stays provisional and non-canonical. The experiment below uses a
+            synthetic planar field.
+          </p>
+        </div>
+      </section>
+      <section class="lower" id="experiment">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>What survives a transformation?</h2>
+            <span class="muted">SYNTHETIC PLANAR EXPERIMENT</span>
+          </div>
+          <div class="map-wrap" style="height: 280px">
+            <canvas
+              id="experiment-map"
+              role="img"
+              aria-label="A synthetic rectangle shown before and after a selected planar transformation."
+            ></canvas>
+          </div>
+          <div class="map-foot">
+            <div class="legend"><span>Original field</span><span>Transformed field</span></div>
+            <span>Four points · six distance relations</span>
+          </div>
+          <div class="content">
+            <div id="test-status" class="readout" role="status">
+              <strong id="test-title">Ready to compare</strong
+              ><span id="test-detail"
+                >Compare all six pairwise distances in a synthetic four-point field.</span
+              >
+            </div>
+          </div>
+        </article>
+        <aside class="panel controls">
+          <h2>Declare the test</h2>
+          <div class="field">
+            <label for="transformation">Transformation</label
+            ><select id="transformation">
+              <option value="translation">Translation</option>
+              <option value="rotation">Rotation</option>
+              <option value="shear">Shear</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="amount">Amount <span id="amount-value">0.50</span></label
+            ><input id="amount" type="range" min="0" max="100" value="50" />
+            <p class="help">Translation: field units. Rotation: radians. Shear: coefficient.</p>
+          </div>
+          <button id="compare" class="primary wide">Compare the metric relation</button>
+<button id="reset-experiment" class="wide" style="margin-top:var(--s3)">Reset local experiment</button>
+          <p class="help" style="margin-top: var(--s4)">
+            This analytic demonstration is not the production invariant engine. A sample pass is not
+            a general proof.
+          </p>
+        </aside>
+      </section>
+      <section class="lower" id="notebook">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>The knowledge notebook</h2>
+            <span id="journal-count" class="counter">0 observations</span>
+          </div>
+          <div class="content">
+            <div id="journal-list" class="history"></div>
+            <div class="row">
+              <button id="export" disabled>Export notebook</button
+              ><button id="clear" disabled>Clear notebook</button>
+            </div>
+          </div>
+        </article>
+        <aside class="panel controls">
+          <h2>A question is enough</h2>
+          <label for="note">Question or observation</label
+          ><textarea
+            id="note"
+            maxlength="2000"
+            placeholder="Which relation remains coherent when the encounter changes?"
+          ></textarea
+          ><button id="add-observation" class="primary wide" disabled style="margin-top: var(--s3)">
+            Keep in notebook
+          </button>
+          <p id="note-status" class="help" role="status">
+            Optional notes stay in memory until you export them.
+          </p>
+        </aside>
+      </section>
+      <footer>
+        <span>WAXTABLET / SCANDOC ZERO · SCIENCE INTENT</span
+        ><span>Local state only. Reload discards the session. No baseline code changed.</span>
+      </footer>
+    <!-- BEGIN BENCHMARK EVIDENCE -->
+<section class="benchmark-evidence" aria-label="Scoped benchmark and DOI evidence" data-benchmark-revision="2026-10-10-research-publication-candidate-1"
+ style="margin:24px 0;padding:16px;border:1px solid currentColor;border-radius:6px;line-height:1.5;overflow-wrap:anywhere">
+ <details><summary><strong>Benchmark evidence · AGI Science</strong></summary>
+ <p>Knowledge-only local synthetic topology comparisons. No module-specific published benchmark; no rewards or network simulation calls.</p>
+ <p><strong>Status:</strong> local browser/software checks, not AGI or physical validation. DOI reports below retain their own source and scope.</p>
+ <ul style="padding-left:20px"><li style="margin:10px 0"><a href="https://doi.org/10.5281/zenodo.23279566" target="_blank" rel="noopener noreferrer">10.5281/zenodo.23279566</a>
+      <span> · WaxTablet Paired Touch-Surface Synthetic Session Kernel 0.4.0 (0.4.0)</span><br>
+      <small>synthetic geometry research foundation; not this notebook benchmark. open. Synthetic planar pair/session kernel. The deposited report does not certify the browser previews.</small></li><li style="margin:10px 0"><a href="https://doi.org/10.5281/zenodo.23270319" target="_blank" rel="noopener noreferrer">10.5281/zenodo.23270319</a>
+      <span> · multi-llm-sphere-orchestration-provisional-benchmark (provisional-checkpoint-1)</span><br>
+      <small>provisional context, not canonical science output. open. Historical orchestration checkpoint. Quarantined and non-canonical. Symbolic model adapters are not external LLM inference; independent cross-model convergence was not measured.</small></li></ul>
+ <p><small>Registry 2026-10-10-research-publication-candidate-1 · reviewed 2026-10-10.
+ The archived snapshot is immutable; later benchmark settings update the live site only.
+ Updated evidence does not silently replace a running fixture or promote the sphere.</small></p>
+
+ </details>
+</section>
+<!-- END BENCHMARK EVIDENCE -->
+</main>
+    <script>
+      /* Single-file download packing inserts dependencies without changing behaviour. */
+    </script>
+  </body>
+</html>

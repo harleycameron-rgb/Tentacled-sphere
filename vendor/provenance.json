@@ -1,0 +1,83 @@
+{
+  "schema": "invariant-vendored-sources/v1",
+  "sources": {
+    "tap": {
+      "repository": "https://github.com/harleycameron-rgb/invarianttap.app",
+      "revision": "f3a3f39134c05c01c836ad228eef031e855d3303",
+      "destination_root": "vendor/tap",
+      "scope": "Complete static instrument runtime: HTML, Sentinel writer, manifest, icons and inactive original service worker. Development tools/tests are not runtime dependencies.",
+      "license_note": "No root LICENSE or NOTICE was supplied in this pinned archive. Preserve embedded attribution; no new blanket license is asserted."
+    },
+    "previews": {
+      "repository": "https://github.com/harleycameron-rgb/scandoc-zero-previews",
+      "revision": "a9c913e1dfcea780e494d13054b30e1104736073",
+      "destination_root": "vendor/previews",
+      "scope": "Complete Surface, Manifest, Display, Communicate and Science static pages and their model, core and stylesheet dependencies; original provenance and all supplied upstream license/notice files.",
+      "license_note": "Upstream does not grant a blanket license to imported content. Original Surface MIT and WaxTablet Apache-2.0 license/notice texts are preserved under docs/upstream-notices."
+    }
+  },
+  "modification_notes": {
+    "tap-local-lifecycle": "Explicitly disable service-worker registration; load the adjacent lifecycle and shared text-status bridge. Track clocks, animation and scheduled tone callbacks; invalidate pending permission/audio work on hide; track and stop audio sources, detach motion/orientation, close audio and clear clocks on pagehide. Preserve canvas, sound, motion, sky and control algorithms. Tap exports no derived measurements.",
+    "surface-local-lifecycle": "Add an aggregate-only publication hook immediately after the real emit/model-seeding flow, label keyboard output explicitly and untrusted/dispatched pointer events as fixtures, release captured pointers, invalidate pending audio work on hide, cancel animation and disconnect resize/close audio on pagehide. Preserve the original classifier, rhythm, traces, optional tilt and sound.",
+    "surface-entry": "Load source-preserving adjacent adapters and shared bridge; replace the unavailable upstream hub link with the local shell link; disclose the bounded same-origin aggregate handoff instead of claiming no transport.",
+    "offline-font": "Remove only the optional remote Fontshare import; retain the original stylesheet, font names and existing sans-serif fallback so the instrument makes no external font request.",
+    "preview-core-export": "Isolate the original core in a closure, guard DOM mounting and expose reusable synthetic evidence/science functions and the memory-only Communicate policy engine through CommonJS and named browser globals. Standalone pages retain their original implementations and controls. No live engine or external inference is introduced."
+  },
+  "local_adapters": [
+    "vendor/instrument-bridge.js",
+    "vendor/tap/lifecycle.js",
+    "vendor/previews/site/surface/derived-output.js",
+    "vendor/previews/site/surface/integration.js"
+  ],
+  "derived_output_contract": {
+    "schema": "instrument-output/v1",
+    "instrument": "surface",
+    "adapter": "surface-derived/v1",
+    "frame": "surface-local",
+    "units": "normalized",
+    "scope": "local-derived-unverified",
+    "source": ["touch", "movement", "keyboard", "fixture"],
+    "output": {
+      "activity": "Mean energy of the current sixteen model-seeded rhythm cells.",
+      "severity": "Mean severity of the current sixteen model-seeded rhythm cells.",
+      "occupancy": "Fraction of sixteen cells with energy greater than the original 0.03 sounding threshold.",
+      "unresolved": "Fraction of sixteen cells classified as silent unresolved endpoints."
+    },
+    "limits": "Each output is finite in [0,1]. At most four records per second, no queued samples, no contact coordinates, angles, layer bands, orientation values, precise event times, audio buffers, identity or raw histories. This UI-derived chart is not a physical measurement, qualified activation, launch result or sensor calibration.",
+    "transport": "Only parent.postMessage({type:'invariant:instrument-output',record}, location.origin); the receiver must also validate event source, origin and the exact record schema.",
+    "reciprocal": "Only same-origin event.source===parent messages with exact keys type='invariant:derived-input' and status (nonempty text <=240 characters). Presented with textContent and an explicit unverified/non-activation/non-launch/non-calibration prefix; never changes instrument state.",
+    "lifecycle": "Iframe shell must destroy the frame on navigation. Hidden/pagehide stops audio and removes sensor listeners; returning never automatically resumes sensors. Neither instrument uses media capture. Tap emits no record because its native logs include coordinate/sensor-derived fields outside this aggregate contract."
+  },
+  "imports": [
+    {"source":"tap","path":"icon-180.png","original_sha256":"64087c639703b835e34a925fbd36047873bfd006a80567f0f61cbc4faa8a4138","changes":[]},
+    {"source":"tap","path":"icon-192.png","original_sha256":"b6d7ed84ab4f8b2ed098457fd4e3183d520fc941ec3ead8b15094dc261705380","changes":[]},
+    {"source":"tap","path":"icon-512.png","original_sha256":"1d75e57b162cf46c60287aed90e11e8e10a1112b45fa7126a789da1c9b1f4a1a","changes":[]},
+    {"source":"tap","path":"index.html","original_sha256":"5d99a8f7879313b675c9cc90c7c1e61aa0e67eb9f621ebf59aa38566f4426236","changes":["tap-local-lifecycle"]},
+    {"source":"tap","path":"manifest.webmanifest","original_sha256":"71e2829a80bb66aadfe011a176af920fa2f97879627d16c3818cd2ccda02acf7","changes":[]},
+    {"source":"tap","path":"sentinel_dot.js","original_sha256":"1160163cbeb7c7a2515ee12a34e0609220c3dd080d093f3e98e6acd47bace58f","changes":[]},
+    {"source":"tap","path":"sw.js","original_sha256":"b41ca74cf5c5377f90460166491d59a7686b8335e7d116d1ab5ed82bc1046c1f","changes":[]},
+    {"source":"previews","path":"docs/import-provenance.json","original_sha256":"88a73e221fc56a2773e5552735ce62612ac21d5755548949b179997f2ebb7fb7","changes":[]},
+    {"source":"previews","path":"docs/upstream-notices/Invariant-Surface-LICENSE.txt","original_sha256":"f02fde9b78edf8ae5f7ddf930082ff09768dbdb5a764f53a850b85eee271bb00","changes":[]},
+    {"source":"previews","path":"docs/upstream-notices/WaxTablet-LICENSE.txt","original_sha256":"cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30","changes":[]},
+    {"source":"previews","path":"docs/upstream-notices/WaxTablet-NOTICE.txt","original_sha256":"cf670532278b9b3446a9067fc580fd691c971268ac877ab05c0e13e78c282498","changes":[]},
+    {"source":"previews","path":"site/communicate/core.js","original_sha256":"ff27acedc20054b19f7d30bbf7e25f37b6a2a75ff49b94951fa0cafa6f432e6d","changes":["preview-core-export"]},
+    {"source":"previews","path":"site/communicate/index.html","original_sha256":"f3343489482de8096b418868d2973df0e8ac5e93de8a34498c035dccd0114f6d","changes":[]},
+    {"source":"previews","path":"site/communicate/style.css","original_sha256":"c36a62ebd8004109945ad47d3948e6ff36af33b99febad68e2b6037c5a849d0b","changes":["offline-font"]},
+    {"source":"previews","path":"site/display/core.js","original_sha256":"774b0ae1c9abfea577f7a94517aca8355584969d6649cc390dfba85571204d64","changes":["preview-core-export"]},
+    {"source":"previews","path":"site/display/facets.css","original_sha256":"5bce6516e9d415c2588ad2a3c33ae67b2731f08110a0356dd1df3d7736ee9c29","changes":[]},
+    {"source":"previews","path":"site/display/index.html","original_sha256":"294387b89c09e00729d7124c4be09e14b3aa1bbe43e1abb00be7d0acae93986f","changes":[]},
+    {"source":"previews","path":"site/display/style.css","original_sha256":"c36a62ebd8004109945ad47d3948e6ff36af33b99febad68e2b6037c5a849d0b","changes":["offline-font"]},
+    {"source":"previews","path":"site/manifest/core.js","original_sha256":"da05b1330dc3803f69554365d5e144327179db4e89419baa38eac2e967f7213b","changes":["preview-core-export"]},
+    {"source":"previews","path":"site/manifest/facets.css","original_sha256":"5bce6516e9d415c2588ad2a3c33ae67b2731f08110a0356dd1df3d7736ee9c29","changes":[]},
+    {"source":"previews","path":"site/manifest/index.html","original_sha256":"eb5cdebe16182c9fca32922902b7df8bfde855689fb031dd29f760ecd41bdaeb","changes":[]},
+    {"source":"previews","path":"site/manifest/style.css","original_sha256":"c36a62ebd8004109945ad47d3948e6ff36af33b99febad68e2b6037c5a849d0b","changes":["offline-font"]},
+    {"source":"previews","path":"site/science/core.js","original_sha256":"c08100c8b11a9b035c86385543e623b95a0f765d6a56f45708dd5baa1ef6b3ea","changes":["preview-core-export"]},
+    {"source":"previews","path":"site/science/index.html","original_sha256":"736f99a2dc06abc090d63332e6f63f6fde9ddac5135d08461f8f2c258d264fec","changes":[]},
+    {"source":"previews","path":"site/science/style.css","original_sha256":"c36a62ebd8004109945ad47d3948e6ff36af33b99febad68e2b6037c5a849d0b","changes":["offline-font"]},
+    {"source":"previews","path":"site/surface/app.js","original_sha256":"c0050dfabf01b901e881b28ac32fd4b366d73bcaf1c37fe703aca47a940fa5ee","changes":["surface-local-lifecycle"]},
+    {"source":"previews","path":"site/surface/base.css","original_sha256":"c36a62ebd8004109945ad47d3948e6ff36af33b99febad68e2b6037c5a849d0b","changes":["offline-font"]},
+    {"source":"previews","path":"site/surface/index.html","original_sha256":"675ae48818b5c18742a76966ad16ee01afea4d5d05474238e125f2297c24dba2","changes":["surface-entry"]},
+    {"source":"previews","path":"site/surface/model.js","original_sha256":"74c7acff9e19693643379b929d03501e749a9f0ee55e96460c209ce7758e516b","changes":[]},
+    {"source":"previews","path":"site/surface/style.css","original_sha256":"8275cfe9ca011d848b655ebed39fa0233c9f89c0edfa84a787f137105caec8e6","changes":[]}
+  ]
+}

@@ -3,6 +3,13 @@
   "outputDirectory": "public",
   "rewrites": [
     { "source": "/api/tentacled-sphere", "destination": "/api/index.py" },
+    { "source": "/invariant", "destination": "/invariant/index.html" },
+    { "source": "/invariant/tap", "destination": "/invariant/tap/index.html" },
+    { "source": "/invariant/surface", "destination": "/invariant/surface/index.html" },
+    { "source": "/invariant/evidence-gate", "destination": "/invariant/evidence-gate/index.html" },
+    { "source": "/invariant/modular-topology", "destination": "/invariant/modular-topology/index.html" },
+    { "source": "/invariant/credit-game", "destination": "/invariant/credit-game/index.html" },
+    { "source": "/invariant/study-environment", "destination": "/invariant/study-environment/index.html" },
     { "source": "/tap", "destination": "/apps/tap.html" },
     { "source": "/tap/", "destination": "/apps/tap.html" },
     { "source": "/surface", "destination": "/apps/surface.html" },

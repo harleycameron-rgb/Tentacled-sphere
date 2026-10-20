@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en" data-mode="display">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Scandoc Zero · Display</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="facets.css" />
+    <script defer src="core.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to Display workspace</a>
+    <header>
+      <div class="brand">
+        <svg viewBox="0 0 40 40" fill="none" role="img" aria-label="Scandoc Zero mark">
+          <circle cx="20" cy="20" r="9" stroke="currentColor" stroke-width="1.5" />
+          <path
+            d="M20 2v9m0 18v9M2 20h9m18 0h9M7 7l7 7m12 12 7 7M7 33l7-7m12-12 7-7"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+        </svg>
+        <div>SCANDOC ZERO<small>DISPLAY / TOPOLOGY &amp; INSPECTION</small></div>
+      </div>
+      <nav aria-label="Page sections">
+        <a href="#topology">Relations</a><a href="#load-record">Load Manifest</a
+        ><a href="#evidence">Evidence</a
+        ><button id="theme" aria-label="Toggle light and dark theme">Light / dark</button>
+      </nav>
+    </header>
+    <main id="main">
+      <section class="intro">
+        <div>
+          <div class="eyebrow">Make the relation visible. Keep the claim bounded.</div>
+          <h1>See the topology. Inspect the evidence.</h1>
+          <p class="lede">
+            Display presents relations at Scandoc Zero, transformation traces and Manifest-linked
+            status. Rendering something beautifully does not make it true.
+          </p>
+        </div>
+        <div>
+          <span class="pill">LOCAL PREVIEW · NO LIVE ENGINE</span>
+          <div style="margin-top: var(--s3)">
+            <a class="primary-link" href="#load-record">Open a Manifest record</a>
+          </div>
+        </div>
+      </section>
+      <section class="workspace" id="topology">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>The shared junction, three views</h2>
+            <span id="load-origin" class="muted">Built-in synthetic example</span>
+          </div>
+          <div class="segments" role="group" aria-label="Display view">
+            <button data-view="relations" aria-pressed="true">Relations</button
+            ><button data-view="transformations" aria-pressed="false">Transformations</button
+            ><button data-view="evidence" aria-pressed="false">Evidence overlays</button>
+          </div>
+          <div class="map-wrap visual-fit">
+            <canvas
+              id="zero-map"
+              role="img"
+              aria-label="Relations, transformations and evidence views for the six Scandoc Zero legs."
+            ></canvas>
+          </div>
+          <div class="map-foot">
+            <span id="view-caption"
+              >Dashed edges show declared relations, not measured physical coupling.</span
+            >
+          </div>
+        </article>
+        <aside class="panel controls">
+          <h2>Inspect without conflating</h2>
+          <div class="field">
+            <label for="leg-focus">Selected leg</label
+            ><select id="leg-focus">
+              <option value="display">Display</option>
+              <option value="manifest">Manifest</option>
+              <option value="tap">Tap</option>
+              <option value="surface">Surface</option>
+              <option value="science">Science</option>
+              <option value="communicate">Communicate</option>
+            </select>
+            <p id="leg-note" class="help"></p>
+          </div>
+          <div class="readout">
+            <strong>Content integrity is not truth.</strong>Manifest and receipt digests can match
+            while source provenance remains unverified. The sample can support a relation without
+            proving the hidden core.
+          </div>
+          <ul class="detail-list">
+            <li>
+              <strong>Distinct instruments</strong
+              ><span>Tap and Surface meet at Zero; they are not merged into one app.</span>
+            </li>
+            <li>
+              <strong>Distinct intentions</strong
+              ><span>Science seeks knowledge; Communicate models useful module work.</span>
+            </li>
+          </ul>
+        </aside>
+      </section>
+      <section class="lower" id="load-record">
+        <article class="panel content">
+          <h2>A local handoff from Manifest</h2>
+          <label for="import">Choose a derived Manifest preview JSON</label
+          ><input id="import" data-work-control type="file" accept=".json,application/json" />
+          <label for="record-select">Inspect a validated record</label>
+          <select id="record-select" data-work-control disabled aria-label="Imported Manifest records">
+            <option>No imported records</option>
+          </select>
+          <p class="help">Accepts one Manifest or its history export: up to 16 records / 256 KB.
+            Every record is checked before the view changes. Imported history links are checked
+            internally, not independently authenticated.</p>
+          <p class="help">
+            The file is read in this browser, not uploaded to a service. Only the strict preview
+            schema, declared six-leg graph, valid content digests and recomputable synthetic
+            evidence are accepted. Maximum 64 KB per single record; 256 KB for a linked history.
+          </p>
+          <div class="readout" id="action-status" role="status">
+            <strong id="action-title">Preparing local example</strong
+            ><span id="action-detail"
+              >No raw media, identity or production receipt is requested.</span
+            >
+          </div>
+        </article>
+        <aside class="panel controls">
+          <h2>Explore the three evidence states</h2>
+          <div class="row">
+            <button data-demo="none" data-work-control>Declared only</button
+            ><button data-demo="rotation" data-work-control>Sample support</button
+            ><button data-demo="shear" data-work-control>Counterexample</button>
+          </div>
+          <p class="help">
+            These examples are generated here. “Sample support” recomputes a rotation;
+            “Counterexample” recomputes a nonzero shear against the declared distance claim.
+          </p>
+          <button id="clear" data-work-control class="wide" style="margin-top: var(--s3)">
+            Clear loaded record
+          </button>
+        </aside>
+      </section>
+      <section class="lower" id="evidence">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>What does this record actually say?</h2>
+            <span class="muted">MANIFEST-LINKED EVIDENCE</span>
+          </div>
+          <div class="evidence-strip">
+            <span id="record-title" class="record-title">No bound record.</span
+            ><b id="evidence-badge" class="badge">No record</b>
+          </div>
+          <div class="content">
+            <div class="facet-grid">
+              <div>
+                <div class="meta-line">
+                  <span>Declared relation</span
+                  ><strong id="relation-label">Pairwise distance</strong>
+                </div>
+                <div class="meta-line">
+                  <span>Sample verdict</span><strong id="verdict">No experiment</strong>
+                </div>
+                <div class="meta-line">
+                  <span>Max distance change</span><strong id="residual">Not measured</strong>
+                </div>
+              </div>
+              <div>
+                <h3>Evidence scope</h3>
+                <p id="scope" class="mono">No experiment</p>
+                <h3 style="margin-top: var(--s4)">Declared source</h3>
+                <p id="source-label" class="mono">No source</p>
+              </div>
+            </div>
+            <p class="help">
+              A shear can preserve the declared graph’s connectivity while changing distances.
+              Metric preservation and connectivity are different claims; the displayed view keeps
+              their scopes separate.
+            </p>
+            <details>
+              <summary>Inspect the loaded content digest and receipt</summary>
+              <code id="digest" class="fact">No bound digest</code>
+              <pre id="record" class="terminal">No record.</pre>
+            </details>
+            <button id="export" disabled>Export current view record</button>
+          </div>
+        </article>
+        <aside class="panel controls">
+          <h2>No authority from appearance</h2>
+          <ul class="detail-list">
+            <li>
+              <strong>Not an anchored chain</strong
+              ><span
+                >A single-file receipt hash is checked; previous receipt continuity is not
+                verified.</span
+              >
+            </li>
+            <li>
+              <strong>Not source authentication</strong
+              ><span
+                >Anyone can recompute a content digest. Independent evidence is a separate
+                requirement.</span
+              >
+            </li>
+            <li>
+              <strong>Not canonical sphere output</strong
+              ><span
+                >The sphere remains provisional. These views use synthetic planar samples
+                only.</span
+              >
+            </li>
+          </ul>
+        </aside>
+      </section>
+      <footer>
+        <span>WAXTABLET / SCANDOC ZERO · DISPLAY LEG</span
+        ><span>Local memory only. No credit awards, live AGI or production integration.</span>
+      </footer>
+    <!-- BEGIN BENCHMARK EVIDENCE -->
+<section class="benchmark-evidence" aria-label="Scoped benchmark and DOI evidence" data-benchmark-revision="2026-10-10-research-publication-candidate-1"
+ style="margin:24px 0;padding:16px;border:1px solid currentColor;border-radius:6px;line-height:1.5;overflow-wrap:anywhere">
+ <details><summary><strong>Benchmark evidence · Display</strong></summary>
+ <p>Manifest single/history inspection and synthetic recomputation. No module-specific published inspection benchmark; content integrity is not authenticated provenance.</p>
+ <p><strong>Status:</strong> local browser/software checks, not AGI or physical validation. DOI reports below retain their own source and scope.</p>
+ <ul style="padding-left:20px"><li style="margin:10px 0"><a href="https://doi.org/10.5281/zenodo.23279566" target="_blank" rel="noopener noreferrer">10.5281/zenodo.23279566</a>
+      <span> · WaxTablet Paired Touch-Surface Synthetic Session Kernel 0.4.0 (0.4.0)</span><br>
+      <small>evidence interpretation foundation; not Display certification. open. Synthetic planar pair/session kernel. The deposited report does not certify the browser previews.</small></li></ul>
+ <p><small>Registry 2026-10-10-research-publication-candidate-1 · reviewed 2026-10-10.
+ The archived snapshot is immutable; later benchmark settings update the live site only.
+ Updated evidence does not silently replace a running fixture or promote the sphere.</small></p>
+
+ </details>
+</section>
+<!-- END BENCHMARK EVIDENCE -->
+</main>
+  </body>
+</html>

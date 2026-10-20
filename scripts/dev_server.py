@@ -12,7 +12,7 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from api.index import handler as APIHandler
-from scripts.build_web import browser_page
+from scripts.build_web import browser_page, INTERFACES
 
 APP_ROUTES = {
     f"/{app}": f"/apps/{app}.html"
@@ -22,6 +22,9 @@ APP_ROUTES = {
     )
 }
 APP_ROUTES.update({f"{path}/": target for path, target in tuple(APP_ROUTES.items())})
+APP_ROUTES["/invariant"] = "/invariant/index.html"
+for interface in INTERFACES:
+    APP_ROUTES[f"/invariant/{interface}"] = f"/invariant/{interface}/index.html"
 
 
 class WebHandler(SimpleHTTPRequestHandler):
@@ -30,6 +33,10 @@ class WebHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         path = urlsplit(self.path).path
+        if path.startswith("/invariant/") and path.rstrip("/").split("/")[-1] not in (
+                *INTERFACES, "invariant", "index.html"):
+            self.send_error(404, "Unknown local interface")
+            return
         if path == "/api/tentacled-sphere":
             APIHandler.do_GET(self)
             return

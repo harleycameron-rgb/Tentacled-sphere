@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en" data-mode="manifest">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Scandoc Zero · Manifest</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="facets.css" />
+    <script defer src="core.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to Manifest workspace</a>
+    <header>
+      <div class="brand">
+        <svg viewBox="0 0 40 40" fill="none" role="img" aria-label="Scandoc Zero mark">
+          <circle cx="20" cy="20" r="9" stroke="currentColor" stroke-width="1.5" />
+          <path
+            d="M20 2v9m0 18v9M2 20h9m18 0h9M7 7l7 7m12 12 7 7M7 33l7-7m12-12 7-7"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+        </svg>
+        <div>SCANDOC ZERO<small>MANIFEST / CONTRACT &amp; EVIDENCE</small></div>
+      </div>
+      <nav aria-label="Page sections">
+        <a href="#topology">Topology</a><a href="#editor">Declaration</a
+        ><a href="#bound-record">Bound record</a
+        ><button id="theme" aria-label="Toggle light and dark theme">Light / dark</button>
+      </nav>
+    </header>
+    <main id="main">
+      <section class="intro">
+        <div>
+          <div class="eyebrow">Six distinct legs. One topology junction.</div>
+          <h1>What is declared? What supports it?</h1>
+          <p class="lede">
+            Manifest carries the contract, source lineage and evidence status at Scandoc Zero. Bind
+            the declaration without confusing a content digest with proof of truth.
+          </p>
+        </div>
+        <div>
+          <span class="pill">LOCAL PREVIEW · UNVERIFIED PROVENANCE</span>
+          <div style="margin-top: var(--s3)">
+            <a class="primary-link" href="#editor">Prepare a declaration</a>
+          </div>
+        </div>
+      </section>
+      <section class="workspace" id="topology">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>The six-leg Scandoc Zero relation</h2>
+            <span class="muted">DECLARED TOPOLOGY</span>
+          </div>
+          <div class="topology-note">
+            Tap, Surface, Science, Communicate, Manifest and Display remain distinct. The hidden
+            core balance is not measured by drawing its relations.
+          </div>
+          <div class="map-wrap visual-fit">
+            <canvas
+              id="zero-map"
+              role="img"
+              aria-label="Six distinct legs, Tap, Surface, Science, Communicate, Manifest and Display, coupled through Scandoc Zero."
+            ></canvas>
+          </div>
+          <div class="map-foot">
+            <span>Dashed: declared relation</span><span>Amber: selected leg</span>
+          </div>
+        </article>
+        <aside class="panel controls">
+          <h2>Manifest’s responsibility</h2>
+          <ul class="detail-list">
+            <li>
+              <strong>Source lineage</strong
+              ><span>Origin and revision are declared, not authenticated.</span>
+            </li>
+            <li>
+              <strong>Contract boundary</strong
+              ><span>Tap input, Surface output, Zero junction; derived data only.</span>
+            </li>
+            <li>
+              <strong>Evidence status</strong
+              ><span>Declaration, synthetic support or counterexample.</span>
+            </li>
+          </ul>
+          <div class="field" style="margin-top: var(--s4)">
+            <label for="leg-focus">Inspect a leg</label
+            ><select id="leg-focus">
+              <option value="manifest">Manifest</option>
+              <option value="display">Display</option>
+              <option value="tap">Tap</option>
+              <option value="surface">Surface</option>
+              <option value="science">Science</option>
+              <option value="communicate">Communicate</option>
+            </select>
+            <p id="leg-note" class="help"></p>
+          </div>
+          <div class="readout">
+            <strong>Declared does not mean demonstrated.</strong>A digest binds content. A receipt
+            records a local binding event. Neither independently establishes provenance or
+            invariance.
+          </div>
+        </aside>
+      </section>
+      <section class="lower" id="editor">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>The declared contract</h2>
+            <span class="muted">EDITABLE LOCAL DRAFT</span>
+          </div>
+          <div class="content">
+            <div class="field">
+              <label for="title">Declaration title</label
+              ><input
+                id="title"
+                data-work-control
+                maxlength="120"
+                value="Tap-Surface relation at Scandoc Zero"
+              />
+            </div>
+            <div class="facet-grid">
+              <div class="field">
+                <label for="revision">Manifest revision</label
+                ><input id="revision" data-work-control maxlength="80" value="draft-1" />
+              </div>
+              <div class="field">
+                <label for="relation">Relation to examine</label
+                ><select id="relation" data-work-control>
+                  <option value="pairwise-distance">Pairwise distance</option>
+                  <option value="connectivity">Fixed graph connectivity</option>
+                </select>
+              </div>
+            </div>
+            <div class="small-flow">
+              <span>Tap input</span><b>↔ Scandoc Zero ↔</b><span>Surface output</span>
+            </div>
+            <p class="help">
+              These are declared reciprocal ports, not a live connection to the released instrument
+              kernel.
+            </p>
+            <details open>
+              <summary>Source lineage and scope</summary>
+              <div class="facet-grid">
+                <div class="field">
+                  <label for="origin">Declared source origin</label
+                  ><input
+                    id="origin"
+                    data-work-control
+                    maxlength="240"
+                    value="Synthetic preview fixture"
+                  />
+                </div>
+                <div class="field">
+                  <label for="source-revision">Declared source revision</label
+                  ><input
+                    id="source-revision"
+                    data-work-control
+                    maxlength="80"
+                    value="local-example"
+                  />
+                </div>
+              </div>
+              <p class="help">
+                No identity, raw media or sensor data is requested. Entered text and derived sample
+                descriptors stay local until you choose to export.
+              </p>
+            </details>
+          </div>
+        </article>
+        <aside class="panel controls">
+          <h2>Attach scoped evidence</h2>
+          <div class="field">
+            <label for="case">Synthetic case</label
+            ><select id="case" data-work-control>
+              <option value="none">No experiment · declaration only</option>
+              <option value="translation">Translation</option>
+              <option value="rotation">Rotation</option>
+              <option value="shear">Shear / metric counterexample</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="amount">Amount <span id="amount-label">0.50</span></label
+            ><input id="amount" data-work-control type="range" min="0" max="100" value="50" />
+            <p class="help">
+              Four synthetic points, fixed cycle edges. Sample status is computed, not selected by
+              reputation or preference.
+            </p>
+          </div>
+          <button id="bind" data-work-control class="primary wide">Bind local Manifest</button>
+          <div class="readout" id="action-status" role="status">
+            <strong id="action-title">Draft ready · not yet bound</strong
+            ><span id="action-detail"
+              >Choose a case or keep the declaration untested. The resulting scope and limitations
+              travel with the record.</span
+            >
+          </div>
+        </aside>
+      </section>
+      <section class="lower" id="bound-record">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>The bound record</h2>
+            <span id="receipt-count" class="counter">0 local receipts</span>
+          </div>
+          <div class="content">
+            <label for="evidence-record-select">Inspect an earlier bound evidence entry</label>
+            <select id="evidence-record-select" data-work-control disabled>
+              <option>No bound entries</option>
+            </select>
+            <p class="help">Entries remain in memory. Export one for Display, or export the complete
+              linked history. A declaration is not independently verified provenance.</p>
+          </div>
+          <div class="evidence-strip">
+            <span id="record-title" class="record-title"
+              >Bind a declaration to create a record.</span
+            ><b class="badge" id="evidence-badge">Unbound draft</b>
+          </div>
+          <div class="content">
+            <label>Manifest content digest</label
+            ><code id="digest" class="fact">No bound digest</code>
+            <details>
+              <summary>Inspect the portable record and receipt</summary>
+              <pre id="record" class="terminal">No bound record.</pre>
+            </details>
+            <div class="row">
+              <button id="export" disabled>Export for Display</button
+              ><button id="export-history" data-work-control disabled>
+                Export local receipt history
+              </button>
+            </div>
+            <p class="help">
+              Display accepts either a single Manifest record or the linked history bundle. Both exports use
+              preview formats, not production receipts.
+            </p>
+          </div>
+        </article>
+        <aside class="panel controls">
+          <h2>Limits remain attached</h2>
+          <ul class="detail-list">
+            <li>
+              <strong>Sample only</strong
+              ><span>A planar example is not a general invariant proof.</span>
+            </li>
+            <li>
+              <strong>Sphere quarantined</strong
+              ><span>Provisional and non-canonical; not used in this sample.</span>
+            </li>
+            <li>
+              <strong>No silent rewrite</strong
+              ><span
+                >Editing invalidates the current export. Earlier local receipt snapshots stay
+                intact.</span
+              >
+            </li>
+          </ul>
+          <button id="reset" data-work-control class="wide" style="margin-top: var(--s4)">
+            Reset sandbox history
+          </button>
+        </aside>
+      </section>
+      <footer>
+        <span>WAXTABLET / SCANDOC ZERO · MANIFEST LEG</span
+        ><span>Local memory only. No live AGI, production receipt or baseline changes.</span>
+      </footer>
+    <!-- BEGIN BENCHMARK EVIDENCE -->
+<section class="benchmark-evidence" aria-label="Scoped benchmark and DOI evidence" data-benchmark-revision="2026-10-10-research-publication-candidate-1"
+ style="margin:24px 0;padding:16px;border:1px solid currentColor;border-radius:6px;line-height:1.5;overflow-wrap:anywhere">
+ <details><summary><strong>Benchmark evidence · Manifest</strong></summary>
+ <p>Declared contracts and exportable evidence entries. No module-specific published browser-schema benchmark.</p>
+ <p><strong>Status:</strong> local browser/software checks, not AGI or physical validation. DOI reports below retain their own source and scope.</p>
+ <ul style="padding-left:20px"><li style="margin:10px 0"><a href="https://doi.org/10.5281/zenodo.23279566" target="_blank" rel="noopener noreferrer">10.5281/zenodo.23279566</a>
+      <span> · WaxTablet Paired Touch-Surface Synthetic Session Kernel 0.4.0 (0.4.0)</span><br>
+      <small>scoped receipt/continuity foundation; not schema compatibility. open. Synthetic planar pair/session kernel. The deposited report does not certify the browser previews.</small></li></ul>
+ <p><small>Registry 2026-10-10-research-publication-candidate-1 · reviewed 2026-10-10.
+ The archived snapshot is immutable; later benchmark settings update the live site only.
+ Updated evidence does not silently replace a running fixture or promote the sphere.</small></p>
+
+ </details>
+</section>
+<!-- END BENCHMARK EVIDENCE -->
+</main>
+  </body>
+</html>

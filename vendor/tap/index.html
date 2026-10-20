@@ -1,0 +1,2547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#05070c">
+<meta name="apple-mobile-web-app-title" content="InvariantTap">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>Moiré Pad · Sky Fused</title>
+<style>
+  :root {
+    --bg:#05070c; --text:#e0ecff; --dim:#6b7f9e;
+    --ok:#7cff9b; --warn:#ffd966; --bad:#ff7070;
+    --moire:#d4b8ff; --trail:#a8e0ff; --mirror:#ffb8e0;
+    --motion:#8ec5ff; --solar:#ffd484; --star:#8effff;
+    --ui-scale:1;
+  }
+  #hud,#controls,#legend,#factors,#lockbar{transform:scale(var(--ui-scale));transform-origin:top left;}
+  #controls,#factors{transform-origin:top right;}
+  #legend{transform-origin:bottom left;}
+  #lockbar{transform-origin:bottom center;}
+  @media (max-width:700px),(max-height:600px){
+    #hud{font-size:10px;min-width:150px;padding:7px 9px;top:6px;left:6px;}
+    #controls{top:6px;right:6px;max-width:72vw;gap:3px;}
+    #controls button{padding:5px 7px;font-size:9px;}
+    #legend{display:none;}
+    #factors{min-width:200px;font-size:9px;bottom:6px;right:6px;padding:7px 9px;}
+    #lockbar{font-size:9px;padding:4px 8px;}
+  }
+  @media (max-width:480px){#hud{min-width:130px;}#factors{min-width:175px;}}
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:white;
+    font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    touch-action:none;user-select:none;-webkit-user-select:none;}
+  canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;}
+
+  #hud{position:fixed;top:10px;left:10px;z-index:10;padding:9px 12px;
+    background:rgba(8,12,20,0.78);border:1px solid rgba(212,184,255,0.35);
+    border-radius:10px;backdrop-filter:blur(12px);
+    font-family:'SF Mono',monospace;font-size:11px;line-height:1.55;
+    color:#b8d0ff;min-width:210px;pointer-events:none;}
+  #hud .k{color:var(--dim);letter-spacing:0.1em;text-transform:uppercase;font-size:9px;}
+  #hud .v{color:var(--text);font-weight:600;}
+  #hud .v.moire{color:var(--moire);}#hud .v.mirror{color:var(--mirror);}
+  #hud .v.solar{color:var(--solar);}#hud .v.motion{color:var(--motion);}
+  #hud .v.ok{color:var(--ok);}#hud .v.bad{color:var(--bad);}
+  #hud .v.star{color:var(--star);}
+  #hud .row{display:flex;justify-content:space-between;gap:12px;}
+  #hud .head{color:var(--dim);letter-spacing:0.14em;text-transform:uppercase;
+    font-size:9px;margin:7px 0 2px;border-top:1px solid rgba(120,180,255,0.12);padding-top:5px;}
+  #hud .head:first-child{border-top:none;padding-top:0;margin-top:0;}
+
+  #controls{position:fixed;top:10px;right:10px;z-index:10;display:flex;gap:5px;
+    flex-wrap:wrap;max-width:60vw;justify-content:flex-end;}
+  #controls button{padding:7px 10px;border:1px solid rgba(124,255,155,0.5);
+    background:rgba(20,30,48,0.85);color:var(--ok);
+    font-family:'SF Mono',monospace;font-size:10px;letter-spacing:0.06em;
+    border-radius:6px;cursor:pointer;backdrop-filter:blur(10px);text-transform:uppercase;}
+  #controls button:hover{background:rgba(40,60,90,0.9);}
+  #controls button.danger{border-color:rgba(255,112,112,0.5);color:var(--bad);}
+  #controls button.moire{border-color:rgba(212,184,255,0.55);color:var(--moire);}
+  #controls button.toggle{border-color:rgba(120,180,255,0.35);color:var(--dim);}
+  #controls button.toggle.active{border-color:rgba(212,184,255,0.6);color:var(--moire);
+    background:rgba(212,184,255,0.18);}
+  #controls button.toggle[data-key="motion"].active{border-color:rgba(142,197,255,0.6);color:var(--motion);background:rgba(142,197,255,0.18);}
+  #controls button.toggle[data-key="tip"].active{border-color:rgba(168,224,255,0.6);color:var(--trail);background:rgba(168,224,255,0.18);}
+  #controls button.toggle[data-key="solar"].active{border-color:rgba(255,212,132,0.6);color:var(--solar);background:rgba(255,212,132,0.18);}
+  #controls button.toggle[data-key="sky"].active{border-color:rgba(142,255,255,0.6);color:var(--star);background:rgba(142,255,255,0.18);}
+  #controls button#btn-sight{border-color:rgba(255,212,132,0.6);color:var(--solar);}
+
+  #legend{position:fixed;bottom:10px;left:10px;z-index:10;padding:7px 12px;
+    background:rgba(0,0,0,0.5);border:1px solid rgba(120,180,255,0.15);
+    border-radius:8px;font-family:'SF Mono',monospace;font-size:10px;
+    color:var(--dim);pointer-events:none;line-height:1.5;max-width:320px;}
+  #legend .t{color:var(--trail);}#legend .m{color:var(--moire);}
+  #legend .mr{color:var(--mirror);}#legend .s{color:var(--solar);}
+  #legend .st{color:var(--star);}
+
+  #factors{position:fixed;bottom:10px;right:10px;z-index:10;padding:9px 11px;
+    background:rgba(8,12,20,0.88);border:1px solid rgba(142,197,255,0.3);
+    border-radius:10px;backdrop-filter:blur(12px);
+    font-family:'SF Mono',monospace;font-size:10px;line-height:1.5;
+    color:#b8d0ff;min-width:245px;user-select:none;max-height:88vh;overflow-y:auto;}
+  #factors .head{color:var(--dim);letter-spacing:0.14em;text-transform:uppercase;
+    font-size:9px;margin:8px 0 3px;border-top:1px solid rgba(120,180,255,0.12);padding-top:5px;}
+  #factors .head:first-child{border-top:none;padding-top:0;margin-top:0;}
+  #factors .row{display:flex;justify-content:space-between;gap:10px;}
+  #factors .k{color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;font-size:9px;}
+  #factors .v{color:var(--text);font-weight:600;}
+  #factors .v.moire{color:var(--moire);}#factors .v.motion{color:var(--motion);}
+  #factors .v.solar{color:var(--solar);}#factors .v.ok{color:var(--ok);}
+  #factors .v.dim{color:var(--dim);font-weight:400;}
+  #factors input[type="range"]{-webkit-appearance:none;appearance:none;width:100%;height:3px;
+    background:rgba(120,180,255,0.15);border-radius:2px;outline:none;margin:2px 0 5px;}
+  #factors input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;
+    border-radius:50%;background:var(--moire);cursor:pointer;box-shadow:0 0 6px rgba(212,184,255,0.6);}
+  #factors input[type="range"]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;
+    background:var(--moire);border:none;cursor:pointer;}
+  #factors #spark{display:block;width:100%;height:36px;margin:3px 0 2px;border-radius:4px;
+    background:rgba(0,0,0,0.35);border:1px solid rgba(120,180,255,0.12);}
+  #factors .tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:8px;
+    letter-spacing:0.08em;margin-left:4px;text-transform:uppercase;}
+  #factors .tag.base{background:rgba(107,127,158,0.25);color:var(--dim);}
+  #factors .tag.pert{background:rgba(212,184,255,0.18);color:var(--moire);}
+  #factors .tag.diag{background:rgba(124,255,155,0.15);color:var(--ok);}
+
+  #lockbar{position:fixed;bottom:10px;left:50%;transform:translateX(-50%) scale(var(--ui-scale));
+    z-index:10;padding:5px 12px;background:rgba(8,12,20,0.7);
+    border:1px solid rgba(120,180,255,0.15);border-radius:20px;
+    font-family:'SF Mono',monospace;font-size:10px;color:var(--dim);
+    pointer-events:none;letter-spacing:0.06em;}
+  #lockbar .hash{color:var(--moire);}#lockbar .sep{margin:0 8px;opacity:0.4;}
+
+  #permission{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+    background:rgba(5,7,12,0.94);backdrop-filter:blur(20px);}
+  #permission.hidden{display:none;}
+  #permission .card{max-width:440px;margin:16px;padding:30px 34px;
+    border:1px solid rgba(212,184,255,0.4);border-radius:16px;
+    background:rgba(8,12,20,0.95);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.8);}
+  #permission h1{margin:0 0 10px;font-size:17px;letter-spacing:0.06em;color:var(--moire);}
+  #permission p{margin:0 0 16px;color:#aab9d4;font-size:12.5px;line-height:1.6;}
+  #permission .small{font-size:10.5px;color:var(--dim);margin-top:14px;}
+  #permission button{padding:11px 24px;border:none;border-radius:30px;background:var(--moire);
+    color:#05070c;font-weight:700;font-size:12px;letter-spacing:0.08em;cursor:pointer;
+    text-transform:uppercase;margin:0 4px;}
+  #permission button:hover{opacity:0.85;}
+  #permission button.skip{background:transparent;border:1px solid rgba(212,184,255,0.4);color:var(--moire);}
+
+  #moire-toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:120;
+    background:rgba(8,12,20,0.94);border:1px solid rgba(212,184,255,0.5);color:#e0ecff;
+    padding:12px 18px;border-radius:10px;font:600 12px ui-monospace,'SF Mono',monospace;
+    pointer-events:none;transition:opacity 0.2s;max-width:80vw;text-align:center;}
+
+  /* Slide-out panels: HUD sweeps left, lock panel sweeps right; an edge tab brings each back */
+  #hud,#factors{transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s;}
+  #hud.tucked{transform:translateX(calc(-100% - 14px)) scale(var(--ui-scale));opacity:.0;}
+  #factors.tucked{transform:translateX(calc(100% + 14px)) scale(var(--ui-scale));opacity:.0;}
+  .edge-tab{position:fixed;z-index:11;width:22px;height:64px;padding:0;
+    background:rgba(8,12,20,0.85);border:1px solid rgba(212,184,255,0.45);color:var(--moire);
+    font:600 13px 'SF Mono',monospace;cursor:pointer;backdrop-filter:blur(10px);
+    display:flex;align-items:center;justify-content:center;touch-action:manipulation;}
+  #tab-hud{left:0;top:40%;border-left:none;border-radius:0 10px 10px 0;}
+  #tab-factors{right:0;top:55%;border-right:none;border-radius:10px 0 0 10px;}
+  #hud{left:28px !important;} #factors{right:28px !important;}
+  .edge-tab:active{background:rgba(40,60,90,0.9);}
+
+  /* SOO pull-tab panel (bottom) */
+  #tab-soo{position:fixed;left:50%;bottom:44px;transform:translateX(-50%);z-index:12;
+    padding:4px 14px;border-radius:10px 10px 0 0;border:1px solid rgba(212,184,255,0.45);border-bottom:none;
+    background:rgba(8,12,20,0.88);color:var(--moire);font:600 10px 'SF Mono',monospace;letter-spacing:.12em;cursor:pointer;}
+  #soo-panel{position:fixed;left:50%;bottom:44px;z-index:13;width:min(560px,92vw);max-height:52vh;overflow:auto;
+    transform:translate(-50%,calc(100% + 60px));transition:transform .35s cubic-bezier(.2,.8,.2,1);
+    background:rgba(8,12,20,0.9);border:1px solid rgba(212,184,255,0.35);border-radius:12px;backdrop-filter:blur(12px);
+    padding:10px 12px;font:10px 'SF Mono',monospace;color:#b8d0ff;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px 14px;}
+  #soo-panel.open{transform:translate(-50%,-26px);}
+  #soo-panel .soo-state{grid-column:1/-1;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;}
+  #soo-panel .soo-state span{color:var(--moire);font-weight:600;} #soo-panel .ok{color:var(--ok)!important;} #soo-panel .bad{color:var(--bad)!important;}
+  #soo-panel .head{color:var(--dim);letter-spacing:.14em;text-transform:uppercase;font-size:9px;margin:6px 0 3px;border-top:1px solid rgba(120,180,255,0.12);padding-top:5px;}
+  #soo-panel .row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:2px 0;}
+  #soo-panel .k{color:var(--dim);font-size:9px;} #soo-panel .v{color:var(--text);}
+  #soo-panel input[type=range]{width:100%;accent-color:#d4b8ff;margin:0 0 3px;}
+  #soo-panel select{background:#0d1320;color:var(--text);border:1px solid rgba(120,180,255,.3);border-radius:4px;font:10px 'SF Mono',monospace;}
+  #soo-panel .eq{display:flex;gap:2px;height:56px;align-items:flex-end;}
+  #soo-panel .eq input{writing-mode:vertical-lr;direction:rtl;width:16px;height:52px;}
+  #lockbar{white-space:nowrap;max-width:96vw;overflow:hidden;text-overflow:ellipsis;}
+  #controls button#btn-snap{border-color:rgba(124,255,155,0.6);color:var(--ok);}
+  #controls button#btn-snap.locked{background:rgba(124,255,155,0.18);}
+  /* In use: everything snaps off screen except Reset + Snap to Orbit */
+  #hud,#factors,#legend,#lockbar,#soo-panel,.edge-tab,#tab-soo,#controls button{transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .3s;}
+  body.in-use #hud{transform:translateX(calc(-100% - 40px)) !important;opacity:0;}
+  body.in-use #legend{transform:translateX(calc(-100% - 40px)) !important;opacity:0;}
+  body.in-use #factors{transform:translateX(calc(100% + 40px)) !important;opacity:0;}
+  body.in-use #tab-hud{transform:translateX(-100%);opacity:0;}
+  body.in-use #tab-factors{transform:translateX(100%);opacity:0;}
+  body.in-use #lockbar{transform:translate(-50%,200%) !important;opacity:0;}
+  body.in-use #soo-panel{transform:translate(-50%,calc(100% + 120px)) !important;}
+  body.in-use #tab-soo{transform:translate(-50%,300%);opacity:0;}
+  body.in-use #controls button:not(#btn-reset):not(#btn-snap){transform:translateY(-160%);opacity:0;pointer-events:none;}
+  body.in-use #hud,body.in-use #factors,body.in-use #legend,body.in-use #lockbar,body.in-use #soo-panel,body.in-use .edge-tab,body.in-use #tab-soo{pointer-events:none;}
+  #soo-panel .drow{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:2px 14px;}
+  #soo-panel .knobs{display:flex;gap:18px;margin:6px 0;}
+  #soo-panel .knob{display:flex;flex-direction:column;align-items:center;cursor:ns-resize;touch-action:none;width:48px;}
+  #soo-panel .knob svg{width:40px;height:40px;} #soo-panel .knob .kb{fill:#0d1320;stroke:rgba(120,180,255,.25);stroke-width:2;}
+  #soo-panel .knob .ka{fill:none;stroke:#d4b8ff;stroke-width:3;stroke-linecap:round;} #soo-panel .knob .kn{stroke:#e0ecff;stroke-width:2;stroke-linecap:round;}
+  #soo-panel .mini{background:#0d1320;color:var(--moire);border:1px solid rgba(212,184,255,.4);border-radius:4px;font:9px 'SF Mono',monospace;padding:2px 6px;cursor:pointer;}
+  #pat-grid{display:grid;grid-template-columns:repeat(16,1fr);gap:2px;margin-top:4px;}
+  #pat-grid button{height:22px;padding:0;background:#0d1320;border:1px solid rgba(120,180,255,.2);border-radius:3px;color:var(--dim);font:8px 'SF Mono',monospace;cursor:pointer;}
+  #pat-grid button:nth-child(4n+1){border-color:rgba(120,180,255,.45);}
+  #pat-grid button.on{background:rgba(212,184,255,.45);color:#fff;} #pat-grid button.head{box-shadow:inset 0 0 0 1px #7cff9b;}
+  #lb-chain.pulse{animation:sentpulse .6s ease-out;}
+  @keyframes sentpulse{0%{color:#7cff9b;text-shadow:0 0 8px #7cff9b;}100%{text-shadow:none;}}
+</style>
+</head>
+<body>
+
+<div id="hud">
+  <div class="head">Gate — forward</div>
+  <div class="row"><span class="k">origin</span>    <span class="v moire" id="v-origin">0, 0</span></div>
+  <div class="row"><span class="k">rings</span>     <span class="v moire" id="v-rings">0</span></div>
+  <div class="row"><span class="k">depth</span>     <span class="v" id="v-depth">0</span></div>
+  <div class="row"><span class="k">coherence</span> <span class="v moire" id="v-coherence">—</span></div>
+  <div class="row"><span class="k">moiré °</span>  <span class="v moire" id="v-moire-angle">—</span></div>
+
+  <div class="head">Gate — mirror</div>
+  <div class="row"><span class="k">origin</span>    <span class="v mirror" id="vm-origin">0, 0</span></div>
+  <div class="row"><span class="k">rings</span>     <span class="v mirror" id="vm-rings">0</span></div>
+  <div class="row"><span class="k">coherence</span> <span class="v mirror" id="vm-coherence">—</span></div>
+
+  <div class="head">Solar frame</div>
+  <div class="row"><span class="k">lat</span>       <span class="v solar" id="s-lat">—</span></div>
+  <div class="row"><span class="k">alt</span>       <span class="v solar" id="s-alt">—</span></div>
+  <div class="row"><span class="k">az</span>        <span class="v solar" id="s-az">—</span></div>
+  <div class="row"><span class="k">decl</span>      <span class="v solar" id="s-decl">—</span></div>
+  <div class="row"><span class="k">source</span>    <span class="v" id="s-source">—</span></div>
+
+  <div class="head">Sky</div>
+  <div class="row"><span class="k">view alt</span>  <span class="v star" id="k-alt">—</span></div>
+  <div class="row"><span class="k">view az</span>   <span class="v star" id="k-az">—</span></div>
+  <div class="row"><span class="k">star</span>      <span class="v star" id="k-star">—</span></div>
+
+  <div class="head">Duet</div>
+  <div class="row"><span class="k">divergence</span> <span class="v" id="v-divergence">—</span></div>
+  <div class="row"><span class="k">record</span>     <span class="v" id="v-record">0</span></div>
+</div>
+
+<div id="controls">
+  <button id="btn-reset" class="danger">Reset</button>
+  <button id="btn-snap" class="snap">Snap to Orbit</button>
+  <button id="btn-pause" class="moire">Pause</button>
+  <button id="btn-sight">Sight Pole</button>
+  <button id="btn-showtip" class="toggle" data-key="tip">Fingertip</button>
+  <button id="btn-mirror" class="toggle active" data-key="mirror">Mirror</button>
+  <button id="btn-motion" class="toggle" data-key="motion">Motion</button>
+  <button id="btn-solar" class="toggle active" data-key="solar">Solar</button>
+  <button id="btn-sky" class="toggle active" data-key="sky">Sky</button>
+  <button id="btn-log" class="moire" title="Export the sentinel_dot tamper-evident log">Log ⤓</button>
+</div>
+
+<div id="legend">
+  <div><span class="t">●</span> walk as drawing — the gate's own path is the ink</div>
+  <div><span class="m">◯</span> forward gate · relocates by (Δx, Δy) from moiré</div>
+  <div><span class="mr">◯</span> mirror gate · relocates on the mirrored fused stream</div>
+  <div><span class="s">☀</span> solar frame · local alt/az</div>
+  <div><span class="st">✧</span> point phone at N or S pole · tap Sight Pole to fix latitude</div>
+</div>
+
+<div id="factors"></div>
+<div id="soo-panel"></div>
+<button id="tab-soo">SOO ▴</button>
+<button id="tab-hud" class="edge-tab" aria-label="Toggle readout panel">‹</button>
+<button id="tab-factors" class="edge-tab" aria-label="Toggle lock panel">›</button>
+
+<div id="lockbar">
+  <span>lock</span><span class="sep">·</span>
+  <span class="hash" id="lb-hash">—</span><span class="sep">·</span>
+  <span id="lb-pert">perturbation: —</span><span class="sep">·</span>
+  <span id="lb-secular">secular: —</span><span class="sep">·</span>
+  <span>soo</span> <span class="hash" id="lb-soo">READY</span><span class="sep">·</span>
+  <span>sentinel</span> <span class="hash" id="lb-chain">0 · 00000000</span>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<div id="permission">
+  <div class="card">
+    <h1>Enable Motion &amp; Compass?</h1>
+    <p>Adds accelerometer and compass as input channels. The daemon gate extracts only the local frame — up, north, view direction — and discards raw values immediately. Point at the celestial pole and tap <b>Sight Pole</b> to fix your latitude angle. No geolocation call is made.</p>
+    <div class="small">No network calls. No persistence. Reset clears the pad and closes a sentinel_dot round; the hash-chained action log stays in memory until you export it (Log ⤓).</div>
+    <div style="margin-top:20px;">
+      <button id="btn-perm-yes">Enable</button>
+      <button id="btn-perm-no" class="skip">Skip</button>
+    </div>
+  </div>
+</div>
+
+<script src="sentinel_dot.js"></script>
+<!-- Local integration change: service-worker registration is explicitly disabled. -->
+<script src="../instrument-bridge.js"></script>
+<script>
+"use strict";
+
+/* ============================================================================
+   MOIRÉ PAD · SKY FUSED
+   Moire invariant extraction + Inverted Sky view projection, joined by the
+   daemon gate's view direction. Latitude is a sighted angle, not a position.
+   ========================================================================== */
+
+const TAU = Math.PI * 2;
+const DEG = Math.PI / 180;
+const RAD = 180 / Math.PI;
+const clamp = (v,a,b) => v<a?a:v>b?b:v;
+const wrap360 = d => ((d % 360) + 360) % 360;
+// Local integration: lifecycle-owned clocks; sensors require a fresh user request.
+let tapLifecycleEpoch = 0, tapInactive = false, tapAnimation = null;
+const tapIntervals = [], tapToneTimers = new Set();
+function tapEvery(callback, delay) {
+  tapIntervals.push(setInterval(() => {
+    if (!document.hidden && !tapInactive) callback();
+  }, delay));
+}
+
+/* ---------------------------------------------------------------------------
+   LOCK FILE
+   --------------------------------------------------------------------------- */
+
+const LOCK = {
+  meta: { version:"4.1.0", epoch:"runtime",
+    hash: "sha256:" + Math.random().toString(36).slice(2, 12) },
+  baseline: {
+    OMEGA_LOCAL:  { value:1.37, min:1.00, max:2.00, step:0.01, tag:"base", desc:"phase ratio" },
+    OMEGA_A:      { value:1.00, locked:true, tag:"base", desc:"primary phase rate" },
+    RELOCATION_K: { value:55,   min:10,   max:120,  step:1,    tag:"base", desc:"relocation gain" },
+    CONV_THRESH:  { value:0.78, min:0.50, max:0.98, step:0.01, tag:"base", desc:"coherence threshold" },
+    FIRE_MS:      { value:260,  min:80,   max:800,  step:10,   tag:"base", desc:"min ring interval" },
+  },
+  perturbation: {
+    accelWeight:  { value:0.40, min:0, max:1, step:0.01, tag:"pert", desc:"horizontal accel weight", secular:false },
+    accelZWeight: { value:0.20, min:0, max:1, step:0.01, tag:"pert", desc:"vertical accel weight", secular:false },
+    solarWeight:  { value:0.50, min:0, max:1, step:0.01, tag:"pert", desc:"solar-frame rotation weight", secular:false },
+    leashRadius:  { value:220,  min:60, max:500, step:10, tag:"pert", desc:"anti-drift radius (px)", secular:true, refit:true },
+    dpEpsilon:    { value:0.5,  min:0.1, max:2.0, step:0.1, tag:"pert", desc:"local DP ε at extraction", secular:false },
+  },
+  commensuration: { cycle:null },
+  diagnostics: {},
+};
+function lockGet(s,k){ return LOCK[s][k]?.value; }
+
+/* ---------------------------------------------------------------------------
+   SENTINEL_DOT WEAVE
+   Every control action, lock edit, sighting and ring is appended to a
+   sentinel_dot hash chain (SHA-256, or HMAC-SHA256 if ?key=<base64> is given).
+   Never-list holds: no raw alpha/beta/gamma or accelerometer values are logged.
+   Floats are fixed-point strings or scaled ints (schema forbids floats).
+   --------------------------------------------------------------------------- */
+const Sentinel = new SentinelDot.SentinelLog({ sender: "invarianttap" });
+const S_milli = x => Math.round(x * 1000);           // scaled-int helpers
+const S_micro = x => Math.round(x * 1e6);
+function slog(type, params, token) { return Sentinel.action(type, params, token).catch(e => console.warn("sentinel_dot", e)); }
+function sreject(type, reason, params) { return Sentinel.reject(type, reason, params).catch(e => console.warn("sentinel_dot", e)); }
+Sentinel.onAppend = e => {
+  const el = document.getElementById("lb-chain");
+  if (el) el.textContent = `${e.seq + 1} · ${e.entry_hash.slice(0, 8)}`;
+};
+(async () => {
+  const key = new URLSearchParams(location.hash.slice(1)).get("key");   // #key=... (fragment: never sent to a server)
+  if (key) { try { await Sentinel.setKey(key); } catch (e) { console.warn(e); } }
+  slog("session_start", { app: "invarianttap", lock_version: LOCK.meta.version,
+    lock_id: LOCK.meta.hash, hash_mode: Sentinel.mode });
+})();
+
+/* ---------------------------------------------------------------------------
+   DAEMON GATE
+   --------------------------------------------------------------------------- */
+
+class DaemonGate {
+  constructor() {
+    this.subscribed = false;
+    this.accel = { x:0, y:0, z:0 };
+    this.orientation = { alpha:null, beta:null, gamma:null };
+    this.hasCompass = false;
+    this.dipOK = false;
+    this.source = "none";
+    this.frame = null;
+    this.viewLocal = null;
+    this.lastEmit = 0;
+    this.emitMs = 33;
+    this._callbacks = [];
+    this._solarAz = 0;
+    this._solarAlt = 0;
+    this._magneticHeading = null;   // for smooth view heading
+  }
+
+  onFrame(fn){ this._callbacks.push(fn); }
+
+  static neverExpose = ["ax","ay","az","rawMag","alpha","beta","gamma","lat","lon"];
+
+  subscribe() {
+    if (this.subscribed) return;
+    window.addEventListener("devicemotion", this._onMotion, true);
+    window.addEventListener("deviceorientationabsolute", this._onOrient, true);
+    window.addEventListener("deviceorientation", this._onOrient, true);
+    this.subscribed = true;
+  }
+
+  unsubscribe() {
+    window.removeEventListener("devicemotion", this._onMotion, true);
+    window.removeEventListener("deviceorientationabsolute", this._onOrient, true);
+    window.removeEventListener("deviceorientation", this._onOrient, true);
+    this.subscribed = false;
+  }
+
+  _onMotion = (e) => {
+    const a = e.accelerationIncludingGravity || e.acceleration;
+    if (!a || a.x == null) return;
+    this.accel.x = a.x; this.accel.y = a.y; this.accel.z = a.z;
+    this._computeFrame();
+  };
+
+  _onOrient = (e) => {
+    if (e.alpha == null) return;
+    this.orientation.alpha = e.alpha;
+    this.orientation.beta = e.beta;
+    this.orientation.gamma = e.gamma;
+    // Prefer absolute compass if available
+    if (typeof e.webkitCompassHeading === "number" && e.webkitCompassHeading >= 0) {
+      const acc = (typeof e.webkitCompassAccuracy === "number") ? e.webkitCompassAccuracy : 0;
+      if (acc >= 0) {
+        this.hasCompass = true;
+        this._magneticHeading = wrap360(e.webkitCompassHeading);
+      }
+    } else if (e.absolute === true || e.type === "deviceorientationabsolute") {
+      this.hasCompass = true;
+      this._magneticHeading = wrap360(-e.alpha);
+    }
+    this._computeFrame();
+  };
+
+  _computeFrame() {
+    const now = performance.now();
+    if (now - this.lastEmit < this.emitMs) return;
+    this.lastEmit = now;
+
+    const up = this._norm([-this.accel.x, -this.accel.y, -this.accel.z]);
+    if (!up) return;
+
+    let nTrue, source;
+    const magOK = this.hasCompass && this.orientation.alpha != null;
+
+    if (magOK) {
+      const aRad = (this._magneticHeading != null ? this._magneticHeading : this.orientation.alpha) * DEG;
+      const north = this._horiz([Math.sin(aRad), 0, Math.cos(aRad)], up);
+      if (north) { nTrue = north; source = "magnetic"; }
+    }
+    if (!nTrue) {
+      const aRad = this._solarAz;
+      const solar = this._horiz([Math.sin(aRad), 0, Math.cos(aRad)], up);
+      if (solar) { nTrue = solar; source = "solar"; }
+    }
+    if (!nTrue) return;
+
+    const east = this._cross(up, nTrue);
+    this.frame = { up, n: nTrue, e: east, heading_local: 0, source, dip_ok: magOK };
+
+    // View direction (device rear camera) in the local compass-referenced ENU frame.
+    // This is derived, not raw — alpha/beta/gamma do not leave this method.
+    this._computeViewLocal(nTrue, east, up);
+
+    this.source = source;
+    this.dipOK = magOK;
+    this._emit();
+  }
+
+  _computeViewLocal(n, e, up) {
+    const A = (this.orientation.alpha || 0) * DEG;
+    const B = (this.orientation.beta  || 0) * DEG;
+    const G = (this.orientation.gamma || 0) * DEG;
+    const ca = Math.cos(A), sa = Math.sin(A);
+    const cb = Math.cos(B), sb = Math.sin(B);
+    const cg = Math.cos(G), sg = Math.sin(G);
+    // Rear-camera direction in a compass-referenced ENU frame:
+    //   east  = -ca*sg - sa*sb*cg
+    //   north = -sa*sg + ca*sb*cg
+    //   up    = -cb*cg
+    // This matches Inverted Sky's deviceDirection().
+    let vx = -ca*sg - sa*sb*cg;
+    let vy = -sa*sg + ca*sb*cg;
+    let vz = -cb*cg;
+    const L = Math.hypot(vx, vy, vz);
+    if (L < 1e-9) { this.viewLocal = null; return; }
+    vx /= L; vy /= L; vz /= L;
+    // Project onto the triad frame: e along east, n along north, up along up.
+    // The triad's own basis vectors are in world coords; we want view in (e,n,up).
+    this.viewLocal = { e: vx, n: vy, u: vz };
+  }
+
+  setSolar(azRad, altRad) { this._solarAz = azRad; this._solarAlt = altRad; }
+
+  _emit() { for (const fn of this._callbacks) fn(this.frame); }
+
+  _norm(v) {
+    const m = Math.hypot(v[0], v[1], v[2]);
+    if (m < 1e-9) return null;
+    return [v[0]/m, v[1]/m, v[2]/m];
+  }
+  _cross(a, b) {
+    return [a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], a[0]*b[1] - a[1]*b[0]];
+  }
+  _horiz(v, up) {
+    const d = v[0]*up[0] + v[1]*up[1] + v[2]*up[2];
+    const h = [v[0]-d*up[0], v[1]-d*up[1], v[2]-d*up[2]];
+    return this._norm(h);
+  }
+}
+
+const daemon = new DaemonGate();
+
+/* ---------------------------------------------------------------------------
+   SOLAR CLOCK
+   --------------------------------------------------------------------------- */
+
+const SolarClock = {
+  daysSinceJ2000() { return (Date.now() / 86400000) - 10957.5; },
+  declination(t) {
+    const eps = 23.4393 * DEG;
+    const L = ((280.460 + 0.9856474 * t) % 360) * DEG;
+    const g = ((357.528 + 0.9856003 * t) % 360) * DEG;
+    const lam = L + 1.915 * DEG * Math.sin(g) + 0.020 * DEG * Math.sin(2*g);
+    return Math.asin(Math.sin(eps) * Math.sin(lam));
+  },
+  hourAngle(t, localPhase) { return TAU * (localPhase - 0.5); },
+  latBand: null,
+  altaz(t, latDeg, localPhase) {
+    const decl = this.declination(t);
+    const H = this.hourAngle(t, localPhase);
+    const lat = (latDeg == null ? 45 : latDeg) * DEG;
+    const sinAlt = Math.sin(lat)*Math.sin(decl) + Math.cos(lat)*Math.cos(decl)*Math.cos(H);
+    const alt = Math.asin(clamp(sinAlt, -1, 1));
+    const cosAz = (Math.sin(decl) - Math.sin(lat)*Math.sin(alt)) /
+                  (Math.cos(lat)*Math.cos(alt) + 1e-9);
+    const az = Math.acos(clamp(cosAz, -1, 1));
+    return { alt, az: H < 0 ? az : TAU - az, decl };
+  }
+};
+
+/* ---------------------------------------------------------------------------
+   LATITUDE — a sighted angle, never a coordinate
+   --------------------------------------------------------------------------- */
+
+const Latitude = {
+  absRad: null,
+  hemi: null,
+  sightedAt: 0,
+  setFromSight(absAltRad, hemi) {
+    this.absRad = absAltRad;
+    this.hemi = hemi;
+    this.sightedAt = performance.now();
+  },
+  signedRad() {
+    if (this.absRad == null) return null;
+    return this.hemi === "S" ? -this.absRad : this.absRad;
+  },
+  signedDeg() {
+    if (this.absRad == null) return null;
+    const d = this.absRad * RAD;
+    return this.hemi === "S" ? -d : d;
+  }
+};
+
+/* ---------------------------------------------------------------------------
+   INPUT FACTORS
+   --------------------------------------------------------------------------- */
+
+function accelW()  { return lockGet("perturbation","accelWeight"); }
+function accelZW() { return lockGet("perturbation","accelZWeight"); }
+function solarW()  { return lockGet("perturbation","solarWeight"); }
+function relocK()  { return lockGet("baseline","RELOCATION_K"); }
+function convThresh(){ return lockGet("baseline","CONV_THRESH"); }
+function omegaA()  { return lockGet("baseline","OMEGA_A"); }
+function omegaB()  { return lockGet("baseline","OMEGA_A") * lockGet("baseline","OMEGA_LOCAL"); }
+function fireMs()  { return lockGet("baseline","FIRE_MS"); }
+function leashMax(){ return lockGet("perturbation","leashRadius"); }
+
+const Leash = { tension: 0 };
+
+/* ---------------------------------------------------------------------------
+   TRACKER
+   --------------------------------------------------------------------------- */
+
+const Tracker = {
+  events: [],
+  lastCoherence: 0,
+  coherenceHistory: [],
+  maxHistory: 110,
+  divergenceHistory: [],
+  lastDivergenceSign: 0,
+  ringsSinceZeroCross: 0,
+  commensuration: null,
+  record(coh) {
+    const now = performance.now();
+    this.events.push(now);
+    const cutoff = now - 10000;
+    while (this.events.length && this.events[0] < cutoff) this.events.shift();
+    this.lastCoherence = coh;
+  },
+  rate() {
+    if (this.events.length < 2) return 0;
+    const span = (performance.now() - this.events[0]) / 1000;
+    return span > 0.1 ? this.events.length / span : 0;
+  },
+  sample(coh) {
+    this.coherenceHistory.push(coh);
+    if (this.coherenceHistory.length > this.maxHistory) this.coherenceHistory.shift();
+  },
+  sampleDivergence(d) {
+    this.divergenceHistory.push(d);
+    if (this.divergenceHistory.length > this.maxHistory) this.divergenceHistory.shift();
+    const sign = Math.sign(d);
+    if (this.lastDivergenceSign !== 0 && sign !== 0 && sign !== this.lastDivergenceSign) {
+      this.commensuration = this.ringsSinceZeroCross;
+      this.ringsSinceZeroCross = 0;
+      LOCK.commensuration.cycle = this.commensuration;
+    } else { this.ringsSinceZeroCross++; }
+    this.lastDivergenceSign = sign || this.lastDivergenceSign;
+  }
+};
+
+/* ---------------------------------------------------------------------------
+   RECORD & RING
+   --------------------------------------------------------------------------- */
+
+class Record {
+  constructor() { this._items = []; }
+  append(v) { const o = { value:v, index:this._items.length }; this._items.push(o); return o; }
+  length() { return this._items.length; }
+  clear() { this._items.length = 0; }
+  trim(max) {
+    if (this._items.length <= max) return;
+    const drop = this._items.length - max;
+    this._items.splice(0, drop);
+    for (let i = 0; i < this._items.length; i++) this._items[i].index = i;
+  }
+}
+
+let RING_COUNTER = 0;
+let MIRROR_RING_COUNTER = 0;
+
+class Ring {
+  constructor(id, parentId, planeIndex, moireAngle, phaseA, phaseB, coherence,
+              originX, originY, offsetX, offsetY, rawX, rawY, mirrored, frame) {
+    Object.assign(this, {
+      id, parentId, planeIndex, moireAngle, phaseA, phaseB, coherence,
+      originX, originY, offsetX, offsetY, rawX, rawY,
+      mirrored: !!mirrored, frame: frame || null,
+      bornAt: performance.now(), depth: 0
+    });
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   PHASE FUNCTIONS
+   --------------------------------------------------------------------------- */
+
+function sampleVel(a, b) {
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const ax = b.ax || 0, ay = b.ay || 0, az = b.az || 0;
+  return { dx: dx + ax*accelW(), dy: dy + ay*accelW(), dz: az*accelZW() };
+}
+
+function phase_A(samples, p) {
+  if (!samples || samples.length < 4) return 0;
+  const slice = samples.slice(0, Math.min(p, samples.length));
+  if (slice.length < 3) return 0;   // plane 0-2: no velocity pairs yet (was: TypeError / NaN)
+  let jerkSum = 0, jerkN = 0;
+  for (let i = 2; i < slice.length; i++) {
+    const v1 = sampleVel(slice[i-2], slice[i-1]);
+    const v2 = sampleVel(slice[i-1], slice[i]);
+    jerkSum += Math.hypot(v2.dx - v1.dx, v2.dy - v1.dy);
+    jerkN++;
+  }
+  const meanJerk = jerkN > 0 ? jerkSum / jerkN : 0;
+  const smoothness = Math.max(0, 1 - meanJerk / 30);
+  const speeds = [];
+  for (let i = 1; i < slice.length; i++) {
+    const v = sampleVel(slice[i-1], slice[i]);
+    speeds.push(Math.hypot(v.dx, v.dy));
+  }
+  const mS = speeds.reduce((a,b) => a+b, 0) / speeds.length;
+  const vS = speeds.reduce((a,b) => a + (b-mS)**2, 0) / speeds.length;
+  const stability = 1 / (1 + Math.sqrt(vS));
+  const sA = 0.6 * smoothness + 0.4 * stability;
+  return (sA * TAU * omegaA()) % TAU;
+}
+
+function phase_B(samples, p) {
+  if (!samples || samples.length < 4) return 0;
+  const slice = samples.slice(0, Math.min(p, samples.length));
+  if (slice.length < 3) return 0;   // plane 0-2: no velocity pairs yet (was: TypeError / NaN)
+  let dirSum = 0, dirN = 0;
+  for (let i = 2; i < slice.length; i++) {
+    const v1 = sampleVel(slice[i-2], slice[i-1]);
+    const v2 = sampleVel(slice[i-1], slice[i]);
+    const n1 = Math.hypot(v1.dx, v1.dy) + 1e-9;
+    const n2 = Math.hypot(v2.dx, v2.dy) + 1e-9;
+    const cosT = clamp((v1.dx*v2.dx + v1.dy*v2.dy) / (n1*n2), -1, 1);
+    dirSum += Math.acos(cosT); dirN++;
+  }
+  const meanDir = dirN > 0 ? dirSum / dirN : 0;
+  const dirCoherence = Math.max(0, 1 - meanDir / (Math.PI/2));
+  const first = slice[0], last = slice[slice.length - 1];
+  const gdx = last.x - first.x, gdy = last.y - first.y;
+  const gmag = Math.hypot(gdx, gdy);
+  const globalDir = Math.min(1, gmag / 100);
+  const sB = 0.65 * dirCoherence + 0.35 * globalDir;
+  return (sB * TAU * omegaB()) % TAU;
+}
+
+function coherenceAt(samples, p) { return Math.cos(phase_A(samples, p) - phase_B(samples, p)); }
+
+const MAX_OFFSET = 14;
+
+function findConvergence(samples, start) {
+  let best = null, bestC = -Infinity, prevC = null;
+  const end = Math.min(samples.length - 1, start + MAX_OFFSET);
+  for (let p = start; p <= end; p++) {
+    const c = coherenceAt(samples, p);
+    if (c >= convThresh()) {
+      if (best === null || c > bestC) { best = p; bestC = c; }
+      if (prevC !== null && c < prevC) return { plane:best, coherence:bestC };
+    }
+    prevC = c;
+  }
+  return best !== null ? { plane:best, coherence:bestC } : null;
+}
+
+function relocationOffset(moireAngleRad, coherence) {
+  const mag = relocK() * coherence;
+  return { dx: Math.cos(moireAngleRad)*mag, dy: Math.sin(moireAngleRad)*mag };
+}
+
+/* ---------------------------------------------------------------------------
+   GATE
+   --------------------------------------------------------------------------- */
+
+function makeGate(opts) {
+  const mirrored = !!opts.mirrored;
+  const inkColor = opts.inkColor;
+  return {
+    mirrored, inkColor,
+    record: new Record(),
+    rings: [], lastRing: null, rootRing: null,
+    originX: 0, originY: 0, lastOffsetX: 0, lastOffsetY: 0,
+    currentCoherence: 0, currentPhaseA: 0, currentPhaseB: 0, currentMoireAngle: 0,
+    active: false, pointerId: null,
+    walk: [], fingertip: [],
+    lastAx: 0, lastAy: 0, lastAz: 0,
+    currentFrame: null,
+    running: true, lastFireTime: 0,
+    onRing: null,
+
+    start() {
+      this.record.clear();
+      this.rings = []; this.lastRing = null; this.rootRing = null;
+      this.originX = 0; this.originY = 0;
+      this.lastOffsetX = 0; this.lastOffsetY = 0;
+      this.walk = []; this.fingertip = [];
+      this.lastFireTime = 0; this.active = false; this.pointerId = null;
+      this.currentCoherence = 0;
+      this.currentPhaseA = 0;
+      this.currentPhaseB = 0;
+      this.currentMoireAngle = 0;
+      this.lastAx = this.lastAy = this.lastAz = 0;
+      this.currentFrame = null;
+    },
+    reset() { this.start(); },
+    togglePause() { this.running = !this.running; },
+
+    feedAccel(ax, ay, az) {
+      this.lastAx = ax; this.lastAy = ay; this.lastAz = az;
+      if (!this.running) return;
+      const mx = mirrored ? -1 : 1;
+      const mag = Math.hypot(ax, ay, az);
+      const last = this.fingertip[this.fingertip.length - 1];
+      this.record.append({
+        x: last ? last.x : 0, y: last ? last.y : 0,
+        ax: ax*mx, ay, az, mag, source: "accel", t: performance.now()
+      });
+      this.record.trim(360);
+    },
+
+    transform(rawX, rawY, screenW) {
+      const mx = mirrored ? (screenW - rawX) : rawX;
+      const dx = mx - this.originX;
+      const dy = rawY - this.originY;
+      const frame = this.currentFrame;
+      const solarOn = frame && SolarFrame.active;
+      if (!solarOn || solarW() < 0.01) return { tx: dx, ty: dy, raw: mx };
+      const h = frame.heading_local;
+      const c = Math.cos(h), s = Math.sin(h);
+      const w = solarW();
+      const altW = 0.5 + 0.5 * Math.sin(SolarFrame.alt || 0);
+      const rotX = c*dx - s*dy;
+      const rotY = s*dx + c*dy;
+      return {
+        tx: (rotX*(1-w) + rotX/altW*w),
+        ty: (rotY*(1-w) + rotY*altW*w),
+        raw: mx
+      };
+    },
+
+    beginDrag(rawX, rawY, id, screenW) {
+      if (!this.running) return;
+      this.active = true; this.pointerId = id;
+      this.walk = [{ x: this.originX, y: this.originY, t: performance.now() }];
+      const t = this.transform(rawX, rawY, screenW);
+      this.fingertip = [{ x: t.raw, y: rawY, t: performance.now() }];
+    },
+
+    pushSample(rawX, rawY, screenW) {
+      if (!this.running || !this.active) return;
+      const t = this.transform(rawX, rawY, screenW);
+      const now = performance.now();
+      const mag = Math.hypot(this.lastAx, this.lastAy, this.lastAz);
+      this.record.append({
+        x: t.tx, y: t.ty, rawX: t.raw, rawY,
+        ax: this.lastAx, ay: this.lastAy, az: this.lastAz,
+        mag, source: "touch", t: now
+      });
+      this.fingertip.push({ x: t.raw, y: rawY, t: now });
+      this.record.trim(360);
+    },
+
+    endDrag() { this.active = false; this.pointerId = null; },
+    setFrame(frame) { this.currentFrame = frame; },
+
+    tick() {
+      if (!this.running) return;
+      const samples = this.record._items.map(o => o.value);
+      if (samples.length < 6) return;
+      const p = samples.length - 1;
+      this.currentCoherence = coherenceAt(samples, p);
+      this.currentPhaseA = phase_A(samples, p);
+      this.currentPhaseB = phase_B(samples, p);
+      this.currentMoireAngle = this.currentPhaseA - this.currentPhaseB;
+      const now = performance.now();
+      if (now - this.lastFireTime < fireMs()) return;
+      const conv = findConvergence(samples, Math.max(0, samples.length - MAX_OFFSET - 1));
+      if (!conv) return;
+      this.lastFireTime = now;
+      const plane = conv.plane;
+      const pA = phase_A(samples, plane);
+      const pB = phase_B(samples, plane);
+      const moireRad = pA - pB;
+      const offset = relocationOffset(moireRad, conv.coherence);
+      const parentId = this.lastRing ? this.lastRing.id : null;
+      const idCounter = mirrored ? (++MIRROR_RING_COUNTER) : (++RING_COUNTER);
+      const ring = new Ring(
+        idCounter, parentId, plane, moireRad, pA, pB, conv.coherence,
+        this.originX, this.originY, offset.dx, offset.dy,
+        samples[plane].rawX || 0, samples[plane].rawY || 0,
+        mirrored, this.currentFrame
+      );
+      this.rings.push(ring);
+      if (!this.rootRing) this.rootRing = ring;
+      this.lastRing = ring;
+      this.lastOffsetX = offset.dx; this.lastOffsetY = offset.dy;
+      this.originX += offset.dx; this.originY += offset.dy;
+      const dist = Math.hypot(this.originX, this.originY);
+      if (dist > leashMax()) {
+        const excess = dist - leashMax();
+        const pull = Math.min(excess * 0.15, 25);
+        const nx = this.originX / dist, ny = this.originY / dist;
+        this.originX -= nx*pull; this.originY -= ny*pull;
+        Leash.tension = pull;
+      } else { Leash.tension = 0; }
+      this.walk.push({ x: this.originX, y: this.originY, t: now, ring });
+      Tracker.record(conv.coherence);
+      this.onRing?.(ring);
+    },
+
+    state() {
+      let maxDepth = 0;
+      const byId = new Map();
+      for (const r of this.rings) byId.set(r.id, r);
+      for (const r of this.rings) {
+        let d = 0, p = r.parentId;
+        const seen = new Set();
+        while (p != null && byId.has(p) && !seen.has(p)) { seen.add(p); d++; p = byId.get(p).parentId; }
+        r.depth = d;
+        if (d > maxDepth) maxDepth = d;
+      }
+      return {
+        record_len: this.record.length(),
+        ring_count: this.rings.length,
+        max_depth: maxDepth,
+        origin_x: this.originX, origin_y: this.originY,
+        coherence: this.currentCoherence,
+        moire_angle: this.currentMoireAngle,
+      };
+    }
+  };
+}
+
+const GateF = makeGate({ mirrored: false, inkColor: "212, 184, 255" });
+const GateM = makeGate({ mirrored: true,  inkColor: "255, 184, 224" });
+
+/* ---------------------------------------------------------------------------
+   SOLAR FRAME — now reads latitude from the sighting
+   --------------------------------------------------------------------------- */
+
+const SolarFrame = {
+  active: true,
+  alt: 0, az: 0, decl: 0,
+  localPhase: 0.5,
+  update() {
+    const t = SolarClock.daysSinceJ2000();
+    const latDeg = Latitude.signedDeg();
+    const { alt, az, decl } = SolarClock.altaz(t, latDeg, this.localPhase);
+    this.alt = alt; this.az = az; this.decl = decl;
+    daemon.setSolar(az, alt);
+  },
+  phaseFromClock() {
+    const now = new Date();
+    const hours = now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
+    return (hours / 24 + 0.5) % 1;
+  }
+};
+
+/* ---------------------------------------------------------------------------
+   ASTRONOMY (from Inverted Sky)
+   --------------------------------------------------------------------------- */
+
+const STARS = [
+  ["Sirius",6.752,-16.716,-1.46],["Canopus",6.399,-52.696,-0.74],
+  ["Rigil Kentaurus",14.660,-60.833,-0.27],["Arcturus",14.261,19.182,-0.05],
+  ["Vega",18.615,38.784,0.03],["Capella",5.278,45.998,0.08],
+  ["Rigel",5.242,-8.202,0.13],["Procyon",7.655,5.225,0.34],
+  ["Achernar",1.628,-57.237,0.46],["Betelgeuse",5.919,7.407,0.50],
+  ["Hadar",14.064,-60.373,0.61],["Altair",19.846,8.868,0.77],
+  ["Acrux",12.443,-63.099,0.77],["Aldebaran",4.599,16.509,0.85],
+  ["Antares",16.490,-26.432,0.96],["Spica",13.420,-11.161,0.98],
+  ["Pollux",7.755,28.026,1.14],["Fomalhaut",22.961,-29.622,1.16],
+  ["Deneb",20.690,45.280,1.25],["Mimosa",12.795,-59.689,1.25],
+  ["Regulus",10.139,11.967,1.35],["Adhara",6.977,-28.972,1.50],
+  ["Castor",7.577,31.888,1.58],["Shaula",17.560,-37.104,1.62],
+  ["Bellatrix",5.418,6.350,1.64],["Elnath",5.438,28.608,1.65],
+  ["Miaplacidus",9.220,-69.717,1.69],["Alnilam",5.603,-1.202,1.69],
+  ["Alnair",22.137,-46.961,1.73],["Alnitak",5.679,-1.943,1.79],
+  ["Regor",8.159,-47.337,1.83],["Alioth",12.900,55.960,1.76],
+  ["Kaus Australis",18.403,-34.385,1.79],["Mirfak",3.405,49.861,1.79],
+  ["Wezen",7.140,-26.393,1.83],["Sargas",17.622,-42.998,1.86],
+  ["Avior",8.375,-59.510,1.86],["Alkaid",13.792,49.313,1.85],
+  ["Menkalinan",5.992,44.947,1.90],["Atria",16.811,-69.028,1.91],
+  ["Alhena",6.629,16.399,1.93],["Peacock",20.427,-56.735,1.94],
+  ["Polaris",2.530,89.264,1.98]
+];
+
+function julianDate(d){ return d.getTime()/86400000 + 2440587.5; }
+function gmstHours(jd){
+  const T = (jd - 2451545.0)/36525.0;
+  const g = 280.46061837 + 360.98564736629*(jd - 2451545.0)
+          + 0.000387933*T*T - T*T*T/38710000.0;
+  return (((g % 360) + 360) % 360) / 15;
+}
+function lstHours(jd, lon){ return ((((gmstHours(jd) + lon/15) % 24) + 24) % 24); }
+
+function raDecToAltAz(raDeg, decDeg, latDeg, lst){
+  const H = ((lst*15 - raDeg + 360) % 360) * DEG;
+  const d = decDeg * DEG, la = latDeg * DEG;
+  const sA = Math.sin(d)*Math.sin(la) + Math.cos(d)*Math.cos(la)*Math.cos(H);
+  const alt = Math.asin(clamp(sA, -1, 1));
+  const cA = (Math.sin(d) - Math.sin(alt)*Math.sin(la)) / (Math.cos(alt)*Math.cos(la) + 1e-12);
+  let az = Math.acos(clamp(cA, -1, 1));
+  if (Math.sin(H) > 0) az = TAU - az;
+  return { alt: alt*RAD, az: az*RAD };
+}
+
+function angularSeparation(a1, z1, a2, z2){
+  const p1 = a1*DEG, p2 = a2*DEG, dz = (z1-z2)*DEG;
+  const c = Math.sin(p1)*Math.sin(p2) + Math.cos(p1)*Math.cos(p2)*Math.cos(dz);
+  return Math.acos(clamp(c, -1, 1)) * RAD;
+}
+
+function sunEquatorial(jd){
+  const n = jd - 2451545.0;
+  const L = wrap360(280.460 + 0.9856474*n);
+  const g = wrap360(357.528 + 0.9856003*n) * DEG;
+  const lam = (L + 1.915*Math.sin(g) + 0.020*Math.sin(2*g)) * DEG;
+  const eps = (23.439 - 0.0000004*n) * DEG;
+  let ra = Math.atan2(Math.cos(eps)*Math.sin(lam), Math.cos(lam)) * RAD;
+  if (ra < 0) ra += 360;
+  return { raDeg: ra, decDeg: Math.asin(Math.sin(eps)*Math.sin(lam))*RAD };
+}
+
+/* ---------------------------------------------------------------------------
+   OBSERVER & LOCAL FRAME
+   The observer is described by a latitude angle (sighted) and a coarse
+   longitude from the device's timezone offset. No geolocation call.
+   --------------------------------------------------------------------------- */
+
+const Observer = {
+  lat: 51.5,          // updated on sight
+  lon: -(new Date().getTimezoneOffset() / 4),
+  ready: true,
+  sighted: false
+};
+
+let localU = [0,0,1], localN = [-1,0,0], localE = [0,1,0];
+let E_eye = [0,0,0];
+const R_EARTH = 60, H_EYE = 3;
+
+function updateLocalFrame() {
+  const phi = Observer.lat * DEG;
+  const cp = Math.cos(phi), sp = Math.sin(phi);
+  localU = [cp, 0, sp];
+  localN = [-sp, 0, cp];
+  localE = [0, 1, 0];
+  E_eye = [(R_EARTH + H_EYE)*cp, 0, (R_EARTH + H_EYE)*sp];
+}
+updateLocalFrame();
+
+function localToWorld(v) {
+  return [
+    v[0]*localE[0] + v[1]*localN[0] + v[2]*localU[0],
+    v[0]*localE[1] + v[1]*localN[1] + v[2]*localU[1],
+    v[0]*localE[2] + v[1]*localN[2] + v[2]*localU[2]
+  ];
+}
+
+/* ---------------------------------------------------------------------------
+   CAMERA — pAlt/pAz from daemon.viewLocal
+   --------------------------------------------------------------------------- */
+
+let pAlt = 20, pAz = 0;
+let camF = [0,0,1], camR = [1,0,0], camU = [0,1,0];
+
+function updateCameraBasis() {
+  const alt = pAlt*DEG, az = pAz*DEG;
+  const ca = Math.cos(alt), sa = Math.sin(alt);
+  const cz = Math.cos(az), sz = Math.sin(az);
+  camF = localToWorld([ca*sz, ca*cz, sa]);
+  camR = localToWorld([cz, -sz, 0]);
+  camU = [
+    camR[1]*camF[2] - camR[2]*camF[1],
+    camR[2]*camF[0] - camR[0]*camF[2],
+    camR[0]*camF[1] - camR[1]*camF[0]
+  ];
+}
+
+function updateCameraFromView() {
+  const v = daemon.viewLocal;
+  if (!v) return false;
+  // v is in ENU (east, north, up). Convert to alt/az.
+  const alt = Math.asin(clamp(v.u, -1, 1));
+  const az = wrap360(Math.atan2(v.e, v.n) * RAD);
+  pAlt = clamp(alt * RAD, -90, 90);
+  pAz = az;
+  return true;
+}
+
+const _pp = [0,0];
+function projectWorld(P) {
+  const vx = P[0]-E_eye[0], vy = P[1]-E_eye[1], vz = P[2]-E_eye[2];
+  const z = vx*camF[0] + vy*camF[1] + vz*camF[2];
+  if (z <= 0.1) return null;
+  const x = vx*camR[0] + vy*camR[1] + vz*camR[2];
+  const y = vx*camU[0] + vy*camU[1] + vz*camU[2];
+  _pp[0] = canvas.width/2 + x*focal/z;
+  _pp[1] = canvas.height/2 - y*focal/z;
+  return _pp;
+}
+
+const _pd = [0,0];
+function projectDir(dir) {
+  const z = dir[0]*camF[0] + dir[1]*camF[1] + dir[2]*camF[2];
+  if (z <= 0.01) return null;
+  const x = dir[0]*camR[0] + dir[1]*camR[1] + dir[2]*camR[2];
+  const y = dir[0]*camU[0] + dir[1]*camU[1] + dir[2]*camU[2];
+  _pd[0] = canvas.width/2 + x*focal/z;
+  _pd[1] = canvas.height/2 - y*focal/z;
+  return _pd;
+}
+
+function projectLocalDir(altDeg, azDeg) {
+  const a = altDeg*DEG, z = azDeg*DEG;
+  return projectDir(localToWorld([Math.cos(a)*Math.sin(z), Math.cos(a)*Math.cos(z), Math.sin(a)]));
+}
+
+function isFrontFacing(P) {
+  return (E_eye[0]-P[0])*P[0] + (E_eye[1]-P[1])*P[1] + (E_eye[2]-P[2])*P[2] > 0;
+}
+
+function earthPoint(latRad, lonRad) {
+  const c = R_EARTH*Math.cos(latRad);
+  return [c*Math.cos(lonRad), c*Math.sin(lonRad), R_EARTH*Math.sin(latRad)];
+}
+
+/* ---------------------------------------------------------------------------
+   AUDIO
+   --------------------------------------------------------------------------- */
+
+const Audio2 = {
+  ctx:null, master:null, reverb:null, reverbSend:null,
+  moireGain:null, moireOsc:[], sources:new Set(), enabled:false,
+  init(){
+    if (this.ctx) return;
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    this.ctx = new Ctx();
+    this.master = this.ctx.createGain();
+    this.master.gain.value = 0.28;
+    this.master.connect(this.ctx.destination);
+    this.reverb = this.ctx.createConvolver();
+    this.reverb.buffer = this._makeImpulse(2.4, 2.2);
+    const rv = this.ctx.createGain(); rv.gain.value = 0.35;
+    this.reverb.connect(rv); rv.connect(this.master);
+    this.reverbSend = this.ctx.createGain();
+    this.reverbSend.gain.value = 1.0;
+    this.reverbSend.connect(this.reverb);
+    this.moireGain = this.ctx.createGain();
+    this.moireGain.gain.value = 0.0;
+    const f = this.ctx.createBiquadFilter();
+    f.type = "lowpass"; f.frequency.value = 900; f.Q.value = 1.4;
+    this.moireGain.connect(f); f.connect(this.master); f.connect(this.reverbSend);
+    [110, 110*omegaB()/omegaA()].forEach((hz, i) => {
+      const o = this.ctx.createOscillator();
+      o.type = "sine"; o.frequency.value = hz; o.detune.value = i*5;
+      const g = this.ctx.createGain(); g.gain.value = 0.5;
+      o.connect(g); g.connect(this.moireGain); o.start();
+      this.moireOsc.push(o);
+    });
+    this.enabled = true;
+  },
+  _makeImpulse(s, d){
+    const rate = this.ctx.sampleRate;
+    const n = Math.floor(rate*s);
+    const buf = this.ctx.createBuffer(2, n, rate);
+    for (let ch = 0; ch < 2; ch++) {
+      const arr = buf.getChannelData(ch);
+      for (let i = 0; i < n; i++) arr[i] = (Math.random()*2-1)*Math.pow(1-i/n, d);
+    }
+    return buf;
+  },
+  resume(){
+    if (document.hidden || tapInactive) return;
+    this.enabled = !!this.ctx;
+    if (this.ctx && this.ctx.state === "suspended") {
+      const epoch = tapLifecycleEpoch, context = this.ctx;
+      context.resume().then(() => {
+        if (epoch !== tapLifecycleEpoch || document.hidden) context.suspend().catch(() => {});
+      }).catch(() => {});
+    }
+  },
+  updateDrone(){
+    if (!this.enabled || !this.ctx) return;
+    const c = (GateF.currentCoherence + GateM.currentCoherence)/2;
+    const t = this.ctx.currentTime;
+    const ratio = omegaB()/omegaA();
+    const hz = 110 * (1 + c*0.02);
+    this.moireOsc.forEach((o, i) => {
+      const base = i === 0 ? hz : hz*ratio;
+      o.frequency.cancelScheduledValues(t);
+      o.frequency.linearRampToValueAtTime(base, t + 0.12);
+    });
+    this.moireGain.gain.cancelScheduledValues(t);
+    this.moireGain.gain.linearRampToValueAtTime(Math.abs(c)*0.05, t + 0.12);
+  },
+  ringTone(ring){
+    if (!this.enabled || !this.ctx) return;
+    this.resume();
+    const now = this.ctx.currentTime;
+    const ang = ring.moireAngle;
+    const shift = ring.mirrored ? 1.5 : 1.0;
+    const solarShift = 1 + SolarFrame.alt*0.15;
+    const baseHz = (500 + Math.sin(ang)*220) * shift * solarShift;
+    [baseHz, baseHz*2.01].forEach((hz, i) => {
+      const o = this.ctx.createOscillator();
+      o.type = "sine"; o.frequency.value = hz;
+      const g = this.ctx.createGain();
+      const peak = 0.16/(i+1);
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(peak, now + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 1.6);
+      o.connect(g); g.connect(this.master);
+      const s = this.ctx.createGain(); s.gain.value = 0.6;
+      g.connect(s); s.connect(this.reverbSend);
+      this.sources.add(o);
+      o.onended = () => { this.sources.delete(o); o.disconnect(); g.disconnect(); s.disconnect(); };
+      o.start(now); o.stop(now + 1.7);
+    });
+  }
+};
+
+/* ---------------------------------------------------------------------------
+   CANVAS & RENDER
+   --------------------------------------------------------------------------- */
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d", { alpha:false });
+
+let showFingertip = false;
+let mirrorOn = true;
+let skyOn = true;
+let motionActive = false;
+let focal = 1;
+const FOV_Y = 65;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(window.innerWidth * dpr);
+  canvas.height = Math.round(window.innerHeight * dpr);
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // Re-measure after transform for CSS coordinates
+  canvas.width = Math.round(window.innerWidth);
+  canvas.height = Math.round(window.innerHeight);
+  focal = (canvas.height*0.5) / Math.tan(FOV_Y*0.5 * DEG);
+}
+window.addEventListener("resize", resize);
+resize();
+
+let lastStarReveal = null;
+
+function draw() {
+  if (document.hidden || tapInactive) return;
+  const w = canvas.width, h = canvas.height;
+  const cx = w/2, cy = h/2;
+  const now = performance.now();
+
+  const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w,h)*0.75);
+  bg.addColorStop(0, "rgba(22, 16, 38, 1)");
+  bg.addColorStop(1, "rgba(5, 7, 12, 1)");
+  ctx.fillStyle = bg; ctx.fillRect(-w*3, -h*3, w*7, h*7);   // oversize so the Snap-to-Orbit zoom-out stays seamless
+
+  // Sky layers (behind pad)
+  if (skyOn && motionActive) {
+    updateCameraFromView();
+    updateCameraBasis();
+    const jd = julianDate(new Date());
+    const lst = lstHours(jd, Observer.lon);
+    const sunEq = sunEquatorial(jd);
+    const sunPos = raDecToAltAz(sunEq.raDeg, sunEq.decDeg, Observer.lat, lst);
+    drawStarsBelow(lst);
+    drawEarthDisk();
+    drawEarthGrid();
+    drawEarthAxis();
+    drawSubObserverPoint();
+    drawCelestialPole(Observer.lat, 0, "NCP");
+    drawCelestialPole(-Observer.lat, 180, "SCP");
+    drawSun(sunPos.alt, sunPos.az);
+    drawHorizonLine();
+  }
+
+  // Solar ring (Moire)
+  if (SolarFrame.active) {
+    drawSolarRing(cx, cy, Math.min(w,h)*0.42, now);
+  }
+
+  // Pad drawing (screen-space)
+  if (showFingertip) {
+    drawFingertip(GateF, cx, cy, now);
+    if (mirrorOn) drawFingertip(GateM, cx, cy, now);
+  }
+  drawWalk(GateF, cx, cy, now, "168, 224, 255", 2.6);
+  if (mirrorOn) drawWalk(GateM, cx, cy, now, "255, 184, 224", 2.6);
+  drawRings(GateF, cx, cy, now);
+  if (mirrorOn) drawRings(GateM, cx, cy, now);
+  drawOrigin(GateF, cx, cy, now, "212, 184, 255");
+  if (mirrorOn) drawOrigin(GateM, cx, cy, now, "255, 184, 224");
+
+  // Reticle
+  drawReticle();
+
+  Tracker.sample(GateF.currentCoherence);
+  const ddx = GateF.originX - GateM.originX;
+  const ddy = GateF.originY - GateM.originY;
+  Tracker.sampleDivergence(Math.hypot(ddx, ddy));
+
+  renderHud();
+  tapAnimation = requestAnimationFrame(draw);
+}
+
+/* ------- Sky drawing (from Inverted Sky, trimmed) ------- */
+
+function drawSolarRing(cx, cy, r, now) {
+  const { alt, az } = SolarFrame;
+  ctx.save();
+  ctx.strokeStyle = `rgba(255, 212, 132, ${0.12 + 0.15*Math.abs(Math.sin(alt))})`;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3,6]);
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke();
+  ctx.setLineDash([]);
+  const h = daemon.frame ? (daemon.frame.heading_local || 0) : 0;
+  const solarAngle = az + h;
+  const mx = cx + Math.cos(solarAngle - Math.PI/2)*r;
+  const my = cy + Math.sin(solarAngle - Math.PI/2)*r;
+  ctx.beginPath(); ctx.arc(mx, my, 5, 0, TAU);
+  ctx.fillStyle = `rgba(255, 212, 132, ${0.5 + 0.4*Math.abs(Math.sin(alt))})`;
+  ctx.shadowColor = "rgba(255, 212, 132, 0.8)";
+  ctx.shadowBlur = 12; ctx.fill(); ctx.shadowBlur = 0;
+  if (alt >= 0) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r*0.96, -Math.PI/2, -Math.PI/2 + alt, false);
+    ctx.strokeStyle = `rgba(255, 212, 132, 0.5)`;
+    ctx.lineWidth = 2.5; ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawFingertip(gate, cx, cy, now) {
+  if (!gate.fingertip.length) return;
+  const tip = gate.fingertip[gate.fingertip.length - 1];
+  ctx.beginPath(); ctx.arc(tip.x, tip.y, 5, 0, TAU);
+  ctx.fillStyle = gate.mirrored ? "rgba(255, 184, 224, 0.75)" : "rgba(168, 224, 255, 0.75)";
+  ctx.shadowColor = gate.mirrored ? "rgba(255, 184, 224, 0.7)" : "rgba(168, 224, 255, 0.7)";
+  ctx.shadowBlur = 12; ctx.fill(); ctx.shadowBlur = 0;
+}
+
+function drawWalk(gate, cx, cy, now, rgb, width) {
+  if (gate.walk.length < 2) return;
+  ctx.lineJoin = "round"; ctx.lineCap = "round";
+  for (let i = 1; i < gate.walk.length; i++) {
+    const a = gate.walk[i-1], b = gate.walk[i];
+    const age = (now - b.t)/8000;
+    const alpha = Math.max(0.12, 1 - age);
+    ctx.beginPath();
+    ctx.moveTo(cx + a.x, cy + a.y);
+    ctx.lineTo(cx + b.x, cy + b.y);
+    ctx.strokeStyle = `rgba(${rgb}, ${alpha*0.85})`;
+    ctx.lineWidth = width; ctx.stroke();
+  }
+  for (const node of gate.walk) {
+    const age = (now - node.t)/8000;
+    const alpha = Math.max(0, 1 - age);
+    if (alpha <= 0) continue;
+    ctx.beginPath(); ctx.arc(cx + node.x, cy + node.y, 3, 0, TAU);
+    ctx.fillStyle = `rgba(${rgb}, ${alpha*0.7})`; ctx.fill();
+  }
+}
+
+function drawRings(gate, cx, cy, now) {
+  for (const ring of gate.rings) {
+    const rx = cx + ring.originX, ry = cy + ring.originY;
+    const age = Math.min(1, (now - ring.bornAt)/800);
+    const isLast = ring === gate.lastRing;
+    const r = 8 + ring.depth*1.5;
+    ctx.beginPath(); ctx.arc(rx, ry, r, 0, TAU);
+    ctx.strokeStyle = isLast
+      ? `rgba(${gate.inkColor}, ${0.6 + 0.4*Math.sin(now*0.005)})`
+      : `rgba(${gate.inkColor}, ${0.15 + 0.35*age})`;
+    ctx.lineWidth = isLast ? 2 : 1.2; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(rx, ry);
+    ctx.lineTo(rx + Math.cos(ring.moireAngle)*r*2.2, ry + Math.sin(ring.moireAngle)*r*2.2);
+    ctx.strokeStyle = `rgba(${gate.inkColor}, ${isLast ? 0.9 : 0.4})`;
+    ctx.lineWidth = 1.3; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(rx, ry);
+    ctx.lineTo(rx + ring.offsetX, ry + ring.offsetY);
+    ctx.strokeStyle = gate.mirrored
+      ? `rgba(255, 200, 240, ${isLast ? 0.75 : 0.22})`
+      : `rgba(168, 224, 255, ${isLast ? 0.75 : 0.22})`;
+    ctx.lineWidth = 1.2; ctx.stroke();
+  }
+}
+
+function drawOrigin(gate, cx, cy, now, rgb) {
+  const ox = cx + gate.originX, oy = cy + gate.originY;
+  ctx.strokeStyle = `rgba(${rgb}, 0.35)`; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(ox - 10, oy); ctx.lineTo(ox + 10, oy);
+  ctx.moveTo(ox, oy - 10); ctx.lineTo(ox, oy + 10);
+  ctx.stroke();
+  const baseR = 42;
+  ctx.strokeStyle = `rgba(${rgb}, 0.18)`;
+  ctx.beginPath(); ctx.arc(ox, oy, baseR, 0, TAU); ctx.stroke();
+  const cohAbs = Math.abs(gate.currentCoherence);
+  ctx.beginPath();
+  ctx.arc(ox, oy, baseR, -Math.PI/2, -Math.PI/2 + cohAbs*TAU);
+  ctx.strokeStyle = `rgba(${rgb}, ${0.35 + cohAbs*0.65})`;
+  ctx.lineWidth = 2.4 + cohAbs*2.6; ctx.stroke();
+}
+
+function drawReticle() {
+  const cx = canvas.width/2, cy = canvas.height/2;
+  ctx.globalCompositeOperation = "lighter";
+  ctx.strokeStyle = "rgba(200, 180, 255, 0.5)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx-12, cy); ctx.lineTo(cx-4, cy);
+  ctx.moveTo(cx+4, cy);  ctx.lineTo(cx+12, cy);
+  ctx.moveTo(cx, cy-12); ctx.lineTo(cx, cy-4);
+  ctx.moveTo(cx, cy+4);  ctx.lineTo(cx, cy+12);
+  ctx.stroke();
+  ctx.globalCompositeOperation = "source-over";
+}
+
+function drawStarsBelow(lst) {
+  ctx.globalCompositeOperation = "lighter";
+  let best = { name:null, sep:1e9, alt:0, az:0, mag:1.5 };
+  for (const s of STARS) {
+    const [name, raH, dec, mag] = s;
+    const raDeg = raH*15;
+    const pos = raDecToAltAz(raDeg, dec, Observer.lat, lst);
+    if (pos.alt >= 0) continue;
+    const pp = projectLocalDir(pos.alt, pos.az);
+    if (!pp || pp[0] < -40 || pp[0] > canvas.width+40 || pp[1] < -40 || pp[1] > canvas.height+40) continue;
+    const sep = angularSeparation(pAlt, pAz, pos.alt, pos.az);
+    if (sep < best.sep) { best.sep = sep; best.name = name; best.alt = pos.alt; best.az = pos.az; best.mag = mag; }
+    const r = clamp(4.4 - mag*0.85, 1.0, 5.2);
+    const br = clamp(1.15 - mag*0.20, 0.30, 1.0)*0.7;
+    const g = ctx.createRadialGradient(pp[0], pp[1], 0, pp[0], pp[1], r*6);
+    g.addColorStop(0, `rgba(210,235,255,${br*0.95})`);
+    g.addColorStop(0.22, `rgba(150,190,255,${br*0.35})`);
+    g.addColorStop(1, "rgba(120,160,255,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(pp[0], pp[1], r*6, 0, TAU); ctx.fill();
+    ctx.fillStyle = `rgba(240,248,255,${br})`;
+    ctx.beginPath(); ctx.arc(pp[0], pp[1], r, 0, TAU); ctx.fill();
+  }
+  ctx.globalCompositeOperation = "source-over";
+  if (best.name && best.sep < 10) {
+    lastStarReveal = best;
+    const pp = projectLocalDir(best.alt, best.az);
+    if (pp) {
+      const pulse = 0.6 + 0.4*Math.sin(performance.now()*0.005);
+      const r = 16 + 10*(1 - best.sep/10);
+      ctx.globalCompositeOperation = "lighter";
+      ctx.strokeStyle = `rgba(0,255,255,${0.35 + 0.45*pulse})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(pp[0], pp[1], r, 0, TAU); ctx.stroke();
+      ctx.font = "700 14px ui-monospace, monospace";
+      ctx.fillStyle = "rgba(150,255,255,0.98)";
+      ctx.shadowColor = "rgba(0,255,255,0.7)"; ctx.shadowBlur = 12;
+      ctx.fillText(best.name, pp[0] + r + 12, pp[1] - 4);
+      ctx.shadowBlur = 0;
+      ctx.globalCompositeOperation = "source-over";
+    }
+  } else {
+    lastStarReveal = null;
+  }
+}
+
+function drawEarthDisk() {
+  const dx = E_eye[0], dy = E_eye[1], dz = E_eye[2];
+  const d2 = dx*dx + dy*dy + dz*dz, d = Math.sqrt(d2);
+  if (d <= R_EARTH + 0.001) return;
+  const k = R_EARTH*R_EARTH/d2;
+  const L = [dx*k, dy*k, dz*k];
+  const rLimb = R_EARTH*Math.sqrt(Math.max(0, 1 - R_EARTH*R_EARTH/d2));
+  let u1 = [-E_eye[2], 0, E_eye[0]];
+  let l1 = Math.hypot(u1[0], u1[1], u1[2]);
+  if (l1 < 1e-6) u1 = [1,0,0]; else { u1[0]/=l1; u1[1]/=l1; u1[2]/=l1; }
+  const u2 = [
+    E_eye[1]*u1[2] - E_eye[2]*u1[1],
+    E_eye[2]*u1[0] - E_eye[0]*u1[2],
+    E_eye[0]*u1[1] - E_eye[1]*u1[0]
+  ];
+  const l2 = Math.hypot(u2[0], u2[1], u2[2]) || 1;
+  u2[0]/=l2; u2[1]/=l2; u2[2]/=l2;
+  const N = 128, pts = [];
+  let anyVisible = false;
+  for (let i = 0; i < N; i++) {
+    const t = (i/N)*TAU;
+    const c = Math.cos(t)*rLimb, s = Math.sin(t)*rLimb;
+    const P = [L[0]+c*u1[0]+s*u2[0], L[1]+c*u1[1]+s*u2[1], L[2]+c*u1[2]+s*u2[2]];
+    const pp = projectWorld(P);
+    if (pp) { pts.push([pp[0], pp[1]]); anyVisible = true; } else pts.push(null);
+  }
+  if (!anyVisible) return;
+  const tracePath = () => {
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= N; i++) {
+      const p = pts[i % N];
+      if (!p) { started = false; continue; }
+      if (!started) { ctx.moveTo(p[0], p[1]); started = true; }
+      else ctx.lineTo(p[0], p[1]);
+    }
+    ctx.closePath();
+  };
+  tracePath();
+  const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, Math.max(canvas.width, canvas.height)*0.85);
+  grad.addColorStop(0, "rgba(42, 82, 160, 0.11)");
+  grad.addColorStop(0.65, "rgba(30, 62, 132, 0.07)");
+  grad.addColorStop(1, "rgba(18, 38, 96, 0.03)");
+  ctx.fillStyle = grad; ctx.fill();
+  ctx.globalCompositeOperation = "lighter";
+  tracePath();
+  ctx.strokeStyle = "rgba(90,150,220,0.18)"; ctx.lineWidth = 7; ctx.stroke();
+  tracePath();
+  ctx.strokeStyle = "rgba(140,195,245,0.62)"; ctx.lineWidth = 1.6; ctx.stroke();
+  ctx.globalCompositeOperation = "source-over";
+}
+
+function drawSphereCurve(fn, count, nearA, farA) {
+  ctx.beginPath();
+  let started = false;
+  for (let i = 0; i <= count; i++) {
+    const P = fn(i/count);
+    if (isFrontFacing(P)) { started = false; continue; }
+    const pp = projectWorld(P);
+    if (!pp) { started = false; continue; }
+    if (!started) { ctx.moveTo(pp[0], pp[1]); started = true; }
+    else ctx.lineTo(pp[0], pp[1]);
+  }
+  ctx.strokeStyle = `rgba(60,105,175,${farA})`; ctx.stroke();
+  ctx.beginPath(); started = false;
+  for (let i = 0; i <= count; i++) {
+    const P = fn(i/count);
+    if (!isFrontFacing(P)) { started = false; continue; }
+    const pp = projectWorld(P);
+    if (!pp) { started = false; continue; }
+    if (!started) { ctx.moveTo(pp[0], pp[1]); started = true; }
+    else ctx.lineTo(pp[0], pp[1]);
+  }
+  ctx.strokeStyle = `rgba(115,175,240,${nearA})`; ctx.stroke();
+}
+
+function drawEarthGrid() {
+  ctx.globalCompositeOperation = "lighter";
+  ctx.lineWidth = 1;
+  for (let latDeg = -75; latDeg <= 75; latDeg += 15)
+    drawSphereCurve(t => earthPoint(latDeg*DEG, t*Math.PI*2), 90, 0.26, 0.10);
+  for (let lonDeg = 0; lonDeg < 360; lonDeg += 15)
+    drawSphereCurve(t => earthPoint((t-0.5)*Math.PI, lonDeg*DEG), 60, 0.24, 0.09);
+  ctx.globalCompositeOperation = "source-over";
+}
+
+function drawSubObserverPoint() {
+  const P = [R_EARTH*Math.cos(Observer.lat*DEG), 0, R_EARTH*Math.sin(Observer.lat*DEG)];
+  if (!isFrontFacing(P)) return;
+  const pp = projectWorld(P); if (!pp) return;
+  ctx.globalCompositeOperation = "lighter";
+  const g = ctx.createRadialGradient(pp[0], pp[1], 0, pp[0], pp[1], 14);
+  g.addColorStop(0, "rgba(255,240,180,0.9)");
+  g.addColorStop(0.4, "rgba(255,200,90,0.35)");
+  g.addColorStop(1, "rgba(255,180,60,0)");
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(pp[0], pp[1], 14, 0, TAU); ctx.fill();
+  ctx.fillStyle = "rgba(255,245,200,0.95)";
+  ctx.beginPath(); ctx.arc(pp[0], pp[1], 2.2, 0, TAU); ctx.fill();
+  ctx.globalCompositeOperation = "source-over";
+}
+
+function drawEarthAxis() {
+  const SEG = 56;
+  const eyeDepthOf = P => Math.hypot(P[0]-E_eye[0], P[1]-E_eye[1], P[2]-E_eye[2]);
+  const dNear = eyeDepthOf([0,0,R_EARTH]);
+  const dFar = eyeDepthOf([0,0,-R_EARTH]);
+  const span = Math.max(1, dFar - dNear);
+  const drawPolyline = (style, width, glow, floor) => {
+    ctx.strokeStyle = style; ctx.lineWidth = width;
+    ctx.shadowColor = glow; ctx.shadowBlur = glow ? 22 : 0;
+    let prevP = null, prevA = 0;
+    for (let i = 0; i <= SEG; i++) {
+      const t = i/SEG;
+      const P = [0, 0, R_EARTH - 2*R_EARTH*t];
+      const pp = projectWorld(P);
+      if (!pp) { prevP = null; continue; }
+      const a = clamp(1 - (eyeDepthOf(P) - dNear)/span * (1 - floor), floor, 1);
+      if (prevP) {
+        ctx.globalAlpha = (prevA + a)*0.5;
+        ctx.beginPath();
+        ctx.moveTo(prevP[0], prevP[1]);
+        ctx.lineTo(pp[0], pp[1]);
+        ctx.stroke();
+      }
+      prevP = pp; prevA = a;
+    }
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+  };
+  ctx.globalCompositeOperation = "lighter";
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  drawPolyline("rgba(255,60,60,0.20)", 26, "rgba(255,60,60,0.85)", 0.35);
+  drawPolyline("rgba(230,55,55,0.42)", 16, "rgba(255,70,70,0.90)", 0.42);
+  drawPolyline("rgba(255,95,95,0.95)",  8, "rgba(255,95,95,0.85)", 0.50);
+  drawPolyline("rgba(255,215,215,0.98)", 3.5, null, 0.60);
+  ctx.globalCompositeOperation = "source-over";
+  drawPoleMarkerGlass([0, 0, R_EARTH], "N pole");
+  drawPoleMarkerGlass([0, 0, -R_EARTH], "S pole");
+  const pc = projectWorld([0, 0, 0]);
+  if (pc) {
+    ctx.globalCompositeOperation = "lighter";
+    const g = ctx.createRadialGradient(pc[0], pc[1], 0, pc[0], pc[1], 22);
+    g.addColorStop(0, "rgba(255,245,245,0.95)");
+    g.addColorStop(0.35, "rgba(255,130,130,0.55)");
+    g.addColorStop(1, "rgba(220,40,40,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(pc[0], pc[1], 22, 0, TAU); ctx.fill();
+    ctx.fillStyle = "rgba(255,250,250,1)";
+    ctx.beginPath(); ctx.arc(pc[0], pc[1], 3.4, 0, TAU); ctx.fill();
+    ctx.globalCompositeOperation = "source-over";
+  }
+}
+
+function drawPoleMarkerGlass(P, label) {
+  const pp = projectWorld(P); if (!pp) return;
+  const eyeDist = Math.hypot(E_eye[0], E_eye[1], E_eye[2]);
+  const dNear = eyeDist - R_EARTH, dFar = eyeDist + R_EARTH;
+  const ed = Math.hypot(P[0]-E_eye[0], P[1]-E_eye[1], P[2]-E_eye[2]);
+  const dim = clamp(1 - (ed - dNear)/(dFar - dNear)*0.6, 0.4, 1);
+  ctx.globalCompositeOperation = "lighter";
+  const g = ctx.createRadialGradient(pp[0], pp[1], 0, pp[0], pp[1], 20);
+  g.addColorStop(0, `rgba(255,240,240,${0.95*dim})`);
+  g.addColorStop(0.35, `rgba(255,130,130,${0.6*dim})`);
+  g.addColorStop(1, "rgba(255,60,60,0)");
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(pp[0], pp[1], 20, 0, TAU); ctx.fill();
+  ctx.fillStyle = `rgba(255,250,250,${dim})`;
+  ctx.beginPath(); ctx.arc(pp[0], pp[1], 3.4, 0, TAU); ctx.fill();
+  ctx.strokeStyle = `rgba(255,150,150,${0.75*dim})`; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.arc(pp[0], pp[1], 9, 0, TAU); ctx.stroke();
+  ctx.font = "700 12px ui-monospace, monospace";
+  ctx.fillStyle = `rgba(255,190,190,${0.98*dim})`;
+  ctx.textAlign = "left"; ctx.textBaseline = "middle";
+  ctx.fillText(label, pp[0] + 15, pp[1] - 6);
+  ctx.globalCompositeOperation = "source-over";
+}
+
+function drawCelestialPole(altDeg, azDeg, label) {
+  const pp = projectLocalDir(altDeg, azDeg); if (!pp) return;
+  if (pp[0] < -60 || pp[0] > canvas.width+60 || pp[1] < -60 || pp[1] > canvas.height+60) return;
+  ctx.globalCompositeOperation = "lighter";
+  ctx.strokeStyle = "rgba(255,100,100,0.85)"; ctx.lineWidth = 1.3;
+  const r = 12;
+  ctx.beginPath();
+  ctx.arc(pp[0], pp[1], r, 0, TAU);
+  ctx.moveTo(pp[0]-r-7, pp[1]); ctx.lineTo(pp[0]-r-1, pp[1]);
+  ctx.moveTo(pp[0]+r+1, pp[1]); ctx.lineTo(pp[0]+r+7, pp[1]);
+  ctx.moveTo(pp[0], pp[1]-r-7); ctx.lineTo(pp[0], pp[1]-r-1);
+  ctx.moveTo(pp[0], pp[1]+r+1); ctx.lineTo(pp[0], pp[1]+r+7);
+  ctx.stroke();
+  ctx.fillStyle = "rgba(255,140,140,0.9)";
+  ctx.beginPath(); ctx.arc(pp[0], pp[1], 1.6, 0, TAU); ctx.fill();
+  ctx.font = "600 11px ui-monospace, monospace";
+  ctx.textAlign = "left"; ctx.textBaseline = "middle";
+  ctx.fillStyle = "rgba(255,170,170,0.95)";
+  ctx.fillText(label, pp[0] + r + 10, pp[1] - 6);
+  ctx.globalCompositeOperation = "source-over";
+}
+
+function drawSun(alt, az) {
+  if (alt < -3) return;   // sun too far below horizon
+  const pp = projectLocalDir(alt, az); if (!pp) return;
+  ctx.globalCompositeOperation = "lighter";
+  const g = ctx.createRadialGradient(pp[0], pp[1], 0, pp[0], pp[1], 80);
+  g.addColorStop(0, "rgba(255,225,130,0.88)");
+  g.addColorStop(0.2, "rgba(255,190,70,0.42)");
+  g.addColorStop(1, "rgba(255,150,0,0)");
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(pp[0], pp[1], 80, 0, TAU); ctx.fill();
+  ctx.fillStyle = "rgba(255,240,200,0.95)";
+  ctx.beginPath(); ctx.arc(pp[0], pp[1], 7, 0, TAU); ctx.fill();
+  ctx.globalCompositeOperation = "source-over";
+}
+
+function horizonCoeffs() {
+  const A = camR[0]*localU[0] + camR[1]*localU[1] + camR[2]*localU[2];
+  const B = camU[0]*localU[0] + camU[1]*localU[1] + camU[2]*localU[2];
+  const C = camF[0]*localU[0] + camF[1]*localU[1] + camF[2]*localU[2];
+  return { A, B: -B, C: -A*canvas.width/2 + B*canvas.height/2 + C*focal, c: C };
+}
+
+function drawHorizonLine() {
+  const { A, B, C } = horizonCoeffs();
+  const nrm = Math.hypot(A, B);
+  if (nrm < 1e-8) return;
+  let px, py;
+  if (Math.abs(B) > Math.abs(A)) { px = 0; py = -(A*px + C)/B; }
+  else { py = 0; px = -(B*py + C)/A; }
+  const dx = B/nrm, dy = -A/nrm, L = 4000;
+  ctx.globalCompositeOperation = "lighter";
+  ctx.beginPath();
+  ctx.moveTo(px - dx*L, py - dy*L); ctx.lineTo(px + dx*L, py + dy*L);
+  ctx.strokeStyle = "rgba(60,130,230,0.28)"; ctx.lineWidth = 7; ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(px - dx*L, py - dy*L); ctx.lineTo(px + dx*L, py + dy*L);
+  ctx.strokeStyle = "rgba(150,205,255,0.72)"; ctx.lineWidth = 1.4; ctx.stroke();
+  ctx.globalCompositeOperation = "source-over";
+}
+
+/* ---------------------------------------------------------------------------
+   HUD
+   --------------------------------------------------------------------------- */
+
+function renderHud() {
+  const f = GateF.state(), m = GateM.state();
+  const $ = id => document.getElementById(id);
+  $("v-origin").textContent = `${f.origin_x.toFixed(0)}, ${f.origin_y.toFixed(0)}`;
+  $("v-rings").textContent = f.ring_count;
+  $("v-depth").textContent = f.max_depth;
+  $("v-coherence").textContent = f.coherence.toFixed(3);
+  $("v-moire-angle").textContent = (f.moire_angle * RAD).toFixed(1) + "°";
+  $("vm-origin").textContent = `${m.origin_x.toFixed(0)}, ${m.origin_y.toFixed(0)}`;
+  $("vm-rings").textContent = m.ring_count;
+  $("vm-coherence").textContent = m.coherence.toFixed(3);
+
+  const latD = Latitude.signedDeg();
+  $("s-lat").textContent = latD == null ? "—" : latD.toFixed(1) + "° " + Latitude.hemi;
+  $("s-alt").textContent = (SolarFrame.alt * RAD).toFixed(1) + "°";
+  $("s-az").textContent = (SolarFrame.az * RAD).toFixed(1) + "°";
+  $("s-decl").textContent = (SolarFrame.decl * RAD).toFixed(2) + "°";
+  $("s-source").textContent = daemon.source;
+
+  $("k-alt").textContent = daemon.viewLocal ? (pAlt).toFixed(1) + "°" : "—";
+  $("k-az").textContent = daemon.viewLocal ? wrap360(pAz).toFixed(1) + "°" : "—";
+  $("k-star").textContent = lastStarReveal ? lastStarReveal.name + "  Δ" + lastStarReveal.sep.toFixed(1) + "°" : "—";
+
+  $("v-divergence").textContent = Math.hypot(f.origin_x - m.origin_x, f.origin_y - m.origin_y).toFixed(1) + " px";
+  $("v-record").textContent = f.record_len + m.record_len;
+
+  $("lb-hash").textContent = LOCK.meta.hash.slice(7, 15);
+  const pertCount = Object.keys(LOCK.perturbation).length;
+  $("lb-pert").textContent = `perturbation: ${pertCount}`;
+  const secular = Object.values(LOCK.perturbation).filter(p => p.secular).length;
+  $("lb-secular").textContent = `secular: ${secular}`;
+
+  LockPanel.updateDiagnostics();
+}
+
+/* ---------------------------------------------------------------------------
+   LOCK PANEL
+   --------------------------------------------------------------------------- */
+
+const LockPanel = {
+  root: document.getElementById("factors"),
+  render() {
+    const html = [];
+    html.push(`<div class="head">Baseline <span class="tag base">base</span></div>`);
+    for (const [k, e] of Object.entries(LOCK.baseline)) {
+      if (e.locked) {
+        html.push(`<div class="row"><span class="k">${k}</span><span class="v dim">${e.value.toFixed(2)} · locked</span></div>`);
+        continue;
+      }
+      html.push(`
+        <div class="row"><span class="k">${k.toLowerCase()}</span><span class="v moire" id="fv-${k}">${e.value}</span></div>
+        <input type="range" id="fs-${k}" min="${e.min}" max="${e.max}" step="${e.step}" value="${e.value}">
+      `);
+    }
+    html.push(`<div class="head">Perturbation <span class="tag pert">pert</span></div>`);
+    for (const [k, e] of Object.entries(LOCK.perturbation)) {
+      const cls = (k === "accelWeight" || k === "accelZWeight" || k === "solarWeight") ? "motion" : "";
+      const secularMark = e.secular ? ' <span class="tag pert">secular</span>' : '';
+      html.push(`
+        <div class="row"><span class="k">${k.toLowerCase()}</span><span class="v ${cls}" id="fv-${k}">${e.value}</span></div>
+        <input type="range" class="${cls}" id="fs-${k}" min="${e.min}" max="${e.max}" step="${e.step}" value="${e.value}">
+        ${secularMark}
+      `);
+    }
+    html.push(`<div class="head">Diagnostics <span class="tag diag">live</span></div>`);
+    html.push(`<div class="row"><span class="k">commensuration</span><span class="v" id="dg-comm">—</span></div>`);
+    html.push(`<div class="row"><span class="k">closure</span><span class="v" id="dg-closure">—</span></div>`);
+    html.push(`<div class="row"><span class="k">hierarchy</span><span class="v" id="dg-hier">—</span></div>`);
+    html.push(`<div class="row"><span class="k">secular tension</span><span class="v" id="dg-tension">—</span></div>`);
+    html.push(`<canvas id="spark" width="220" height="36"></canvas>`);
+    html.push(`<div class="row"><span class="k">rings / 10s</span><span class="v moire" id="dg-rate">0.00</span></div>`);
+    this.root.innerHTML = html.join("");
+
+    for (const section of ["baseline", "perturbation"]) {
+      for (const [k, e] of Object.entries(LOCK[section])) {
+        if (e.locked) continue;
+        const slider = document.getElementById(`fs-${k}`);
+        const val = document.getElementById(`fv-${k}`);
+        if (!slider) continue;
+        slider.addEventListener("input", () => {
+          const v = parseFloat(slider.value);
+          e.value = v;
+          if (val) val.textContent = Number.isInteger(e.step) ? v : v.toFixed(2);
+          clearTimeout(slider._slog);
+          slider._slog = setTimeout(() => slog("lock_set", { section, key: k, value: String(v) }), 400);
+        });
+      }
+    }
+  },
+  updateDiagnostics() {
+    const $ = id => document.getElementById(id);
+    const comm = $("dg-comm"); if (comm) comm.textContent = LOCK.commensuration.cycle ?? "—";
+    const closure = $("dg-closure");
+    if (closure) {
+      const d = Math.hypot(GateF.originX - GateM.originX, GateF.originY - GateM.originY);
+      const c = 1 - Math.pow(d / (leashMax()*2), 2);
+      closure.textContent = c.toFixed(3);
+      closure.className = "v " + (c > 0.5 ? "ok" : "");
+    }
+    const hier = $("dg-hier");
+    if (hier) {
+      const f = GateF.state();
+      hier.textContent = f.ring_count > 1 ? (f.ring_count / Math.max(1, f.max_depth)).toFixed(2) : "—";
+    }
+    const t = $("dg-tension"); if (t) t.textContent = Leash.tension.toFixed(1);
+    const r = $("dg-rate"); if (r) r.textContent = Tracker.rate().toFixed(2);
+    this.drawSpark();
+  },
+  drawSpark() {
+    const c = document.getElementById("spark");
+    if (!c) return;
+    const s = c.getContext("2d");
+    const w = c.width, h = c.height;
+    s.clearRect(0, 0, w, h);
+    const yTh = h - ((convThresh() + 1)/2)*h;
+    s.strokeStyle = "rgba(212, 184, 255, 0.35)";
+    s.setLineDash([2,3]); s.lineWidth = 1;
+    s.beginPath(); s.moveTo(0, yTh); s.lineTo(w, yTh); s.stroke();
+    s.setLineDash([]);
+    const hist = Tracker.coherenceHistory;
+    if (hist.length < 2) return;
+    s.beginPath();
+    for (let i = 0; i < hist.length; i++) {
+      const x = (i/(hist.length-1))*w;
+      const y = h - ((hist[i] + 1)/2)*h;
+      if (i === 0) s.moveTo(x, y); else s.lineTo(x, y);
+    }
+    s.strokeStyle = "rgba(212, 184, 255, 0.85)";
+    s.lineWidth = 1.4; s.stroke();
+  }
+};
+LockPanel.render();
+
+/* ---------------------------------------------------------------------------
+   TOAST
+   --------------------------------------------------------------------------- */
+
+function moireToast(msg) {
+  let el = document.getElementById("moire-toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "moire-toast";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = "1";
+  clearTimeout(moireToast._t);
+  moireToast._t = setTimeout(() => { el.style.opacity = "0"; }, 1800);
+}
+
+/* ---------------------------------------------------------------------------
+   INPUT
+   --------------------------------------------------------------------------- */
+
+canvas.addEventListener("pointerdown", e => {
+  Audio2.init(); Audio2.resume();
+  canvas.setPointerCapture(e.pointerId);
+  GateF.beginDrag(e.clientX, e.clientY, e.pointerId, canvas.width);
+  if (mirrorOn) GateM.beginDrag(e.clientX, e.clientY, e.pointerId, canvas.width);
+});
+
+canvas.addEventListener("pointermove", e => {
+  if (e.pointerId !== GateF.pointerId) return;
+  GateF.pushSample(e.clientX, e.clientY, canvas.width);
+  if (mirrorOn) GateM.pushSample(e.clientX, e.clientY, canvas.width);
+});
+
+canvas.addEventListener("pointerup", e => {
+  if (e.pointerId !== GateF.pointerId) return;
+  GateF.endDrag();
+  if (mirrorOn) GateM.endDrag();
+});
+
+canvas.addEventListener("pointercancel", e => {
+  if (e.pointerId !== GateF.pointerId) return;
+  GateF.endDrag();
+  if (mirrorOn) GateM.endDrag();
+});
+
+function handleMotion(e) {
+  const a = e.accelerationIncludingGravity || e.acceleration;
+  if (!a || a.x == null) return;
+  const now = performance.now();
+  if (now - handleMotion._last < 30) return;
+  handleMotion._last = now;
+  GateF.feedAccel(a.x || 0, a.y || 0, a.z || 0);
+  if (mirrorOn) GateM.feedAccel(a.x || 0, a.y || 0, a.z || 0);
+}
+handleMotion._last = 0;
+
+async function enableMotion() {
+  const epoch = tapLifecycleEpoch;
+  if (document.hidden || tapInactive) return false;
+  if (typeof DeviceMotionEvent === "undefined") return false;
+  if (typeof DeviceMotionEvent.requestPermission === "function") {
+    try {
+      const s = await DeviceMotionEvent.requestPermission();
+      if (s !== "granted") return false;
+    } catch { return false; }
+  }
+  if (epoch !== tapLifecycleEpoch || document.hidden || tapInactive) return false;
+  if (typeof DeviceOrientationEvent !== "undefined" &&
+      typeof DeviceOrientationEvent.requestPermission === "function") {
+    try {
+      const s = await DeviceOrientationEvent.requestPermission();
+      if (s !== "granted") return false;
+    } catch { return false; }
+  }
+  if (epoch !== tapLifecycleEpoch || document.hidden || tapInactive) return false;
+  window.addEventListener("devicemotion", handleMotion, true);
+  daemon.subscribe();
+  if (!daemon._callbacks.length) daemon.onFrame(frame => {
+    GateF.setFrame(frame);
+    GateM.setFrame(frame);
+  });
+  motionActive = true;
+  return true;
+}
+
+/* Buttons */
+document.getElementById("btn-reset").addEventListener("click", () => {
+  GateF.reset(); GateM.reset();
+  Sentinel.nextRound("reset").catch(e => console.warn("sentinel_dot", e));
+});
+document.getElementById("btn-pause").addEventListener("click", e => {
+  GateF.togglePause(); GateM.togglePause();
+  e.target.textContent = GateF.running ? "Pause" : "Resume";
+  slog("toggle:pause", { running: GateF.running });
+});
+document.getElementById("btn-showtip").addEventListener("click", e => {
+  showFingertip = !showFingertip;
+  e.target.classList.toggle("active", showFingertip);
+  slog("toggle:fingertip", { on: showFingertip });
+});
+document.getElementById("btn-mirror").addEventListener("click", e => {
+  mirrorOn = !mirrorOn;
+  e.target.classList.toggle("active", mirrorOn);
+  if (!mirrorOn) GateM.reset();
+  slog("toggle:mirror", { on: mirrorOn });
+});
+document.getElementById("btn-motion").addEventListener("click", async e => {
+  if (motionActive) {
+    motionActive = false;
+    window.removeEventListener("devicemotion", handleMotion, true);
+    daemon.unsubscribe();
+    e.target.classList.remove("active");
+    slog("toggle:motion", { on: false });
+    return;
+  }
+  const ok = await enableMotion();
+  if (ok) { e.target.classList.add("active"); slog("toggle:motion", { on: true }); }
+  else sreject("toggle:motion", "permission denied or unsupported");
+});
+document.getElementById("btn-solar").addEventListener("click", e => {
+  SolarFrame.active = !SolarFrame.active;
+  e.target.classList.toggle("active", SolarFrame.active);
+  slog("toggle:solar", { on: SolarFrame.active });
+});
+document.getElementById("btn-sky").addEventListener("click", e => {
+  skyOn = !skyOn;
+  e.target.classList.toggle("active", skyOn);
+  slog("toggle:sky", { on: skyOn });
+});
+
+/* Sight Pole */
+document.getElementById("btn-sight").addEventListener("click", () => {
+  const v = daemon.viewLocal;
+  if (!v) { moireToast("Motion + compass required."); sreject("sight_pole", "motion+compass required"); return; }
+  if (daemon.source !== "magnetic") { moireToast("Compass unavailable — source: " + daemon.source); sreject("sight_pole", "compass unavailable", { source: String(daemon.source) }); return; }
+  const alt = Math.asin(clamp(v.u, -1, 1));
+  const azDeg = wrap360(Math.atan2(v.e, v.n) * RAD);
+  const nearN = azDeg < 45 || azDeg > 315;
+  const nearS = Math.abs(azDeg - 180) < 45;
+  if (!nearN && !nearS) { moireToast("Face N or S first. az=" + azDeg.toFixed(0) + "°"); sreject("sight_pole", "not facing N or S", { az_mdeg: S_milli(azDeg) }); return; }
+  if (alt < 3*DEG) { moireToast("Tilt up toward the pole. alt=" + (alt*RAD).toFixed(1) + "°"); sreject("sight_pole", "altitude below 3 deg", { alt_mdeg: S_milli(alt*RAD) }); return; }
+  const absAlt = Math.abs(alt);
+  Latitude.setFromSight(absAlt, nearN ? "N" : "S");
+  Observer.lat = Latitude.signedDeg();
+  Observer.sighted = true;
+  updateLocalFrame();
+  SolarFrame.update();
+  moireToast("Latitude " + Observer.lat.toFixed(1) + "° " + Latitude.hemi);
+  slog("sight_pole", { lat_mdeg: S_milli(Observer.lat), hemi: Latitude.hemi, az_mdeg: S_milli(azDeg) });
+});
+
+/* Slide-out panels */
+function panelToggle(panelId, tabId, openGlyph, closedGlyph) {
+  const panel = document.getElementById(panelId), tab = document.getElementById(tabId);
+  const set = tucked => { panel.classList.toggle("tucked", tucked); tab.textContent = tucked ? closedGlyph : openGlyph; };
+  tab.addEventListener("click", () => { const t = !panel.classList.contains("tucked"); set(t); slog("panel:" + panelId, { open: !t }); });
+  // swipe the panel toward its edge to tuck it
+  let x0 = null;
+  panel.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+  panel.addEventListener("touchend", e => {
+    if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if ((panelId === "hud" && dx < -60) || (panelId === "factors" && dx > 60)) { set(true); slog("panel:" + panelId, { open: false, via: "swipe" }); }
+  }, { passive: true });
+  if (matchMedia("(max-width:700px)").matches) set(true); else set(false);   // start tucked on phones
+}
+panelToggle("hud", "tab-hud", "‹", "›");
+panelToggle("factors", "tab-factors", "›", "‹");
+
+/* Log export: JSONL + anchored head, verifiable with the Python CLI */
+document.getElementById("btn-log").addEventListener("click", async () => {
+  await Sentinel.append("action", "export", { entries: Sentinel.entries.length });   // export is itself logged
+  const chk = await Sentinel.verify();
+  const [next_seq, hash] = Sentinel.head();
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const dl = (name, text, type) => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type }));
+    a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  };
+  dl(`invarianttap-${stamp}.jsonl`, Sentinel.toJsonl(), "application/x-ndjson");
+  dl(`invarianttap-${stamp}.head.json`, JSON.stringify({ next_seq, hash, mode: Sentinel.mode,
+    verify: `sentinel_dot verify invarianttap-${stamp}.jsonl --expect-seq ${next_seq} --expect-hash ${hash}` }, null, 2), "application/json");
+  moireToast(chk.ok ? `Log exported · ${next_seq} entries · ${hash.slice(0, 8)}` : `Log self-check FAILED at seq ${chk.seq}`);
+});
+
+/* Permission card */
+document.getElementById("btn-perm-yes").addEventListener("click", async () => {
+  Audio2.init(); Audio2.resume();
+  document.getElementById("permission").classList.add("hidden");
+  if (await enableMotion()) { document.getElementById("btn-motion").classList.add("active"); slog("toggle:motion", { on: true, via: "permission_card" }); }
+  else sreject("toggle:motion", "permission denied or unsupported", { via: "permission_card" });
+});
+document.getElementById("btn-perm-no").addEventListener("click", () => {
+  sreject("toggle:motion", "user skipped permission card");
+  Audio2.init(); Audio2.resume();
+  document.getElementById("permission").classList.add("hidden");
+});
+
+/* ============================================================================
+   SOO + SEXTANT-LOCK + CONTROL PANELS (woven)
+   Inputs are the app's real signals, in radians:
+     horizon = view altitude from daemon.viewLocal (0 without motion)
+     solar   = SolarFrame.alt
+     axis    = sighted latitude (= celestial pole altitude), 0 until sighted
+   vector.radius = |forward gate origin| / leash radius  (1.0 = at the leash)
+   Fixes vs. the draft block:
+     · ONSET→DRAG is time-based (no setTimeout queued every frame)
+     · drag no longer adds +0.6 radius per call (which failed in 2 frames);
+       dragStrength scales relocation (0.6 = unchanged behaviour)
+     · recovery actually moves the gate origin back, then re-arms READY
+     · snapToOrbit returns the corrected angle and a real lock test
+   ========================================================================== */
+const SOO = { state: "READY", orbitLocked: false, sextantLock: false,
+  horizonAngle: 0, solarAngle: 0, axisAngle: 0, orbitAngle: 0,
+  onsetAt: 0, downAt: 0, radius: 0 };
+const TimingPanel    = { tempo: 120, swing: 0.3, onsetBuffer: 350, tapWindow: 0.25, quantize: false };
+const SignalDynamics = { dragStrength: 0.6, perturbationNoise: 0.4, recoveryRate: 0.08 };
+const SynthEngine    = { droneWave: "sine", eq: [0.2, 0.4, 0.5, 0.3, 0.1, 0.2, 0.4],
+                         modulationDepth: 0.6, curvatureToPitch: true };
+const SextantPanel   = { horizonLock: true, solarBandPredict: true, axisSpine: true, curvatureMagnification: 1.8 };
+const VisualPanel    = { orbitView: true, perturbationField: true, sentinelPulse: true, solarBandOverlay: true };
+
+function sooSetState(s, why) {
+  if (SOO.state === s) return;
+  const from = SOO.state; SOO.state = s;
+  const fn = s === "FAILURE" ? sreject : slog;
+  if (s === "FAILURE") fn("soo:state", "escaped leash", { from, radius_milli: S_milli(SOO.radius) });
+  else fn("soo:state", { from, to: s, why: why || "" });
+}
+
+function sextantLock(horizon, solar, axis) {
+  const k = 0.15, gate = SignalDynamics.perturbationNoise * 0.01;   // noise gate (rad)
+  const ease = (cur, x) => Math.abs(x - cur) < gate ? cur : cur * (1 - k) + x * k;
+  SOO.horizonAngle = ease(SOO.horizonAngle, SextantPanel.horizonLock ? horizon : 0);
+  SOO.solarAngle   = ease(SOO.solarAngle,   SextantPanel.solarBandPredict ? solar : 0);
+  SOO.axisAngle    = ease(SOO.axisAngle,    SextantPanel.axisSpine ? axis : 0);
+  SOO.sextantLock = SextantPanel.horizonLock || SextantPanel.solarBandPredict || SextantPanel.axisSpine;
+}
+
+function snapToOrbit() {
+  if (!SOO.sextantLock) { SOO.orbitLocked = false; return SOO.orbitAngle; }
+  const target = SOO.solarAngle - SOO.horizonAngle;
+  SOO.orbitAngle += (target - SOO.orbitAngle) * 0.12;           // eased approach, no jitter
+  const was = SOO.orbitLocked;
+  SOO.orbitLocked = Math.abs(target - SOO.orbitAngle) < 0.01;
+  if (SOO.orbitLocked !== was) slog("soo:orbit", { locked: SOO.orbitLocked, angle_mrad: S_milli(SOO.orbitAngle) });
+  SOO.orbitSnapEvent = !was && SOO.orbitLocked;
+  if (SOO.orbitSnapEvent && typeof shufflePattern === "function" && DrumMode.enabled) shufflePattern("orbital snap");
+  return SOO.orbitAngle;
+}
+
+function dragVector(now) {
+  if (SOO.state === "ONSET" && now - SOO.onsetAt >= TimingPanel.onsetBuffer) sooSetState("DRAG", "onset elapsed");
+  if (SOO.state === "DRAG" && SOO.radius > 1.0) sooSetState("FAILURE");
+}
+
+function recovery() {
+  if (SOO.state !== "FAILURE" && SOO.state !== "RECOVERY") return;
+  if (SOO.state === "FAILURE") sooSetState("RECOVERY", "pullback");
+  const k = 1 - SignalDynamics.recoveryRate;
+  for (const g of mirrorOn ? [GateF, GateM] : [GateF]) { g.originX *= k; g.originY *= k; }
+  if (SOO.radius <= 0.1) sooSetState("READY", "recovered");
+}
+
+function updateSOO(now) {
+  const v = daemon.viewLocal;
+  const horizon = v ? Math.asin(clamp(v.u, -1, 1)) : 0;
+  const axis = Observer.sighted ? Observer.lat * DEG : 0;
+  SOO.radius = Math.hypot(GateF.originX, GateF.originY) / leashMax();
+  sextantLock(horizon, SolarFrame.alt || 0, axis);
+  snapToOrbit();
+  dragVector(now);
+  recovery();
+}
+
+/* Pointer → SOO. ONSET suppresses gate firing (fixes the instant-escape jump). */
+canvas.addEventListener("pointerdown", () => {
+  if (SOO.state === "READY" || SOO.state === "TAP") {
+    SOO.onsetAt = SOO.downAt = performance.now(); sooSetState("ONSET", "pointerdown");
+  }
+});
+canvas.addEventListener("pointerup", () => {
+  const held = performance.now() - SOO.downAt;
+  if (SOO.state === "ONSET" && held <= TimingPanel.tapWindow * 1000) {
+    sooSetState("TAP", "short press"); setTimeout(() => { if (SOO.state === "TAP") sooSetState("READY", "tap done"); }, 120);
+  } else if (SOO.state === "ONSET" || SOO.state === "DRAG") sooSetState("READY", "release");
+});
+{
+  const tickF = GateF.tick.bind(GateF), tickM = GateM.tick.bind(GateM);
+  GateF.tick = function () { if (SOO.state !== "ONSET" && SOO.state !== "RECOVERY") tickF(); };
+  GateM.tick = function () { if (SOO.state !== "ONSET" && SOO.state !== "RECOVERY") tickM(); };
+}
+tapEvery(() => updateSOO(performance.now()), 33);
+
+/* Drag strength scales relocation; 0.6 is neutral */
+{
+  const base = relocationOffset;
+  relocationOffset = function (a, c) {
+    const o = base(a, c), s = SignalDynamics.dragStrength / 0.6; return { dx: o.dx * s, dy: o.dy * s };
+  };
+}
+
+/* Synth: waveform, modulation depth, curvature→pitch, 7-band EQ on the master bus */
+const SOO_EQ_HZ = [60, 150, 400, 1000, 2400, 6000, 12000];
+let sooEq = null;
+function sooAudioWire() {
+  if (!Audio2.ctx || sooEq) return;
+  const c = Audio2.ctx;
+  sooEq = SOO_EQ_HZ.map((f, i) => { const b = c.createBiquadFilter();
+    b.type = i === 0 ? "lowshelf" : i === 6 ? "highshelf" : "peaking"; b.frequency.value = f; b.Q.value = 1.1; return b; });
+  Audio2.master.disconnect();
+  Audio2.master.connect(sooEq[0]);
+  for (let i = 0; i < 6; i++) sooEq[i].connect(sooEq[i + 1]);
+  sooEq[6].connect(c.destination);
+  sooAudioApply();
+}
+function sooAudioApply() {
+  if (sooEq) sooEq.forEach((b, i) => b.gain.value = (SynthEngine.eq[i] - 0.3) * 24);   // 0.3 = flat, ±~17 dB
+  Audio2.moireOsc.forEach(o => { o.type = SynthEngine.droneWave; });
+}
+{
+  const baseDrone = Audio2.updateDrone.bind(Audio2);
+  Audio2.updateDrone = function () {
+    sooAudioWire(); baseDrone();
+    if (!this.enabled || !this.ctx) return;
+    const t = this.ctx.currentTime, depth = SynthEngine.modulationDepth / 0.6;       // 0.6 = original depth
+    const c = (GateF.currentCoherence + GateM.currentCoherence) / 2;
+    const curv = SynthEngine.curvatureToPitch ? SOO.orbitAngle * SextantPanel.curvatureMagnification * 0.1 : 0;
+    const hz = 110 * (1 + c * 0.02 * depth) * (1 + curv);
+    const ratio = omegaB() / omegaA();
+    this.moireOsc.forEach((o, i) => { o.frequency.cancelScheduledValues(t);
+      o.frequency.linearRampToValueAtTime(i === 0 ? hz : hz * ratio, t + 0.12); });
+  };
+  /* Tempo/swing quantize ring tones to a swung 16th grid when enabled */
+  const baseTone = Audio2.ringTone.bind(Audio2);
+  Audio2.ringTone = function (ring) {
+    if (!TimingPanel.quantize || !this.ctx) return baseTone(ring);
+    const step = 60 / TimingPanel.tempo / 4, t = this.ctx.currentTime;
+    let n = Math.ceil(t / step), at = n * step;
+    if (n % 2) at += step * TimingPanel.swing;
+    const epoch = tapLifecycleEpoch;
+    const timer = setTimeout(() => {
+      tapToneTimers.delete(timer);
+      if (epoch === tapLifecycleEpoch && !document.hidden && !tapInactive) baseTone(ring);
+    }, Math.max(0, (at - t) * 1000));
+    tapToneTimers.add(timer);
+  };
+}
+
+/* Visual overlays (drawn on top of the pad each frame) */
+function drawSOO() {
+  const w = canvas.width, h = canvas.height, cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.42;
+  const dpr = 1;   // canvas is in CSS px
+  ctx.save();
+  if (VisualPanel.perturbationField) {
+    const r = leashMax() * dpr, t = clamp(SOO.radius, 0, 1.2);
+    ctx.strokeStyle = SOO.state === "FAILURE" || SOO.state === "RECOVERY" ? "rgba(255,112,112,0.55)" : `rgba(142,197,255,${0.08 + t * 0.3})`;
+    ctx.setLineDash([3 * dpr, 7 * dpr]); ctx.lineWidth = 1 * dpr;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+  }
+  if (VisualPanel.solarBandOverlay) {
+    const a = -SOO.solarAngle - Math.PI / 2;
+    ctx.strokeStyle = "rgba(255,212,132,0.35)"; ctx.lineWidth = 6 * dpr;
+    ctx.beginPath(); ctx.arc(cx, cy, R * 1.04, a - 0.12, a + 0.12); ctx.stroke();
+  }
+  if (VisualPanel.orbitView) {
+    const a = -SOO.orbitAngle * SextantPanel.curvatureMagnification - Math.PI / 2;
+    ctx.strokeStyle = SOO.orbitLocked ? "rgba(124,255,155,0.8)" : "rgba(212,184,255,0.6)";
+    ctx.lineWidth = 2 * dpr; ctx.beginPath(); ctx.arc(cx, cy, R * 0.92, a - 0.25, a + 0.25); ctx.stroke();
+    ctx.fillStyle = ctx.strokeStyle; ctx.beginPath();
+    ctx.arc(cx + Math.cos(a) * R * 0.92, cy + Math.sin(a) * R * 0.92, 3.5 * dpr, 0, TAU); ctx.fill();
+    if (SextantPanel.axisSpine && SOO.axisAngle) {
+      const s = -SOO.axisAngle - Math.PI / 2;
+      ctx.strokeStyle = "rgba(142,255,255,0.35)"; ctx.lineWidth = 1 * dpr; ctx.beginPath();
+      ctx.moveTo(cx - Math.cos(s) * R * 0.3, cy - Math.sin(s) * R * 0.3); ctx.lineTo(cx + Math.cos(s) * R, cy + Math.sin(s) * R); ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+{
+  const baseReticle = drawReticle;
+  drawReticle = function () { drawSOO(); baseReticle(); };
+}
+{
+  const baseAppend = Sentinel.onAppend;
+  Sentinel.onAppend = e => { baseAppend(e);
+    if (!VisualPanel.sentinelPulse) return;
+    const el = document.getElementById("lb-chain"); if (!el) return;
+    el.classList.remove("pulse"); void el.offsetWidth; el.classList.add("pulse"); };
+}
+
+/* Drum kits + bass drum (kick) — fires once per ONSET, shaped by the sextant */
+const DrumKits = {
+  Analog808:   { pitch: 55, decay: 0.45, drive: 0.20, click: 0.10 },
+  DeepHouse:   { pitch: 48, decay: 0.65, drive: 0.35, click: 0.05 },
+  TechnoHard:  { pitch: 60, decay: 0.30, drive: 0.55, click: 0.20 },
+  MinimalSoft: { pitch: 40, decay: 0.80, drive: 0.10, click: 0.02 },
+};
+/* Pull-tab control panel (bottom) */
+const SooUI = {
+  build() {
+    const root = document.getElementById("soo-panel");
+    const sections = [
+      ["Timing", TimingPanel, { tempo: [40, 240, 1], swing: [0, 0.75, 0.01], onsetBuffer: [0, 1000, 10], tapWindow: [0.05, 0.6, 0.01] }],
+      ["Signal dynamics", SignalDynamics, { dragStrength: [0.1, 1.5, 0.01], perturbationNoise: [0, 1, 0.01], recoveryRate: [0.01, 0.3, 0.01] }],
+      ["Synth engine", SynthEngine, { modulationDepth: [0, 1.5, 0.01] }],
+      ["Sextant", SextantPanel, { curvatureMagnification: [0.5, 4, 0.1] }],
+      ["Visual", VisualPanel, {}],
+    ];
+    const h = [`<div class="soo-state">SOO <span id="soo-st">READY</span> · orbit <span id="soo-orb">—</span></div>`];
+    for (const [title, obj, ranges] of sections) {
+      h.push(`<div class="sec"><div class="head">${title}</div>`);
+      for (const [k, v] of Object.entries(obj)) {
+        const id = `soo-${title[0]}-${k}`;
+        if (typeof v === "boolean") h.push(`<label class="row"><span class="k">${k}</span><input type="checkbox" id="${id}" ${v ? "checked" : ""}></label>`);
+        else if (k === "droneWave" || k === "kit") h.push(`<label class="row"><span class="k">${k}</span><select id="${id}">${(k === "kit" ? Object.keys(DrumKits) : ["sine", "triangle", "square", "sawtooth"]).map(o => `<option ${o === v ? "selected" : ""}>${o}</option>`).join("")}</select></label>`);
+        else if (k === "eq") h.push(`<div class="row"><span class="k">eq</span></div><div class="eq">${v.map((x, i) => `<input type="range" class="eqb" orient="vertical" id="${id}-${i}" min="0" max="1" step="0.01" value="${x}" title="${SOO_EQ_HZ[i]} Hz">`).join("")}</div>`);
+        else if (ranges[k]) { const [a, b, s] = ranges[k];
+          h.push(`<div class="row"><span class="k">${k}</span><span class="v" id="${id}-v">${v}</span></div><input type="range" id="${id}" min="${a}" max="${b}" step="${s}" value="${v}">`); }
+      }
+      h.push(`</div>`);
+    }
+    root.innerHTML = h.join("");
+    for (const [title, obj] of sections) for (const k of Object.keys(obj)) {
+      const id = `soo-${title[0]}-${k}`, log = (value) => { clearTimeout(SooUI._t[id]);
+        SooUI._t[id] = setTimeout(() => slog("soo:set", { panel: title, key: k, value: String(value) }), 400); };
+      if (k === "eq") obj.eq.forEach((_, i) => document.getElementById(`${id}-${i}`).addEventListener("input", e => {
+        obj.eq[i] = parseFloat(e.target.value); sooAudioApply(); log(obj.eq.join(",")); }));
+      const el = document.getElementById(id); if (!el) continue;
+      el.addEventListener(el.type === "checkbox" || el.tagName === "SELECT" ? "change" : "input", () => {
+        const val = el.type === "checkbox" ? el.checked : el.tagName === "SELECT" ? el.value : parseFloat(el.value);
+        obj[k] = val; const out = document.getElementById(id + "-v"); if (out) out.textContent = val;
+        sooAudioApply(); log(val);
+      });
+    }
+  },
+  _t: {},
+  status() {
+    const s = document.getElementById("soo-st"), o = document.getElementById("soo-orb");
+    if (s) { s.textContent = SOO.state; s.className = SOO.state === "FAILURE" || SOO.state === "RECOVERY" ? "bad" : SOO.state === "READY" ? "ok" : ""; }
+    if (o) o.textContent = SOO.orbitLocked ? "locked" : (SOO.orbitAngle * RAD).toFixed(1) + "°";
+    const lb = document.getElementById("lb-soo"); if (lb) lb.textContent = SOO.state;
+  },
+};
+SooUI.build();
+tapEvery(() => SooUI.status(), 150);
+{
+  const p = document.getElementById("soo-panel"), t = document.getElementById("tab-soo");
+  const set = open => { p.classList.toggle("open", open); t.textContent = open ? "SOO ▾" : "SOO ▴"; };
+  t.addEventListener("click", () => { const o = !p.classList.contains("open"); set(o); slog("panel:soo", { open: o }); });
+  set(false);
+}
+
+/* Snap to Orbit: lock the orbit onto the sextant target now and pull the gates home */
+const DrumMode = { enabled: true, baselineQuantise: 16, noiseLevel: 0.3, onsetKick: true };
+const DrumPanel = { kit: "Analog808" };                     // CurrentKit
+const Volume = { kick: 0.9, noise: 0.4, pattern: 0.8 };
+const _driveCurves = {};
+function driveCurve(d) {
+  const k = Math.round(d * 100); if (_driveCurves[k]) return _driveCurves[k];
+  const n = 1024, c = new Float32Array(n), a = 1 + d * 30;
+  for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1; c[i] = Math.tanh(a * x) / Math.tanh(a); }
+  return (_driveCurves[k] = c);
+}
+function playKick(velocity = 1.0, when = null) {
+  if (!DrumMode.enabled) return null;
+  const kit = DrumKits[DrumPanel.kit];
+  const pitch = Math.max(20, kit.pitch + SOO.axisAngle * 12);            // curvature (axis) → pitch
+  const decay = clamp(kit.decay + SOO.horizonAngle * 0.1, 0.08, 2);      // horizon → decay
+  const drive = clamp(kit.drive + SOO.solarAngle * 0.2, 0, 1);           // solar → distortion
+  const click = kit.click;
+  const out = { type: "kick", kit: DrumPanel.kit, pitch, decay, drive, click, velocity };
+  if (!Audio2.ctx || velocity <= 0) return out;
+  const c = Audio2.ctx, t = when ?? c.currentTime + 0.005, v = Math.max(0.0002, velocity);
+  const osc = c.createOscillator(), g = c.createGain(), sh = c.createWaveShaper();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(pitch * 4, t);
+  osc.frequency.exponentialRampToValueAtTime(pitch, t + 0.045);           // pitch sweep = the "punch"
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(v, t + 0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+  sh.curve = driveCurve(drive); sh.oversample = "2x";
+  osc.connect(sh); sh.connect(g); g.connect(Audio2.master);
+  Audio2.sources.add(osc);
+  osc.onended = () => { Audio2.sources.delete(osc); osc.disconnect(); sh.disconnect(); g.disconnect(); };
+  osc.start(t); osc.stop(t + decay + 0.05);
+  if (click > 0) noiseBurst(t, 0.004, 2500, click * v * 4);
+  return out;
+}
+function noiseBurst(t, dur, hpHz, gain) {
+  const c = Audio2.ctx, len = Math.max(1, Math.floor(c.sampleRate * dur));
+  const buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+  const src = c.createBufferSource(), hp = c.createBiquadFilter(), g = c.createGain();
+  src.buffer = buf; hp.type = "highpass"; hp.frequency.value = hpHz; g.gain.value = gain;
+  Audio2.sources.add(src);
+  src.onended = () => { Audio2.sources.delete(src); src.disconnect(); hp.disconnect(); g.disconnect(); };
+  src.connect(hp); hp.connect(g); g.connect(Audio2.master); src.start(t);
+}
+/* Underlying instrument noise, quantised: amplitude follows |sin| over a q-step cycle */
+function baselineNoise(stepIndex) {
+  const q = DrumMode.baselineQuantise, phase = (stepIndex % q) / q;
+  const value = DrumMode.noiseLevel * Math.sin(phase * TAU);
+  return { type: "baseline-noise", value: value * Volume.noise };
+}
+
+/* Pattern engine: 16 steps. Orbital snap (lock false→true, or the Snap button) shuffles it;
+   the fingertip draws into it — the pad is a clock face, 12 o'clock = step 1. */
+const Pattern = [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0];
+function patternStr() { return Pattern.join(""); }
+/* Deterministic shuffle: the new pattern is derived from the sentinel chain head the
+   shuffle entry is appended onto (its prev_log_hash), so the log alone reproduces every groove. */
+function shufflePattern(via) {
+  return Sentinel.append("action", "soo:pattern", async prev => {
+    const pat = await SentinelDot.derivePattern(prev, Pattern.length);
+    for (let i = 0; i < Pattern.length; i++) Pattern[i] = +pat[i];
+    PatternUI.render();
+    return { via, pattern: pat, derive: "v1" };
+  }).catch(e => console.warn("sentinel_dot", e));
+}
+let _drawStep = -1, _drawLogT = null;
+function drawToPattern(clientX, clientY) {
+  const r = canvas.getBoundingClientRect(), x = clientX - r.left - r.width / 2, y = clientY - r.top - r.height / 2;
+  if (Math.hypot(x, y) < 30) return;
+  const a = (Math.atan2(y, x) + Math.PI / 2 + TAU) % TAU;   // 0 at 12 o'clock, clockwise
+  const i = Math.floor(a / TAU * Pattern.length) % Pattern.length;
+  if (i === _drawStep) return; _drawStep = i;
+  if (!Pattern[i]) { Pattern[i] = 1; PatternUI.render();
+    clearTimeout(_drawLogT); _drawLogT = setTimeout(() => slog("soo:pattern", { via: "fingertip", pattern: patternStr() }), 500); }
+}
+let stepCounter = 0;
+const Seq = { next: 0, step: 0, playhead: -1, timer: null };
+function seqTick() {
+  const c = Audio2.ctx;
+  if (!DrumMode.enabled || !c || c.state !== "running") { Seq.next = 0; return; }
+  const dur = 60 / TimingPanel.tempo / 4;
+  if (Seq.next < c.currentTime) Seq.next = c.currentTime + 0.05;
+  while (Seq.next < c.currentTime + 0.12) {
+    const s = stepCounter % Pattern.length, t = Seq.next + (s % 2 ? dur * TimingPanel.swing : 0);
+    if (Pattern[s]) playKick(Volume.pattern, t);
+    const n = baselineNoise(stepCounter);
+    if (Volume.noise > 0 && DrumMode.noiseLevel > 0) noiseBurst(t, 0.03, 7000, Math.abs(n.value) * 0.6 + 0.02 * Volume.noise);
+    const at = (t - c.currentTime) * 1000;
+    const timer = setTimeout(() => {
+      tapToneTimers.delete(timer);
+      Seq.playhead = s; PatternUI.head(s);
+    }, Math.max(0, at));
+    tapToneTimers.add(timer);
+    stepCounter++; Seq.next += dur;
+  }
+}
+tapEvery(seqTick, 25);
+
+{
+  const base = sooSetState;
+  sooSetState = function (s, why) {
+    const was = SOO.state; base(s, why);
+    if (s === "ONSET" && was !== "ONSET" && DrumMode.onsetKick) {
+      const k = playKick(Math.min(1, SignalDynamics.dragStrength / 0.6) * Volume.kick);
+      if (k) slog("soo:kick", { kit: k.kit, pitch_mhz: S_milli(k.pitch), decay_ms: S_milli(k.decay), drive_milli: S_milli(k.drive) });
+    }
+  };
+}
+canvas.addEventListener("pointerdown", e => { _drawStep = -1; if (showFingertip && DrumMode.enabled) drawToPattern(e.clientX, e.clientY); });
+canvas.addEventListener("pointermove", e => { if (e.buttons && showFingertip && DrumMode.enabled) drawToPattern(e.clientX, e.clientY); });
+
+/* Volume dials + pattern grid (appended to the SOO panel) */
+const PatternUI = {
+  render() {
+    const g = document.getElementById("pat-grid"); if (!g) return;
+    g.querySelectorAll("button").forEach((b, i) => b.classList.toggle("on", !!Pattern[i]));
+  },
+  head(s) { const g = document.getElementById("pat-grid"); if (!g) return;
+    g.querySelectorAll("button").forEach((b, i) => b.classList.toggle("head", i === s)); },
+};
+function knob(id, label, obj, key) {
+  return `<div class="knob" id="${id}" data-key="${key}"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" class="kb"/><path class="ka"/><line x1="20" y1="20" x2="20" y2="7" class="kn"/></svg><span class="k">${label}</span><span class="v"></span></div>`;
+}
+function wireKnob(el, obj, key) {
+  const arc = el.querySelector(".ka"), nd = el.querySelector(".kn"), out = el.querySelector(".v");
+  const paint = () => { const v = obj[key], a0 = -135, a = a0 + 270 * v, rad = d => (d - 90) * DEG;
+    const p = d => `${20 + 15 * Math.cos(rad(d))} ${20 + 15 * Math.sin(rad(d))}`;
+    arc.setAttribute("d", `M ${p(a0)} A 15 15 0 ${270 * v > 180 ? 1 : 0} 1 ${p(a)}`);
+    nd.setAttribute("transform", `rotate(${a} 20 20)`); out.textContent = Math.round(v * 100); };
+  let y0 = null, v0 = 0, lt = null;
+  el.addEventListener("pointerdown", e => { y0 = e.clientY; v0 = obj[key]; el.setPointerCapture(e.pointerId); e.stopPropagation(); });
+  el.addEventListener("pointermove", e => { if (y0 === null) return; obj[key] = clamp(v0 + (y0 - e.clientY) / 120, 0, 1); paint();
+    clearTimeout(lt); lt = setTimeout(() => slog("soo:volume", { channel: key, value: obj[key].toFixed(2) }), 400); });
+  el.addEventListener("pointerup", () => { y0 = null; });
+  el.addEventListener("wheel", e => { e.preventDefault(); obj[key] = clamp(obj[key] - e.deltaY / 1000, 0, 1); paint(); }, { passive: false });
+  paint();
+}
+{
+  const root = document.getElementById("soo-panel"), sec = document.createElement("div");
+  sec.className = "sec drum"; sec.style.gridColumn = "1/-1";
+  sec.innerHTML = `<div class="head">Drum mode</div>
+    <div class="drow">
+      <label class="row"><span class="k">enabled</span><input type="checkbox" id="dm-en" ${DrumMode.enabled ? "checked" : ""}></label>
+      <label class="row"><span class="k">kit</span><select id="dm-kit">${Object.keys(DrumKits).map(k => `<option ${k === DrumPanel.kit ? "selected" : ""}>${k}</option>`).join("")}</select></label>
+      <label class="row"><span class="k">onset kick</span><input type="checkbox" id="dm-ok" ${DrumMode.onsetKick ? "checked" : ""}></label>
+      <label class="row"><span class="k">quantise</span><select id="dm-q">${[4, 8, 16, 32].map(q => `<option ${q === DrumMode.baselineQuantise ? "selected" : ""}>${q}</option>`).join("")}</select></label>
+    </div>
+    <div class="row"><span class="k">noiseLevel</span><span class="v" id="dm-nl-v">${DrumMode.noiseLevel}</span></div>
+    <input type="range" id="dm-nl" min="0" max="1" step="0.01" value="${DrumMode.noiseLevel}">
+    <div class="knobs">${knob("vk-kick", "kick")}${knob("vk-noise", "noise")}${knob("vk-pattern", "pattern")}</div>
+    <div class="row"><span class="k">pattern · snap to shuffle · draw on the pad (Fingertip on)</span><button id="pat-clear" class="mini">clear</button><button id="pat-shuf" class="mini">shuffle</button></div>
+    <div id="pat-grid">${Pattern.map((_, i) => `<button data-i="${i}">${i + 1}</button>`).join("")}</div>`;
+  root.appendChild(sec);
+  const L = (k, v) => slog("soo:set", { panel: "Drum mode", key: k, value: String(v) });
+  document.getElementById("dm-en").onchange = e => { DrumMode.enabled = e.target.checked; L("enabled", DrumMode.enabled); };
+  document.getElementById("dm-ok").onchange = e => { DrumMode.onsetKick = e.target.checked; L("onsetKick", DrumMode.onsetKick); };
+  document.getElementById("dm-kit").onchange = e => { DrumPanel.kit = e.target.value; L("kit", DrumPanel.kit); };
+  document.getElementById("dm-q").onchange = e => { DrumMode.baselineQuantise = +e.target.value; L("baselineQuantise", DrumMode.baselineQuantise); };
+  let nt = null;
+  document.getElementById("dm-nl").oninput = e => { DrumMode.noiseLevel = +e.target.value; document.getElementById("dm-nl-v").textContent = DrumMode.noiseLevel;
+    clearTimeout(nt); nt = setTimeout(() => L("noiseLevel", DrumMode.noiseLevel), 400); };
+  for (const k of ["kick", "noise", "pattern"]) wireKnob(document.getElementById("vk-" + k), Volume, k);
+  document.getElementById("pat-grid").onclick = e => { const b = e.target.closest("button"); if (!b) return;
+    const i = +b.dataset.i; Pattern[i] = Pattern[i] ? 0 : 1; PatternUI.render(); slog("soo:pattern", { via: "grid", pattern: patternStr() }); };
+  document.getElementById("pat-clear").onclick = () => { Pattern.fill(0); PatternUI.render(); slog("soo:pattern", { via: "clear", pattern: patternStr() }); };
+  document.getElementById("pat-shuf").onclick = () => shufflePattern("button");
+  PatternUI.render();
+}
+
+/* Pattern ring on the pad: 16 steps around the clock face, playhead lit */
+{
+  const baseSOO = drawSOO;
+  drawSOO = function () { baseSOO();
+    if (!DrumMode.enabled) return;
+    const w = canvas.width, h = canvas.height, cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.42 * 0.8;
+    for (let i = 0; i < Pattern.length; i++) {
+      const a = i / Pattern.length * TAU - Math.PI / 2, x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R;
+      const on = Pattern[i], hd = i === Seq.playhead;
+      ctx.fillStyle = hd ? (on ? "rgba(124,255,155,0.95)" : "rgba(212,184,255,0.5)") : on ? "rgba(212,184,255,0.75)" : "rgba(120,140,180,0.18)";
+      ctx.beginPath(); ctx.arc(x, y, on ? 5 : 2.5, 0, TAU); ctx.fill();
+    }
+  };
+}
+
+/* Snap to Orbit = perspective: zoom out to orbit, then a descent gradient home.
+   Phase 1 (0.7 s): view zooms out to 0.3× — the whole walk, leash and orbit in frame.
+   Phase 2 (3.2 s): smooth descent — zoom eases back to 1×, gate origins glide to home
+   along the same curve, drawn as a gradient trail from where you were to home. */
+const Descent = { active: false, t0: 0, from: [], zoom: 1, OUT: 700, DOWN: 3200, MIN: 0.3 };
+const easeInOut = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+function snapToOrbitNow(via) {
+  const target = SOO.solarAngle - SOO.horizonAngle;
+  SOO.orbitAngle = target; SOO.orbitLocked = true;
+  Descent.active = true; Descent.t0 = performance.now();
+  Descent.from = [GateF, GateM].map(g => [g.originX, g.originY]);
+  SOO.state = "FAILURE"; sooSetState("RECOVERY", "snap to orbit · descent");
+  slog("soo:snap", { via, angle_mrad: S_milli(target), radius_milli: S_milli(SOO.radius) });
+  if (DrumMode.enabled) shufflePattern("snap to orbit");
+  moireToast("Orbit · descending home");
+}
+function descentStep(now) {
+  if (!Descent.active) return;
+  const e = now - Descent.t0;
+  if (e < Descent.OUT) { Descent.zoom = 1 - (1 - Descent.MIN) * easeInOut(e / Descent.OUT); return; }
+  const p = Math.min(1, (e - Descent.OUT) / Descent.DOWN), q = easeInOut(p);
+  Descent.zoom = Descent.MIN + (1 - Descent.MIN) * q;
+  [GateF, GateM].forEach((g, i) => { g.originX = Descent.from[i][0] * (1 - q); g.originY = Descent.from[i][1] * (1 - q); });
+  if (p >= 1) { Descent.active = false; Descent.zoom = 1; sooSetState("READY", "home"); slog("soo:home", { ms: Math.round(e) }); }
+}
+{
+  const baseRecovery = recovery;
+  recovery = function () { if (!Descent.active) baseRecovery(); };
+  const baseDraw = draw;
+  draw = function () {
+    const now = performance.now(); descentStep(now);
+    const z = Descent.zoom, w = canvas.width, h = canvas.height, cx = w / 2, cy = h / 2;
+    if (z === 1) return baseDraw();
+    ctx.save();
+    ctx.fillStyle = "rgb(5,7,12)"; ctx.fillRect(0, 0, w, h);
+    ctx.translate(cx, cy); ctx.scale(z, z); ctx.translate(-cx, -cy);
+    const raf = window.requestAnimationFrame; window.requestAnimationFrame = () => 0;   // base draw re-queues itself; we queue once below
+    try { baseDraw(); } finally { window.requestAnimationFrame = raf; }
+    // descent gradient: contour rings + a trail from the start position to home
+    const R = Math.max(w, h) / z;
+    for (let k = 1; k <= 6; k++) {
+      ctx.strokeStyle = `rgba(212,184,255,${0.05 + 0.03 * (6 - k)})`; ctx.lineWidth = 1 / z;
+      ctx.beginPath(); ctx.arc(cx, cy, (R / 6) * k * 0.5, 0, TAU); ctx.stroke();
+    }
+    const [fx, fy] = Descent.from[0];
+    if (Math.hypot(fx, fy) > 1) {
+      const gr = ctx.createLinearGradient(cx + fx, cy + fy, cx, cy);
+      gr.addColorStop(0, "rgba(142,197,255,0.0)"); gr.addColorStop(0.5, "rgba(212,184,255,0.55)"); gr.addColorStop(1, "rgba(124,255,155,0.95)");
+      ctx.strokeStyle = gr; ctx.lineWidth = 3 / z; ctx.beginPath(); ctx.moveTo(cx + fx, cy + fy); ctx.lineTo(cx, cy); ctx.stroke();
+    }
+    ctx.fillStyle = "rgba(124,255,155,0.9)"; ctx.beginPath(); ctx.arc(cx, cy, 5 / z, 0, TAU); ctx.fill();
+    ctx.restore();
+    tapAnimation = raf(draw);
+  };
+}
+document.getElementById("btn-snap").addEventListener("click", () => snapToOrbitNow("button"));
+tapEvery(() => document.getElementById("btn-snap").classList.toggle("locked", SOO.orbitLocked), 200);
+
+/* In use: all panels and tabs snap off screen while the pad is touched; back 1.2 s after release */
+{
+  let t = null;
+  const on = () => { clearTimeout(t); document.body.classList.add("in-use"); };
+  const off = () => { clearTimeout(t); t = setTimeout(() => document.body.classList.remove("in-use"), 1200); };
+  canvas.addEventListener("pointerdown", on);
+  canvas.addEventListener("pointerup", off);
+  canvas.addEventListener("pointercancel", off);
+}
+
+/* Ring → audio */
+const logRing = r => slog("ring", { gate: r.mirrored ? "mirror" : "forward", id: r.id, parent: r.parentId,
+  plane: r.planeIndex, moire_urad: S_micro(r.moireAngle), coherence_ppm: S_micro(r.coherence),
+  dx_mpx: S_milli(r.offsetX), dy_mpx: S_milli(r.offsetY) });
+GateF.onRing = r => { Audio2.ringTone(r); logRing(r); };
+GateM.onRing = r => { Audio2.ringTone(r); logRing(r); };
+
+/* ---------------------------------------------------------------------------
+   UI SCALE
+   --------------------------------------------------------------------------- */
+
+(function autoUiScale() {
+  const w = window.innerWidth, h = window.innerHeight;
+  let pct = 100;
+  if (w < 400 || h < 500) pct = 70;
+  else if (w < 600 || h < 650) pct = 80;
+  else if (w < 900) pct = 90;
+  document.documentElement.style.setProperty("--ui-scale", (pct/100).toFixed(2));
+})();
+
+/* ---------------------------------------------------------------------------
+   BOOT
+   --------------------------------------------------------------------------- */
+
+GateF.start();
+GateM.start();
+SolarFrame.localPhase = SolarFrame.phaseFromClock();
+SolarFrame.update();
+LOCK.commensuration.cycle = null;
+
+draw();
+
+tapEvery(() => {
+  SolarFrame.localPhase = SolarFrame.phaseFromClock();
+  SolarFrame.update();
+}, 1000);
+
+tapEvery(() => { GateF.tick(); if (mirrorOn) GateM.tick(); }, 33);
+tapEvery(() => Audio2.updateDrone(), 80);
+</script>
+<script src="lifecycle.js"></script>
+</body>
+</html>
