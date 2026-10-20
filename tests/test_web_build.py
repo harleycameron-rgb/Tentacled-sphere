@@ -36,12 +36,38 @@ class WebBuildTests(unittest.TestCase):
             route["source"]: route["destination"]
             for route in configuration["rewrites"]
         }
-        self.assertEqual(rewrites["/api/tentacled-sphere"], "/api/index.py")
-        self.assertEqual(configuration["outputDirectory"], "public")
+        self.assertEqual(rewrites["/api/tentacled-sphere"], {"service": "app"})
+        self.assertEqual(rewrites["/(.*)"], {"service": "web"})
+        self.assertEqual(configuration["rewrites"][-1]["source"], "/(.*)")
+        services = configuration["services"]
+        self.assertEqual(set(services), {"app", "web"})
+        self.assertEqual(services["app"]["runtime"], "python")
+        self.assertEqual(services["app"]["entrypoint"], "api/index.py")
+        self.assertTrue((ROOT / services["app"]["entrypoint"]).is_file())
+        self.assertEqual(services["web"]["outputDirectory"], "public")
+        self.assertEqual(
+            services["web"]["buildCommand"],
+            "python3 scripts/build_web.py --output public",
+        )
+        rewrites = {
+            route["source"]: route["destination"]
+            for route in services["web"]["rewrites"]
+        }
         for app_id, _ in APPS:
             destination = f"/apps/{app_id}.html"
             self.assertEqual(rewrites[f"/{app_id}"], destination)
             self.assertEqual(rewrites[f"/{app_id}/"], destination)
+
+    def test_services_keep_build_settings_scoped_and_have_no_invented_bindings(self):
+        configuration = json.loads((ROOT / "vercel.json").read_text(encoding="utf-8"))
+        for key in (
+            "functions", "installCommand", "buildCommand", "devCommand",
+            "ignoreCommand", "outputDirectory", "framework",
+        ):
+            self.assertNotIn(key, configuration)
+        for service in configuration["services"].values():
+            self.assertEqual(service["root"], ".")
+            self.assertFalse(service.get("bindings"))
 
 
 if __name__ == "__main__":

@@ -161,9 +161,35 @@ tolerances; these are computational checks, not hardware measurements.
 
 ## Deployment
 
-`vercel.json` builds the shared template output into `public`, serves the eight
-pages and shared browser assets, and rewrites short app routes. The existing
-`/api/tentacled-sphere` path is explicitly preserved. GitHub Actions runs
+`vercel.json` defines two independently built services in one Vercel project:
+
+- `app`: Python, rooted at `.`, with the explicit `api/index.py` entrypoint.
+  Only `/api/tentacled-sphere` is routed to this service, without stripping or
+  changing the path expected by the handler.
+- `web`: static browser pages, rooted at `.`, built with
+  `python3 scripts/build_web.py --output public`. Only `public` is published;
+  short app rewrites belong to this service. The final public catch-all routes
+  to `web`, including `/`, `/apps/*.html`, and `/web/*`.
+
+Build settings are service-scoped. The top-level rewrites select the API first
+and the static service last. Browser requests already use the public same-origin
+`/api/tentacled-sphere` URL. Neither service makes server-to-server requests, so
+there are no internal service bindings or binding environment variables to set.
+A static browser bundle cannot consume a runtime function binding.
+
+`tools/browser-audit-image` is deliberately not a service: it is a separately
+approved, one-shot sandbox diagnostic, not an HTTP server. Its Dockerfile also
+requires an explicitly resolved `BASE_IMAGE`. Adding it as a container service
+would not provide a callable backend. Its existing external diagnostic target
+is not an internal dependency of this application.
+
+Use `vercel dev` to test both services and shared public routing together.
+The existing `python scripts/dev_server.py` command remains a single-process
+alternative, not a test of Vercel service isolation or bindings. Service names
+`app` and `web`, both public route selections, omission of the audit image,
+and the absence of internal bindings require project-owner confirmation.
+
+GitHub Actions runs
 Python tests, validates generated pages, and runs the Node geometry/protocol/
 sound checks before the production deployment step. Deployment uses the
 repository's existing Vercel action and requires the `VERCEL_TOKEN`,
