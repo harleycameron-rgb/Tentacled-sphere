@@ -36,7 +36,7 @@ def build(output: Path, check: bool = False) -> bool:
         output / "apps" / f"{app_id}.html": render(template, app_id, title)
         for app_id, title in APPS
     })
-    assets = ("geometry.js", "protocol.js", "audio.js", "app.js", "style.css")
+    assets = ("geometry.js", "coordinates.js", "protocol.js", "audio.js", "app.js", "style.css")
     correct = True
     for path, contents in generated.items():
         if check:
