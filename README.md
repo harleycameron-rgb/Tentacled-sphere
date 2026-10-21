@@ -1,5 +1,138 @@
 # Tentacled Sphere
 
+## Invariant public-source integration stage
+
+Open **`/invariant`** for the new local shell. Its six enabled interfaces are
+`/invariant/tap`, `/invariant/surface`, `/invariant/evidence-gate`,
+`/invariant/modular-topology`, `/invariant/credit-game`, and
+`/invariant/study-environment`. Direct links, reloads, browser back/forward and
+the Sphere/shared-state return path work locally and in the static output.
+The existing `/`, `/apps/*`, short legacy routes and Python API below remain
+the separately labelled eight-arm diagnostic model, not interface membership.
+
+Base verified before edits:
+`copilot/implement-unified-invariant-application` at
+`4a50ce852e823f49b2abb91a05db4bcf4e69dad1`.
+Both that commit and coordinate commit
+`fb2ce4fd03a4134bf0025e6865c1607f10cc11c6` remain in the ancestry.
+Implementation branch: `copilot/copilotimplement-six-interface-integration`;
+draft PR #13 targets the implementation branch, not main. Its initial
+`5ad94811c9b11d9a2cfd978eb27c7bfa6ee6e228` commit changed no files.
+The final implementation head is reported in the PR/commit history rather
+than embedded in its own content.
+
+### Imported functionality and boundaries
+
+Public source pins:
+
+- `harleycameron-rgb/invarianttap.app`:
+  `f3a3f39134c05c01c836ad228eef031e855d3303`.
+- `harleycameron-rgb/scandoc-zero-previews`:
+  `a9c913e1dfcea780e494d13054b30e1104736073`.
+
+The minimal complete vendored trees, original per-file SHA-256 hashes,
+upstream notices and explicit source modifications are recorded under
+`vendor/`. Source and assets are served locally, never fetched from deployment
+URLs at runtime. GitHub commit lookup verified both pins; the API archive
+endpoint returned HTTP 403, while GitHub's public archive host succeeded.
+No private source import or deployment was attempted.
+
+| Interface | Implemented behavior and actual local edge |
+| --- | --- |
+| Tap | Original moiré canvas, floating/collapsible controls, permission UI, motion/compass and sound. Receives explicit Surface-derived status feedback; no compatible measured Tap output binding is claimed. |
+| Surface | Original pad classifications, bounded traces, sixteen-step rhythm, audio and optional tilt. Its inspected adapter exports bounded derived rhythm summaries, not contact paths, tilt history or media. Explicit bridges feed Tap status, Study inspection or Evidence inspection. |
+| Evidence Gate | Original Manifest and Display workspaces, plus reusable content-binding/synthetic verification in the shell. Retains declared-only, sample-supported and sample-counterexample states. Instrument-result inspection retains its own provenance and does not become synthetic-fixture verification or authorization. |
+| Modular Topology | Explicit adapter/capability registry, compatibility checks, retained dependency requirements and permitted/rejected local transitions. `engine.input`, authorization and launch remain blocked. |
+| Credit Game | Actual staged `communicate-rules-preview-2` sandbox, liability reservation, staged replacement, settlement/revocation and admission-bound simulated fault review. Noncash accounting is isolated from geometry, evidence and session-path budgets; credit does not determine truth or contributor worth. |
+| Study Environment | Actual knowledge-only `science()` questions, notes, synthetic transforms, sample scope and counterexamples. Session-derived results remain separately inspectable with original provenance; no credit prerequisite or private paired-renewal controls. |
+
+The shared session is bounded to 64 immutable, session-bound records in memory.
+Versioned adapters declare frame, units and local/unverified scope; commitments
+bind predecessor dependencies, not trusted identity. Missing/stale dependencies,
+unsupported schemas, raw fields and unsupported transitions are rejected.
+No local result is an authenticated paired planar-v2 execution. Credit and
+knowledge source workspaces are memory-only sandboxes: leaving and reopening
+them resets their private workspace state, while the shell session persists
+across internal navigation. Reloading the shell resets that session too.
+
+Source frames are destroyed on navigation/deactivation. Hiding or leaving a
+view stops active resources; returning after hiding requires an explicit reopen
+gesture and never silently resumes sensors. Tap's upstream worker registration
+is disabled in the vendored scope; the shell installs no worker. No unrelated
+origin caches or worker registrations are removed.
+
+### Stage acceptance matrix
+
+| Capability | Stage status |
+| --- | --- |
+| Pinned public source import | Implemented locally, with original hashes and notices |
+| Real instrument operation | Public Tap/Surface source retained; browser interaction tested, not physical-device calibration |
+| Local data-flow binding | Surface-derived summaries → explicit Tap feedback / Study inspection / Evidence inspection; reverse measured Tap binding unavailable |
+| Authorization capability | **Unavailable**: content integrity and local route policy are not authenticated dispatch |
+| Launch readiness | **Blocked**, `liveGate=CLOSED`, simulation trust `UNVERIFIED` |
+
+`waxtablet-AGI-environmental-convergent.V.1.0` and `scandoc-provenance`
+capabilities remain unavailable pending separately reviewed imports. No APIs
+were reconstructed from guesses and no new access was requested. Missing
+independent observations and unsupported result schemas remain unresolved.
+Eight-version capacity includes two explicitly unavailable, unnamed fourth-axis
+versions; time is the fourth axis, not a launch app. Legacy time/space/lineage
+files do not identify that missing pair. Six SHA-256 contribution fields have
+1536 output bits, not independent approvals or a 1536-bit security guarantee.
+
+The existing read-only geocentric coordinate adapter is loaded unchanged.
+Its UEN ordering, shear/scale-versus-rotation distinction, polar availability
+and exact-north-pole underflow behavior remain separate from measured state.
+Geographic and celestial poles are distinct; no undefined direction fires
+Sentinel. Existing launch acknowledgement, source/origin, transcript,
+revision and separation/trajectory gates are unchanged.
+
+Additional local verification (no new test dependencies):
+
+```bash
+python scripts/build_web.py
+python scripts/build_web.py --check
+python scripts/build_web.py --output /tmp/invariant-public
+python -m unittest discover -s tests
+node --test tests/web_*.test.js
+RUN_BROWSER=1 python -m unittest discover -s tests -p test_invariant_browser.py
+```
+
+The last command uses installed Chromium/chromedriver through WebDriver,
+not DOM mocks, and is opt-in. It does not certify live sensor permissions,
+physical compass/motion calibration, audible hardware output, unavailable
+backend admission/execution/disclosure or production hosting. No merge,
+release, purchase or deployment is part of this stage.
+
+Executed browser checks cover all six direct routes and reloads, actual trusted
+pointer input through the Surface adapter/session into Tap feedback, back/forward
+and Sphere return navigation, synthetic Evidence recomputation, unsupported
+authority/schema rejection, knowledge access without credit, no registered
+workers, explicit reopening after deactivation, and actual Surface audio/node/
+tilt cleanup on removal. A delayed-real-SHA-256 regression also checks that
+navigation during admission invalidates superseded feedback. The source
+Surface return link also uses an active-frame-validated navigation message
+without relaxing sandbox navigation permissions. All seven Chromium
+tests passed. Node core tests use computational checks and some DOM mocks;
+those are separate from these browser executions.
+
+The full Python discovery run completed 31 tests successfully (25 passed,
+six opt-in browser cases skipped). The final return-link regression was then
+added and passed with the other six browser cases above. This includes
+the existing API, generated-page and coordinate-decoration checks. The Node
+suite retains all 19 coordinate tests and all 12 coordinate-adapter tests,
+alongside the source, session, evidence, credit and knowledge checks.
+
+Read-only integration review identified an asynchronous stale-feedback race;
+it was fixed and the reviewer confirmed the fix. Final automated parallel
+review/CodeQL validation timed out repeatedly and opened its circuit breaker:
+it is **not** reported as a successful final automated security scan. GitHub
+Actions for this draft requires approval and has not executed jobs. Secret
+scanning reported no secrets. Physical-device and unavailable-backend checks
+remain unexecuted; local tests do not replace them.
+
+## Legacy geometry / API compatibility
+
 The repository contains a stateless Python geometry endpoint and a browser-local
 interface for eight independently addressable apps: Tap, Surface, SpiritLevel,
 Gain, Habitat, Time, Space, and Lineage. The browser connects to the API; it

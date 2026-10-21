@@ -16,6 +16,10 @@ APPS = (
     ("space", "Space"),
     ("lineage", "Lineage"),
 )
+INTERFACES = (
+    "tap", "surface", "evidence-gate", "modular-topology",
+    "credit-game", "study-environment",
+)
 
 
 def render(template: str, app_id: str, title: str) -> str:
@@ -47,9 +51,16 @@ def build(output: Path, check: bool = False) -> bool:
         output / "apps" / f"{app_id}.html": render(template, app_id, title)
         for app_id, title in APPS
     })
+    shell = (ROOT / "web" / "invariant.html").read_text(encoding="utf-8")
+    generated[output / "invariant" / "index.html"] = shell
+    generated.update({
+        output / "invariant" / interface / "index.html": shell
+        for interface in INTERFACES
+    })
     if output.resolve() != ROOT.resolve():
         generated = {path: browser_page(page) for path, page in generated.items()}
-    assets = ("geometry.js", "coordinates.js", "coordinate-adapter.js", "protocol.js", "audio.js", "app.js", "style.css")
+    assets = ("geometry.js", "coordinates.js", "coordinate-adapter.js", "protocol.js", "audio.js", "app.js", "style.css",
+              "invariant.js", "invariant-session.js", "invariant.css")
     correct = True
     for path, contents in generated.items():
         if check:
@@ -71,6 +82,17 @@ def build(output: Path, check: bool = False) -> bool:
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source, target)
             print(f"Copied {display_path(target)}")
+    for source in sorted((ROOT / "vendor").rglob("*")):
+        if not source.is_file():
+            continue
+        target = output / source.relative_to(ROOT)
+        if check:
+            if not target.is_file() or target.read_bytes() != source.read_bytes():
+                print(f"Out of date: {display_path(target)}")
+                correct = False
+        elif source.resolve() != target.resolve():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, target)
     return correct
 
 

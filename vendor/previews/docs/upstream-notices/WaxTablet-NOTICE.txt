@@ -1,0 +1,13 @@
+WaxTablet native sphere-module assembly
+Author/depositor: Harley Cameron
+
+Apache License, Version 2.0 applies to the native code and assembly documentation
+in this target repository. Original applicable source notices are retained.
+The preserved sphere-model code originated in the WaxTablet sphere benchmark
+0.1.0 (https://zenodo.org/records/23261883).
+
+Linked repositories retain their own source provenance and applicable notices;
+the presence of a metadata identity or gitlink does not relicense their content.
+The native modules implement bounded portable primitives, not reconstructed
+upstream implementations. Private catalogues and engine-bridge evidence must
+not be included in an unreviewed public archive.

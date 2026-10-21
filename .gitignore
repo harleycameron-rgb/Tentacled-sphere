@@ -4,6 +4,7 @@ __pycache__/
 .env.*
 *.json
 !vercel.json
+!vendor/**/*.json
 *.py[cod]
 .venv/
 *.log
