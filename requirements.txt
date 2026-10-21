@@ -1,1 +1,2 @@
-# The API uses only the Python standard library.
+# The geometry API uses only the Python standard library.
+openai==1.79.0
