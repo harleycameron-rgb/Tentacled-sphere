@@ -10,7 +10,8 @@ each model said beyond that is its ``residual``. Description lengths are
 upper bounds on Kolmogorov complexity, measured as zlib-compressed UTF-8
 byte counts. The whole result is sealed with a SHA-512 sentinel over the
 sorted-key canonical JSON (``sorted-object-keys-json-v1``), matching the
-browser protocol in ``web/protocol.js``.
+browser protocol in ``web/protocol.js`` (results hold only strings and
+integers, so Python and JavaScript serialise them identically).
 
 Zero-data: nothing is written to disk, logged, or cached between calls.
 """
@@ -22,6 +23,7 @@ import hashlib
 import json
 import os
 import re
+import urllib.parse
 import urllib.request
 import zlib
 
@@ -122,6 +124,15 @@ def _collect_responses(topic: str, models: list[str], api_key: str | None, base_
     return responses
 
 
+def _require_secure_base_url(base_url: str) -> str:
+    """Reject endpoints that would send the API key in cleartext."""
+    parsed = urllib.parse.urlparse(base_url)
+    local = parsed.hostname in ("localhost", "127.0.0.1", "::1")
+    if parsed.scheme != "https" and not (parsed.scheme == "http" and local):
+        raise ValueError("base URL must use https (http is allowed only for localhost)")
+    return base_url
+
+
 # ------------------------------------------------------------
 # Shared description and residuals
 # ------------------------------------------------------------
@@ -143,11 +154,11 @@ def description_length(text: str) -> int:
 def extract_shared(responses: list[dict]) -> tuple[str, dict[str, str]]:
     """Split answers into a majority-shared description and per-model residuals.
 
-    A sentence is shared when its normalised form appears in at least
-    ``max(2, ceil(n / 2))`` of the ``n`` successful answers.
+    A sentence is shared when its normalised form appears in a strict
+    majority (and at least two) of the ``n`` successful answers.
     """
     answered = [r for r in responses if r["content"]]
-    quorum = max(2, (len(answered) + 1) // 2)
+    quorum = max(2, len(answered) // 2 + 1)
 
     split = {r["model"]: [(s, _normalise(s)) for s in _sentences(r["content"])] for r in answered}
     support: dict[str, int] = {}
@@ -199,7 +210,7 @@ def run_council(
         raise ValueError("topic must be a non-empty string")
     model_list = list(dict.fromkeys(models)) if models else list(DEFAULT_MODELS)
     key = api_key or os.getenv("OPENROUTER_API_KEY")
-    base_url = os.getenv("OPENROUTER_BASE_URL") or DEFAULT_BASE_URL
+    base_url = _require_secure_base_url(os.getenv("OPENROUTER_BASE_URL") or DEFAULT_BASE_URL)
 
     responses = _collect_responses(topic, model_list, key, base_url)
     shared, residuals = extract_shared(responses)

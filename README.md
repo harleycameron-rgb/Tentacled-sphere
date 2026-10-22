@@ -139,8 +139,8 @@ may process request metadata under its own policies.
 
 `src/multi_llm_council.py` exposes `run_council(topic, models=None, api_key=None)`.
 It asks each model (OpenRouter by default; any OpenAI-compatible base URL via
-`OPENROUTER_BASE_URL`) independently, keeps sentences shared by a majority of
-answers as `shared`, and returns per-model `residuals`. `lengths` are
+`OPENROUTER_BASE_URL`; HTTPS required except for localhost) independently, keeps sentences shared by a strict majority
+of successful answers as `shared`, and returns per-model `residuals`. `lengths` are
 zlib-compressed UTF-8 byte counts, i.e. upper bounds on description length, not
 exact Kolmogorov complexity. The result is sealed with a SHA-512 `sentinel` over
 sorted-key canonical JSON. The key defaults to `OPENROUTER_API_KEY`; without one,

@@ -75,6 +75,22 @@ class MultiLLMCouncilTests(unittest.TestCase):
             result = council.run_council("topic", models=["a", "b"], api_key="k")
         self.assertTrue(re.fullmatch(r"[0-9a-f]{128}", result["sentinel"]))
 
+    def test_rejects_insecure_base_url(self):
+        with patch.dict(os.environ, {"OPENROUTER_BASE_URL": "http://example.com/v1"}):
+            with self.assertRaises(ValueError):
+                council.run_council("topic", api_key="k")
+
+    def test_shared_requires_strict_majority(self):
+        responses = [
+            {"model": "a", "content": "X is y."},
+            {"model": "b", "content": "X is y."},
+            {"model": "c", "content": "Other."},
+            {"model": "d", "content": "Else."},
+        ]
+        shared, residuals = council.extract_shared(responses)
+        self.assertEqual(shared, "")
+        self.assertEqual(residuals["a"], "X is y.")
+
     def test_rejects_empty_topic(self):
         with self.assertRaises(ValueError):
             council.run_council("  ")
