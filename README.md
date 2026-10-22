@@ -135,6 +135,18 @@ The Python endpoint is stateless and does not store submitted geometry inputs.
 This does not describe Vercel or other hosting access logs: the hosting provider
 may process request metadata under its own policies.
 
+## Multi-LLM council
+
+`src/multi_llm_council.py` exposes `run_council(topic, models=None, api_key=None)`.
+It asks each model (OpenRouter by default; any OpenAI-compatible base URL via
+`OPENROUTER_BASE_URL`) independently, keeps sentences shared by a majority of
+answers as `shared`, and returns per-model `residuals`. `lengths` are
+zlib-compressed UTF-8 byte counts, i.e. upper bounds on description length, not
+exact Kolmogorov complexity. The result is sealed with a SHA-512 `sentinel` over
+sorted-key canonical JSON. The key defaults to `OPENROUTER_API_KEY`; without one,
+each model is recorded as an error and a sentinel is still produced. Nothing is
+written to disk. Smoke test: `python src/multi_llm_council.py`.
+
 ## Local checks
 
 Python 3.11+ and Node.js with the built-in test runner are used; no third-party
