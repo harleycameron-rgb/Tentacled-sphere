@@ -85,5 +85,40 @@ class TrajectoryContractTests(unittest.TestCase):
         self.assertEqual(separate(self.legs)["receiptTrust"], "UNVERIFIED")
 
 
+    def test_extreme_agreeing_inputs_do_not_overflow_median(self):
+        legs = {name: (1e308, 1e308, 1e308) for name in LEGS}
+        s = separate(legs)
+        self.assertEqual(s["center"], (1e308, 1e308, 1e308))
+        self.assertEqual(len(s["separationCommitment"]), 128)
+
+    def test_extreme_drift_is_blunted_without_hypot_overflow(self):
+        result = blunt_drift((1e308, -1e308, 1e308), 2)
+        self.assertTrue(all(math.isfinite(x) for x in result))
+        self.assertAlmostEqual(math.hypot(*result), 2)
+
+    def test_separation_commitment_survives_trajectory(self):
+        s = separate(self.legs)
+        out = trajectory(s, self.samples())
+        self.assertEqual(out["separationCommitment"], s["separationCommitment"])
+        self.assertEqual(out["separationCenter"], s["center"])
+
+    def test_mutated_separation_provenance_rejected(self):
+        s = separate(self.legs)
+        s["separationInputs"]["tap"] = (100, 0, 0)
+        with self.assertRaises(ValueError):
+            trajectory(s, self.samples())
+
+    def test_unverified_receipt_cannot_be_upgraded_by_caller(self):
+        s = separate(self.legs)
+        s["receiptTrust"] = "VERIFIED"
+        with self.assertRaises(ValueError):
+            trajectory(s, self.samples())
+
+    def test_origin_mismatch_rejected(self):
+        s = separate(self.legs)
+        s["origin"] = (0, 0, 0)
+        with self.assertRaises(ValueError):
+            trajectory(s, self.samples())
+
 if __name__ == "__main__":
     unittest.main()
