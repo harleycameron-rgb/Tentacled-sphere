@@ -37,12 +37,13 @@ def separate(legs, *, tolerance=0.5):
         raise ValueError("separation blocked: disagreement exceeds tolerance")
     # Research-only deterministic digest; not a trusted firing receipt or qualification.
     canonical = json.dumps({"legs": {k: values[i] for i, k in enumerate(LEGS)},
-                            "center": center, "origin": ORIGIN},
+                            "center": center, "origin": ORIGIN, "tolerance": tolerance},
                            sort_keys=True, separators=(",", ":"), allow_nan=False)
     commitment = hashlib.sha512(canonical.encode("utf-8")).hexdigest()
     return {
         "separationCommitment": commitment,
         "separationInputs": {k: values[i] for i, k in enumerate(LEGS)},
+        "separationTolerance": tolerance,
         "separated": True, "center": center, "legs": LEGS, "origin": ORIGIN,
         "trajectory": None, "liveGate": "CLOSED", "sphereWrites": False,
         "receiptTrust": "UNVERIFIED",
@@ -63,11 +64,9 @@ def trajectory(separation, samples):
     inputs = separation.get("separationInputs")
     if not isinstance(inputs, Mapping) or set(inputs) != set(LEGS):
         raise ValueError("six separation inputs and provenance required")
-    canonical = json.dumps({"legs": {k: vector(inputs[k]) for k in LEGS},
-                            "center": vector(separation.get("center")),
-                            "origin": ORIGIN}, sort_keys=True,
-                           separators=(",", ":"), allow_nan=False)
-    if separation.get("separationCommitment") != hashlib.sha512(canonical.encode("utf-8")).hexdigest():
+    expected = separate(inputs, tolerance=separation.get("separationTolerance"))
+    if (vector(separation.get("center")) != expected["center"]
+            or separation.get("separationCommitment") != expected["separationCommitment"]):
         raise ValueError("separation provenance mismatch")
     if not isinstance(samples, (list, tuple)) or len(samples) < 2:
         raise ValueError("two post-separation samples required")

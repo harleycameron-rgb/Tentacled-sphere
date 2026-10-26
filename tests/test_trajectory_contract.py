@@ -114,6 +114,22 @@ class TrajectoryContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             trajectory(s, self.samples())
 
+    def test_separation_tolerance_tampering_rejected(self):
+        s = separate(self.legs)
+        s["separationTolerance"] = 0.001
+        with self.assertRaises(ValueError):
+            trajectory(s, self.samples())
+
+    def test_separation_center_recomputed(self):
+        import hashlib, json
+        s = separate(self.legs)
+        s["center"] = (10, 0, 0)
+        body = {"legs":s["separationInputs"], "center":s["center"],
+                "origin":s["origin"], "tolerance":s["separationTolerance"]}
+        s["separationCommitment"] = hashlib.sha512(json.dumps(body,sort_keys=True,separators=(",", ":"),allow_nan=False).encode()).hexdigest()
+        with self.assertRaises(ValueError):
+            trajectory(s, self.samples())
+
     def test_origin_mismatch_rejected(self):
         s = separate(self.legs)
         s["origin"] = (0, 0, 0)
