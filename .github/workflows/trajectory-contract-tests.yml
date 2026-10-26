@@ -1,0 +1,20 @@
+name: Research trajectory contract tests
+on:
+  pull_request:
+    paths:
+      - 'api/trajectory_contract.py'
+      - 'tests/test_trajectory_contract.py'
+      - '.github/workflows/trajectory-contract-tests.yml'
+  workflow_dispatch:
+jobs:
+  research-trajectory:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run fail-closed trajectory tests
+        run: python -m unittest discover -s tests -p 'test_trajectory_contract.py' -v
