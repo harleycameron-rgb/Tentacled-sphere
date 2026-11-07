@@ -38,3 +38,7 @@ The cockpit can embed any one existing page using **Open selected existing app p
 - Two postlaunch time-axis arms remain an architectural declaration. The visual Time Axis consumes only actual past samples of the local simulation and cannot launch an arm or generate a future observation.
 
 The declared Sentinel → Cube → Sphere topology is shown as a conceptual architecture. `centreReference=[1024,1024,0]` is not a centre write. The engine gate remains CLOSED even after six local representation commitments.
+
+### Numerical Surface consumer
+
+`/instruments/surface-game.html` reuses the prior development worktree's Surface mechanics and consumes the same `scandoc-controls/3` contract as the eight stubs. Its explicit opt-in mapping changes numerical velocity, displacement, residual and budget, with source pause/staleness and manual recovery. See SURFACE_GAMEPLAY.md for provenance and limits. The other stubs still have geometric expression adapters; their full gameplay coupling is not claimed.

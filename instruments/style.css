@@ -3,3 +3,5 @@
 #sky-field canvas{height:65svh;min-height:280px;max-height:none}#sky-field:fullscreen,#sky-field.expanded{background:#06111f;width:100%;height:100dvh;overflow:auto;padding:14px}#sky-field:fullscreen canvas,#sky-field.expanded canvas{height:70dvh}
 
 [hidden]{display:none!important}
+
+.surface-game #topology{overflow-wrap:anywhere}.surface-game input[type=number]{width:110px;max-width:100%}.surface-game #metrics{font-variant-numeric:tabular-nums;min-height:4.5em}

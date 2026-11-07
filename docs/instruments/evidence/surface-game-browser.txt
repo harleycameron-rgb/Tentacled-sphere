@@ -1,0 +1,4 @@
+PASS Standalone double splat changes velocity/displacement/budget; pause/save/reload/restore, corrupt save rejection and restart retain numerical state.
+PASS Actual shared-adapter sphere firing drives Surface numerical splats and budget; source pause stops input and disconnect preserves manual play.
+PASS Real browser controls solve all three levels and seeded challenge; unlocked progression and won state survive reload.
+PASS Emulated iPhone touch/layout, reduced-motion numeric play and offline standalone game.

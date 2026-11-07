@@ -13,6 +13,7 @@ const preview=document.createElement('canvas');preview.width=300;preview.height=
 const details=document.createElement('output');details.id='instrument-preview-state';details.style.display='block';
 const skylite=document.createElement('a');skylite.href='/instruments/skylite.html?app='+id;skylite.textContent='Open adaptive Skylite for '+id;skylite.style.display='block';
 const identity=document.createElement('p');identity.id='instrument-topology';identity.textContent='Eight-arm topology SHA-256 '+root.ScandocControls.TOPOLOGY_HASH+' · representation only · six launch legs + two postlaunch arms';
+if(id==='surface'){const play=document.createElement('a');play.href='/instruments/surface-game.html';play.textContent='Play Surface with numerical sphere coupling';panel.append(play);}
 panel.append(title,note,identity,skylite,button,output,preview,details);details.textContent=JSON.stringify(shared.snapshot());document.querySelector('main').append(panel);
 function draw(v,settings,source){
  details.textContent=JSON.stringify({kind:source,vector:v,controls:settings,liveGate:'CLOSED',sphereWrites:false});

@@ -53,3 +53,5 @@ Open `/instruments/skylite.html?app=tap` on the local server and use the selecto
 Shared trajectory acceptance: run `node tests/shared_controls_browser.cjs` against the local server. For manual use, connect the local link in each app, start Skylite, connect it and explicitly Fire local simulation; rotate and observe distinct expressions, then pause/reset. Late receivers require a new explicit firing. Same-origin hosting is required; no production authority is wired.
 
 Persistent sessions: see SESSIONS.md and run `node tests/session_browser.cjs`. Pause now retains the firing; reset ends it. Late receivers recover an existing firing checkpoint, with missing history identified.
+
+Surface gameplay coupling: serve `/instruments/surface-game.html` and run `node tests/surface_game_browser.cjs`; see SURFACE_GAMEPLAY.md for source→consumer steps and limits.
