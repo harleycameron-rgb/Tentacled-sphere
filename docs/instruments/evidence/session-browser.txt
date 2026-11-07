@@ -1,0 +1,3 @@
+PASS Explicit firing, late actual stub reconnection, pause/save/reload/restore/resume retains firing, read-only replay, reset clears save, corrupted save rejected.
+PASS Permission denial is recorded without changing firing identity or opening engine gate.
+PASS A granted but interrupted sample stream falls back to manual without losing firing.

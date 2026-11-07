@@ -25,15 +25,15 @@ shared.subscribe(snapshot=>{
  const frame=snapshot.trajectory;
  details.textContent=JSON.stringify(snapshot);
  if(!frame){expression=root.ScandocSkylite.create(id);expressionEvent=null;output.textContent='Shared adapter idle; explicit simulated firing required.';return;}
- const K=root.ScandocSkylite,state=expression;state.energy=frame.controls.energy??.5;state.output=[...frame.position];state.paused=false;state.manual=[...frame.position];K.step(state,1/60);if(expressionEvent!==frame.eventId){expressionEvent=frame.eventId;K.pulse(state);}
+ const K=root.ScandocSkylite,state=expression;state.energy=frame.controls.energy??.5;state.output=[...frame.position];state.paused=frame.controls.paused===true;state.manual=[...frame.position];K.step(state,1/60);if(expressionEvent!==frame.eventId){expressionEvent=frame.eventId;state.events.push(S.freeze({id:frame.eventId,app:id,tick:frame.sentinel_firing.tick,kind:'RECEIVED_LOCAL_SIMULATED_FIRING',engineVerified:false}));}
  // The same control frame drives each existing app's own declared geometry adapter.
  const geometry=K.geometry(state),ctx=preview.getContext('2d');
  if(ctx){ctx.fillStyle='#071323';ctx.fillRect(0,0,300,160);ctx.strokeStyle='#5cdeed';ctx.beginPath();geometry.points.forEach((point,i)=>{const v=K.relativeVector(point,frame.position,[0,0,0]),x=150+v[0]*65,y=80+v[1]*55-v[2]*12;i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();}
- output.textContent='RECEPTIVE · shared simulated sphere trajectory · '+id+' expression · engine CLOSED';
+ output.textContent=snapshot.phase+' · shared simulated sphere trajectory · '+id+' expression · engine CLOSED';
  root.dispatchEvent(new CustomEvent('scandoc:trajectory-expression/1',{detail:snapshot}));
 });
-button.onclick=()=>{if(linked){shared.disconnect();bus.disconnect();linked=false;}else{linked=bus.connect();if(linked)shared.connect();}button.textContent=linked?'Disconnect cockpit':'Connect local cockpit';output.textContent=linked?'Local link connected. Engine gate CLOSED.':'Disconnected or BroadcastChannel unsupported.';publish();};
+button.onclick=()=>{if(linked){shared.disconnect(true);bus.disconnect();linked=false;}else{linked=bus.connect();if(linked)shared.connect();}button.textContent=linked?'Disconnect cockpit':'Connect local cockpit';output.textContent=linked?'Local link connected. Engine gate CLOSED.':'Disconnected or BroadcastChannel unsupported.';publish();};
 root.addEventListener('message',event=>{if(event.origin===location.origin&&event.source===root.parent&&event.data?.type==='scandoc:instrument-connect/1'&&!linked)button.onclick();});
-function stop(){shared.disconnect();bus.disconnect();linked=false;button.textContent='Connect local cockpit';output.textContent='Stopped; reconnect explicitly to receive cockpit state.';}
+function stop(){shared.disconnect(true);bus.disconnect();linked=false;button.textContent='Connect local cockpit';output.textContent='Stopped; reconnect explicitly to receive cockpit state.';}
 root.addEventListener('pagehide',stop);document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
 })(window);

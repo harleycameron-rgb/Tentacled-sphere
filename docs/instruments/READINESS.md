@@ -55,3 +55,9 @@ All eight stubs now use the same versioned firing/trajectory/reset contract. The
 ## Topology-bound firing representation
 
 Every stub includes a visible eight-arm architecture hash and inspectable enclosing descriptor. Shared control v2 binds explicit local simulated Sentinel firing to that descriptor and retains it throughout trajectory reception. Six launch legs and two postlaunch arms stay distinct; existing client-to-MDL-role mapping is explicitly unvalidated. Native firing/launch authority remains blocked. See SKYLITE.md and topology test evidence.
+
+## Connected session persistence
+
+Shared controls v3 adds retained firing across pause, explicit local save/restore, read-only recorded-frame inspection, input-access events and late-receiver checkpoint recovery. Reset ends firing and clears pending/stored checkpoints. Missing samples and recovery discontinuities stay explicit. See SESSIONS.md for current behavior, retention, storage/privacy limits and test commands; it supersedes the earlier pause/refire and memory-only limitations. Native authority and cross-domain bridging remain unconnected.
+
+Executed on this session-persistence revision: **40 Python tests, 44 web tests, 3 new session browser scenarios, 1 eight-stub shared-control scenario, 6 Skylite browser scenarios and 9 original instrument browser scenarios passed**. Source/generated page checks, packaged static output checks and whitespace checks passed. Evidence is in `evidence/session-*.txt`. Sensor inputs remain mocked and iPhone remains Chromium emulation. No physical-device accuracy, full native gameplay coupling or verified engine qualification is claimed.
