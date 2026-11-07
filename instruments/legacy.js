@@ -9,7 +9,8 @@ const button=document.createElement('button');button.id='instrument-link';button
 const output=document.createElement('p');output.id='instrument-link-status';output.setAttribute('role','status');output.textContent='Disconnected; accepted API geometry not yet available.';
 const preview=document.createElement('canvas');preview.width=300;preview.height=160;preview.style.cssText='max-width:100%;height:160px';preview.setAttribute('aria-label','Separate simulated cockpit view');
 const details=document.createElement('output');details.id='instrument-preview-state';details.style.display='block';
-panel.append(title,note,button,output,preview,details);document.querySelector('main').append(panel);
+const skylite=document.createElement('a');skylite.href='/instruments/skylite.html?app='+id;skylite.textContent='Open adaptive Skylite for '+id;skylite.style.display='block';
+panel.append(title,note,skylite,button,output,preview,details);document.querySelector('main').append(panel);
 function draw(v,settings,source){
  details.textContent=JSON.stringify({kind:source,vector:v,controls:settings,liveGate:'CLOSED',sphereWrites:false});
  const ctx=preview.getContext('2d');if(!ctx)return;ctx.fillStyle='#071323';ctx.fillRect(0,0,300,160);ctx.strokeStyle='#5cdeed';ctx.beginPath();ctx.arc(150,80,58,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='#ffc078';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(150,80);ctx.lineTo(150+v[0]*60,80-v[1]*60);ctx.stroke();

@@ -222,3 +222,10 @@ See [integration map](docs/instruments/INTEGRATION_MAP.md),
 [state contract](docs/instruments/STATE_INTERFACE.md),
 [test and private preview instructions](docs/instruments/TESTING_AND_PREVIEW.md),
 and [readiness evidence](docs/instruments/READINESS.md).
+
+The [adaptive Skylite shell](docs/instruments/SKYLITE.md) is available at
+`/instruments/skylite.html?app=tap` and adapts to all eight existing app IDs.
+It provides manual and optional reported sensor input, calibrated relative
+velocity estimation, explicit Surface curvature and numerical attenuation.
+Infrared and trusted engine execution remain unavailable; no production
+publication is included in this feature branch.

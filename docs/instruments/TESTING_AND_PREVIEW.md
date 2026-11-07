@@ -45,3 +45,7 @@ Keep this feature branch unmerged. Use an isolated preview project with Vercel A
 A static-only preview can be assembled outside the source checkout from `public/`; its legacy API-dependent panels will correctly report an unavailable API unless an actual same-origin backend is supplied. Do not add invented API data. Keep the preview private and verify access protection before sharing its URL. A new Vercel project's first deployment may be assigned Production by the platform; do not use that as a reason to publish to an existing production project. This task requests instructions, not a deployment or production promotion.
 
 Existing `.github/workflows/deploy.yml` deploys only on a push to main. This PR changes neither workflows nor Vercel/DNS configuration, and does not merge, promote or deploy. Normal PR test checks may run.
+
+## Adaptive Skylite
+
+Open `/instruments/skylite.html?app=tap` on the local server and use the selector for all eight existing app IDs. Test `node tests/web_skylite.test.js` and `node tests/skylite_browser.cjs` (same Playwright/Chromium requirements). Sensor tests use mocked events; perform physical stationary calibration, permission-denial, rotation, bias-drift, interruption and backgrounding checks separately. Do not treat the delta-velocity estimator as absolute motion measurement. IR is unavailable. See SKYLITE.md.

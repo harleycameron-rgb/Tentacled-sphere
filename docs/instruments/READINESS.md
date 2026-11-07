@@ -41,3 +41,9 @@ Physical iPhone Safari, Android Chrome, Mac Safari/Chrome, audible output and re
 Tests in cloudburner17, invariantENG, sentinel_dot and scandoc-provenance were inspected, not run for this change. No private preview deployment, merge, production publish or DNS mutation was performed by this task. The earlier Octopus M2 preview is a separate deployment and does not include these new instruments.
 
 Ready for feature-PR software review and private-device acceptance. Trusted engine activation remains blocked. See INTEGRATION_MAP.md, STATE_INTERFACE.md and TESTING_AND_PREVIEW.md for source pins, boundaries and reproducible procedures.
+
+## Adaptive Skylite addition
+
+The reusable shell at `/instruments/skylite.html?app=<existing-id>` now has eight geometry adapters, manual/optional browser sensor input, stationary calibration, sample-time relative delta-velocity estimation and explicit numerical attenuation. Surface displays separate Earth-sphere/paraboloid curvatures and the vertical display exaggeration. Raw reported input, derived estimates and simulated display geometry are labelled separately. The actual legacy view adapter remains opt-in and closed-gate. Infrared is unavailable without a hardware interface.
+
+Additional verification: 14 Skylite unit tests; full web suite 36 passed; 6 Skylite browser scenarios passed, covering all eight profiles on desktop/emulated iPhone, mocked sensor calibration/cleanup, reduced motion, legacy linking and offline routes. Physical sensor accuracy and Safari hardware behavior remain unverified. See SKYLITE.md for frame conventions, filter equations, limitations and reproducible tests. The prior nine instrument-browser scenarios were rerun and all passed.
