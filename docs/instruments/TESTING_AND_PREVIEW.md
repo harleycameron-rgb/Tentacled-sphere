@@ -49,3 +49,5 @@ Existing `.github/workflows/deploy.yml` deploys only on a push to main. This PR 
 ## Adaptive Skylite
 
 Open `/instruments/skylite.html?app=tap` on the local server and use the selector for all eight existing app IDs. Test `node tests/web_skylite.test.js` and `node tests/skylite_browser.cjs` (same Playwright/Chromium requirements). Sensor tests use mocked events; perform physical stationary calibration, permission-denial, rotation, bias-drift, interruption and backgrounding checks separately. Do not treat the delta-velocity estimator as absolute motion measurement. IR is unavailable. See SKYLITE.md.
+
+Shared trajectory acceptance: run `node tests/shared_controls_browser.cjs` against the local server. For manual use, connect the local link in each app, start Skylite, connect it and explicitly Fire local simulation; rotate and observe distinct expressions, then pause/reset. Late receivers require a new explicit firing. Same-origin hosting is required; no production authority is wired.

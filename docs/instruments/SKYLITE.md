@@ -68,3 +68,13 @@ Run with the server from TESTING_AND_PREVIEW.md:
 node tests/web_skylite.test.js
 node tests/skylite_browser.cjs
 ```
+
+## One adapter, post-firing sphere reception
+
+Every stub now loads the identical `control-adapter.js` (`scandoc-controls/1`). App identity selects geometric expression only, not a different control protocol. Opt in to the local link in each desired app, connect Skylite and explicitly **Fire local simulation**. That one actual local interaction identity binds subsequent sphere pose frames for all connected stubs. A receiver joining after firing remains idle until a new explicit firing; no historical firing is invented. Another firing resets the previous binding first. Pause/reset sends RESET and stops transmission. Receivers also disconnect on visibility/page lifecycle cleanup.
+
+Frames carry producer, event identity, sequence, increasing logical tick, shared controls, relative Euler Z-X-Y pose (`position`, radians) and angular velocity (`velocity`, rad/s). These are display pose coordinates, not Earth displacement or measured linear velocity. Stale, pre-fire, mismatched-event, wrong-producer, nonfinite or falsely verified frames are rejected. The existing sensor delta-velocity estimates remain separate. State snapshots are detached and frozen. Receivers do not retransmit trajectory frames.
+
+Each existing app expresses accepted pose through its own declared geometric adapter, including recorded local history/event geometry for Time and Lineage. Native API geometry and acknowledgements remain untouched. This is a functional local simulated post-firing control path, not the six-commitment native launch gate or verified sphere engine trajectory. The native gate remains CLOSED, sphere writes disabled, and hashes/receipts absent. Same-origin BroadcastChannel does not bridge different website domains.
+
+Verification: `node --test tests/web_*.test.js` passed 39 tests; `node tests/shared_controls_browser.cjs` passed the eight-actual-stub shared firing, continuous pose and reset scenario. An initial browser run exposed legacy view messages overwriting the shared expression; receptive adapters now prioritize the bound trajectory. Physical device and native engine integration remain unverified.

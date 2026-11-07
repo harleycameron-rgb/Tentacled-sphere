@@ -1,5 +1,5 @@
-const CACHE='scandoc-instruments-v2';
-const ASSETS=['./','./index.html','./seven-stage.html','./octopus.html','./style.css','./state.js','./model.js','./render.js','./instrument.js','./legacy.js','./skylite.html','./skylite-core.js','./skylite-sensors.js','./skylite.js','../web/geometry.js','../web/audio.js','../web/protocol.js'].map(x=>new URL(x,self.location.href).href);
+const CACHE='scandoc-instruments-v3';
+const ASSETS=['./','./index.html','./seven-stage.html','./octopus.html','./style.css','./state.js','./control-adapter.js','./model.js','./render.js','./instrument.js','./legacy.js','./skylite.html','./skylite-core.js','./skylite-sensors.js','./skylite.js','../web/geometry.js','../web/audio.js','../web/protocol.js'].map(x=>new URL(x,self.location.href).href);
 self.addEventListener('install',e=>e.waitUntil((async()=>{const cache=await caches.open(CACHE);await cache.addAll(ASSETS);await self.skipWaiting();})()));
 self.addEventListener('activate',e=>e.waitUntil((async()=>{for(const name of await caches.keys())if(name.startsWith('scandoc-instruments-')&&name!==CACHE)await caches.delete(name);await self.clients.claim();})()));
 self.addEventListener('fetch',e=>{const url=new URL(e.request.url),page=new URL('./skylite.html',self.location.href);const key=url.origin===page.origin&&url.pathname===page.pathname?url.origin+url.pathname:e.request.url;if(e.request.method==='GET'&&ASSETS.includes(key))e.respondWith((async()=>await caches.match(key,{cacheName:CACHE})||fetch(e.request))());});

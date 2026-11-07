@@ -1,0 +1,19 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const S=require('../instruments/state.js');const C=require('../instruments/control-adapter.js');
+test('one firing and trajectory contract drives all eight stubs, reset disarms',()=>{
+ const source=new C.Adapter('tap','sphere'),apps=S.APPS.map(id=>new C.Adapter(id,id));
+ const fire=source.send('FIRE','session/event',1,{energy:.7});apps.forEach(a=>a.accept(fire));
+ const trajectory=source.send('TRAJECTORY','session/event',2,{yaw:.4,tilt:.2},[.4,.2,0],[.1,0,0]);
+ for(const app of apps){const s=app.accept(trajectory);assert.equal(s.phase,'RECEPTIVE');assert.deepEqual(s.trajectory.position,[.4,.2,0]);assert.equal(s.liveGate,'CLOSED');assert.equal(s.sphereWrites,false);assert.ok(Object.isFrozen(s.trajectory));}
+ const reset=source.send('RESET','session/event',3);apps.forEach(a=>assert.equal(a.accept(reset).phase,'IDLE'));
+ assert.throws(()=>source.send('TRAJECTORY','session/event',4));assert.throws(()=>source.send('FIRE','session/event',5));
+});
+test('reject prefire, wrong authority, mismatched event, stale, nonfinite and forged verification',()=>{
+ const source=new C.Adapter('tap','sphere'),a=new C.Adapter('surface','surface');const fire=source.send('FIRE','e',1);const t=source.send('TRAJECTORY','e',2,{},[1,0,0]);
+ assert.throws(()=>a.accept(t));a.accept(fire);
+ for(const bad of [{producer:'intruder'},{eventId:'other'},{position:[NaN,0,0]},{kind:'ENGINE_VERIFIED'},{liveGate:'OPEN'},{temporal_receipt:{verified:true}}])assert.throws(()=>a.accept({...t,...bad}));
+ a.accept(t);assert.throws(()=>a.accept(t));a.disconnect();assert.equal(a.snapshot().phase,'IDLE');
+});
+test('shared same-origin transport broadcasts once without receiver echoes',()=>{
+ const ports=[];const factory=()=>{const p={postMessage(m){ports.filter(x=>x!==p).forEach(x=>x.onmessage({data:m}));},close(){ports.splice(ports.indexOf(p),1);}};ports.push(p);return p;};
+ const source=new C.Adapter('tap','sphere',factory),apps=S.APPS.map(id=>new C.Adapter(id,id,factory));source.connect();apps.forEach(a=>a.connect());source.send('FIRE','e',1);source.send('TRAJECTORY','e',2,{},[.1,.2,.3]);apps.forEach(a=>assert.deepEqual(a.snapshot().trajectory.position,[.1,.2,.3]));source.disconnect();apps.forEach(a=>a.disconnect());assert.equal(ports.length,0);
+});
