@@ -41,7 +41,7 @@ function render(draw=true){
  $('sky-title').textContent=profile.name;$('sky-agency').textContent=profile.agency;$('sky-focal-control').hidden=state.app!=='surface';
  $('sky-source').textContent=`Orientation: ${frame.input.orientationKind} · acceleration: ${frame.input.accelerationKind} · output: DERIVED_GEOMETRY · infrared UNAVAILABLE`;
  $('sky-metrics').textContent=`tick ${state.tick} · attenuated α/β/γ ${state.output.map(v=>(v*180/Math.PI).toFixed(1)+'°').join(' / ')} · Δvelocity ${frame.derived.kind==='UNAVAILABLE'?'unavailable':state.deltaVelocity.map(v=>v.toFixed(3)).join(' / ')+' m/s ('+frame.derived.kind+')'} · ${state.events.length} local events`;
- $('sky-frame').textContent=JSON.stringify(frame,null,2);
+ $('sky-frame').textContent=JSON.stringify({...frame,sharedControl:shared.snapshot()},null,2);
  $('sky-curvature').textContent=geometry.surface?`Declared Earth radius ${K.EARTH_RADIUS.toLocaleString()} m · sphere k=${geometry.surface.sphere.principalCurvatures[0].toExponential(3)} 1/m · paraboloid kr/kt=${geometry.surface.paraboloid.principalCurvatures.map(v=>v.toExponential(3)).join(' / ')} 1/m · cyan sphere / amber paraboloid · vertical display exaggeration 20×`:'Declared browser reference geometry. Device reports do not establish verified engine or physical geometry.';
  if(!ctx){feedback('Canvas unavailable; numeric controls and output remain usable.');return;}if(!draw)return;
  ctx.fillStyle='#06111f';ctx.fillRect(0,0,canvas.clientWidth,canvas.clientHeight);

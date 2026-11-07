@@ -51,3 +51,7 @@ Additional verification: 14 Skylite unit tests; full web suite 36 passed; 6 Skyl
 ## Shared post-firing adapter
 
 All eight stubs now use the same versioned firing/trajectory/reset contract. The common adapter binds one explicit simulated firing identity, accepts continuous sphere pose and rejects unauthorized or stale frames. Distinct app geometry expresses that shared input. 39 web tests and the eight-stub browser integration scenario passed. No native verified firing, sphere write or cross-domain trajectory source is claimed. See SKYLITE.md.
+
+## Topology-bound firing representation
+
+Every stub includes a visible eight-arm architecture hash and inspectable enclosing descriptor. Shared control v2 binds explicit local simulated Sentinel firing to that descriptor and retains it throughout trajectory reception. Six launch legs and two postlaunch arms stay distinct; existing client-to-MDL-role mapping is explicitly unvalidated. Native firing/launch authority remains blocked. See SKYLITE.md and topology test evidence.
