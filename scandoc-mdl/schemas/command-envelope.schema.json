@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scandoc-command/1",
+  "title": "SCANDOC MDL simulation command envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "event_id",
+    "expected_tick",
+    "source_tentacle",
+    "event_type",
+    "payload"
+  ],
+  "properties": {
+    "schema": {
+      "const": "scandoc-command/1"
+    },
+    "event_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,99}$"
+    },
+    "expected_tick": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740990
+    },
+    "source_tentacle": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 8
+    },
+    "event_type": {
+      "enum": [
+        "FACE_ACTIVATE",
+        "FACE_QUALIFY",
+        "FACE_COMMIT",
+        "SIMULATION_FIRE",
+        "DECLARED_INPUT",
+        "STEP",
+        "PAUSE",
+        "RESUME"
+      ]
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "$comment": "Envelope schema only. Per-operation fields, permissions, finite bounds, pairing, lifecycle and session binding are enforced by schema.js/core.js and tested; JSON Schema alone is not gate authority."
+}
