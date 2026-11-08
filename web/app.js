@@ -208,7 +208,8 @@
       const requestId = ++cameraRequest;
       event.currentTarget.disabled = true;
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        // All eight existing Sphere instruments are outward-facing. Foretentacle is a separate consumer.
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } }, audio: false });
         if (requestId !== cameraRequest || document.hidden) {
           stream.getTracks().forEach((track) => track.stop());
           return;
@@ -220,7 +221,7 @@
         event.currentTarget.textContent = "Stop camera preview";
       } catch (error) {
         if (requestId === cameraRequest) {
-          feedStatus.textContent = `Camera preview could not start: ${error.message}`;
+          feedStatus.textContent = `Outward-facing camera unavailable or denied: ${error.message}. No selfie-camera fallback is permitted.`;
         }
       } finally {
         event.currentTarget.disabled = false;
