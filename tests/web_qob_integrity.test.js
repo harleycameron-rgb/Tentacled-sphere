@@ -11,7 +11,7 @@ test("QOB cube geometry remains three-dimensional with six signed paired ports",
   assert.deepEqual(model.portOrder, ["+X","-X","+Y","-Y","+Z","-Z"]);
   for (let axis=0; axis<3; axis++) {
     const plus = model.ports[axis*2], minus = model.ports[axis*2+1];
-    assert.deepEqual(plus.map((x)=>-x),minus);
+    assert.ok(plus.every((x,i)=>x===-minus[i]));
   }
   assert.equal(g.cubeEdges().length,12);
 });
