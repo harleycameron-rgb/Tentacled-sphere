@@ -137,13 +137,13 @@
           <button id="pause-app" type="button">Pause app</button>
         </div>
         <p id="feed-status" class="muted">API baseline will be used until a valid feed is available.</p>
-        <h2>Optional camera preview</h2>
+        <h2>Optional outward-facing world camera</h2>
         <div class="button-row">
-          <button id="camera-toggle" type="button">Start camera preview</button>
+          <button id="camera-toggle" type="button">Start world camera preview</button>
           <button id="cancel-camera" type="button">Cancel pending camera request</button>
         </div>
         <video id="camera-preview" autoplay playsinline hidden></video>
-        <p class="muted">Video only; no microphone, recording, upload, or analysis.</p>
+        <p class="muted">Environment-facing camera only. No selfie-camera fallback. Video-only local preview; no microphone, recording, upload, or analysis. Foretentacle uses the separate user-facing camera contract.</p>
       </section>
       <section class="card sound-controls" aria-label="Local Web Audio controls">
         <h2>Local sound</h2>
