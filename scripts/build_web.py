@@ -36,6 +36,7 @@ def build(output: Path, check: bool = False) -> bool:
         output / "apps" / f"{app_id}.html": render(template, app_id, title)
         for app_id, title in APPS
     })
+    generated[output / "topology-daemongate.html"] = (ROOT / "web" / "topology-daemongate.html").read_text(encoding="utf-8")
     assets = ("geometry.js", "protocol.js", "audio.js", "app.js", "style.css")
     correct = True
     for path, contents in generated.items():
