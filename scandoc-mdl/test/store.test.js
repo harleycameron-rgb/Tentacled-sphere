@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {Store} from '../src/store.js';
+const cmd=s=>({schema:'scandoc-command/1',event_id:`event-${s.tick+1}`,expected_tick:s.tick,source_tentacle:1,event_type:'FACE_ACTIVATE',payload:{position:[0,0,1],normal:[0,0,1]}});
+test('durable restart replays state and identity',()=>{const dir=mkdtempSync(join(tmpdir(),'mdl-'));try{let s=new Store(join(dir,'state.db'));const c=cmd(s.getState()),r=s.execute(c);s.close();s=new Store(join(dir,'state.db'));assert.deepEqual(s.getState(),r.state);assert.deepEqual(s.events(),[r.event]);assert.equal(s.execute(c).duplicate,true);assert.equal(s.getState().tick,1);s.close();}finally{rmSync(dir,{recursive:true,force:true});}});
+test('altered retries and failed transitions cannot append',()=>{const s=new Store(':memory:');try{const c=cmd(s.getState());s.execute(c);assert.throws(()=>s.execute({...c,payload:{...c.payload,position:[0,0,1.1]}}));assert.throws(()=>s.execute({...c,event_id:'other',expected_tick:1}));assert.equal(s.events().length,1);const detached=s.getState();detached.cube[0].position[2]=99;assert.equal(s.getState().cube[0].position[2],1);}finally{s.close();}});
+test('append-only triggers reject changes; corrupt records fail replay',()=>{const s=new Store(':memory:');try{s.execute(cmd(s.getState()));assert.throws(()=>s.db.exec('DELETE FROM events'));assert.throws(()=>s.db.exec("UPDATE root SET seal='forged'"));s.db.prepare('INSERT INTO events VALUES(?,?,?,?,?)').run(2,'bad','{}','{}','bad');assert.throws(()=>s.replay());}finally{s.close();}});
+test('shared durable source refresh and event budget fail closed',()=>{const dir=mkdtempSync(join(tmpdir(),'mdl-'));try{const a=new Store(join(dir,'s.db'),{maxEvents:1}),b=new Store(join(dir,'s.db'),{maxEvents:1});try{a.execute(cmd(a.getState()));assert.equal(b.getState().tick,1);assert.equal(b.getState().genesis,null);assert.throws(()=>b.execute({...cmd(b.getState()),event_id:'next'}),/budget/);assert.equal(a.events().length,1);}finally{a.close();b.close();}}finally{rmSync(dir,{recursive:true,force:true});}});
