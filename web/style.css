@@ -78,3 +78,9 @@ footer { text-align: center; padding: 1.4rem; border-top: 1px solid #27324b; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; }
 }
+
+/* Research-mode camera geometry viewport: local, no frame capture. */
+.world-viewport{position:relative;width:100%;max-width:760px;aspect-ratio:4/3;overflow:hidden;border:1px solid #5a91aa;border-radius:12px;background:#050a12}
+.world-viewport[hidden]{display:none!important}
+.world-viewport video{display:block;width:100%;height:100%;object-fit:cover}
+.world-viewport svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;filter:drop-shadow(0 1px 2px #000)}

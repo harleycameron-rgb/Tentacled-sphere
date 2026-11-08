@@ -75,6 +75,21 @@
     const camera = document.getElementById("camera-preview");
     const soundStatus = document.getElementById("sound-status");
     const standalone = window.parent === window;
+    const worldViewport = document.getElementById("world-viewport");
+    const worldTarget = document.getElementById("world-target");
+    const worldTrajectory = document.getElementById("world-trajectory");
+    const worldLabel = document.getElementById("world-label");
+    function renderWorldOverlay(vector, source) {
+      if (!Array.isArray(vector) || vector.length !== 3 || !vector.every(Number.isFinite)) return;
+      const x = 200 + 85 * vector[0];
+      const y = 150 - 85 * vector[1];
+      worldTarget.setAttribute("cx", x.toFixed(2));
+      worldTarget.setAttribute("cy", y.toFixed(2));
+      worldTrajectory.setAttribute("d", `M200 150 L${x.toFixed(2)} ${y.toFixed(2)}`);
+      worldLabel.textContent = `${appId.toUpperCase()} · RESEARCH VECTOR`;
+      setText("world-vector-label", `${appId} | ${source} | vector ${vector.map((n) => n.toFixed(3)).join(", ")} | symbolic overlay, not scene tracking`);
+    }
+    if (currentVector) renderWorldOverlay(currentVector, "API baseline");
 
     if (!apiReady) {
       appStatus.textContent = "API geometry is unavailable. This app is incomplete until the API responds; no browser-generated replacement was used.";
@@ -90,6 +105,7 @@
     function updatePosition(position, source) {
       positionOutput.textContent = JSON.stringify({ vector: position, source }, null, 2);
       currentVector = G.normalize(position);
+      renderWorldOverlay(currentVector, source);
       audio.updateVector(currentVector);
       setText("sound-source", source === "synthetic-clock"
         ? "Live sound is following a synthetic local-clock vector, not a device measurement."
@@ -117,9 +133,10 @@
       if (cameraStream) cameraStream.getTracks().forEach((track) => track.stop());
       cameraStream = null;
       camera.srcObject = null;
-      camera.hidden = true;
+      worldViewport.hidden = true;
+      setText("world-vector-label", "Geometry overlay inactive; camera stopped.");
       const button = document.getElementById("camera-toggle");
-      if (button) button.textContent = "Start camera preview";
+      if (button) button.textContent = "Start world camera preview";
     }
 
     function pause() {
@@ -216,7 +233,8 @@
         }
         cameraStream = stream;
         camera.srcObject = stream;
-        camera.hidden = false;
+        worldViewport.hidden = false;
+        if (currentVector) renderWorldOverlay(currentVector, "current geometry");
         await camera.play();
         event.currentTarget.textContent = "Stop camera preview";
       } catch (error) {

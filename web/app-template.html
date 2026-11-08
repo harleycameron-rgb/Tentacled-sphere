@@ -142,8 +142,19 @@
           <button id="camera-toggle" type="button">Start world camera preview</button>
           <button id="cancel-camera" type="button">Cancel pending camera request</button>
         </div>
-        <video id="camera-preview" autoplay playsinline hidden></video>
-        <p class="muted">Environment-facing camera only. No selfie-camera fallback. Video-only local preview; no microphone, recording, upload, or analysis. Foretentacle uses the separate user-facing camera contract.</p>
+        <div class="world-viewport" id="world-viewport" hidden>
+          <video id="camera-preview" autoplay playsinline muted></video>
+          <svg id="world-overlay" viewBox="0 0 400 300" role="img" aria-label="Research geometry overlay on local outward-facing camera" preserveAspectRatio="xMidYMid meet">
+            <circle cx="200" cy="150" r="85" fill="none" stroke="#68f6ef" stroke-width="2"/>
+            <circle cx="200" cy="150" r="46" fill="none" stroke="#ffd47b" stroke-dasharray="5 6"/>
+            <path id="world-trajectory" d="M200 150 L200 65" stroke="#ffd47b" stroke-width="3" fill="none"/>
+            <circle id="world-target" cx="200" cy="65" r="7" fill="#ffd47b"/>
+            <path d="M180 150 H220 M200 130 V170" stroke="#68f6ef" stroke-width="1.5"/>
+            <text id="world-label" x="12" y="25" fill="white" font-size="13">RESEARCH · GEOMETRY OVERLAY</text>
+          </svg>
+        </div>
+        <p id="world-vector-label" class="muted" aria-live="polite">Geometry overlay inactive.</p>
+        <p class="muted">Environment-facing camera only. No selfie-camera fallback. Local video with a symbolic, API/device-vector geometry overlay. Not scene recognition, spatial tracking, or physical verification. No microphone, recording, upload, or analysis. Foretentacle uses the separate user-facing camera contract.</p>
       </section>
       <section class="card sound-controls" aria-label="Local Web Audio controls">
         <h2>Local sound</h2>
