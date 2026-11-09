@@ -1,0 +1,23 @@
+name: QOB Planck Review Tests
+on:
+  push:
+    branches:
+      - test/qob-cube-sphere-contract-v1
+  workflow_dispatch:
+jobs:
+  review-only:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: JavaScript Planck and QOB regression tests
+        run: node --test tests/web_planck_bridge.test.js tests/web_planck_protocol_integration.test.js tests/web_planck_atomic_snapshot.test.js tests/web_qob_integrity.test.js
+      - name: Python Planck and QOB regression tests
+        run: python -m unittest discover -s tests -p 'test_planck_separation.py' -v && python -m unittest discover -s tests -p 'test_qob_engine_integration.py' -v
