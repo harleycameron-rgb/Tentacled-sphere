@@ -1,21 +1,24 @@
 # MDL — Planck separation implementation status
 
-Status: experimental draft; native gate CLOSED; no deployment or native writes.
+Status: experimental draft only. Native gate CLOSED; sphereWrites false; no deployment.
 
-## Implemented in public simulation protocol
-- `web/protocol.js` contains `StructuralMeltingConsumer` with assembly, separation, plotting and attachment states.
-- Current `completeSeparation(runId, separationId)` records identity and timestamp, **not an atomic six-face snapshot**.
-- SHA-512 content hashes are not authorization.
-- Simulation receipts carry `liveGate: "CLOSED"`, `receiptTrust: "UNVERIFIED"`, and `sphereWrites: false`.
+## Implemented on draft branch
+- `web/protocol.js` retains the legacy `completeSeparation(runId,separationId)` simulation method. This legacy path does **not** capture a six-face snapshot.
+- New opt-in async `completeSeparationWithSnapshot(runId,separationId,faceCommitments)` validates exactly six named, nonempty face commitments, freezes the snapshot and hashes the canonical geometry (fixed origin plus six commitments) with SHA-512.
+- Geometry hash deliberately excludes run identity, timestamp and receipt metadata. Hashes establish content consistency, **not** authority or proof of a physical event.
+- In snapshot mode, trajectory points reject missing or mismatched `geometryHash`; trajectory and attachment receipts include the hash. Reused separation identifiers are rejected within the consumer lifetime.
+- Regression tests exist for immutability, hash binding, replay rejection and legacy closed-gate behaviour.
+- A draft GitHub Actions workflow `.github/workflows/qob-planck-review.yml` requests JavaScript and Python regressions. **No successful run has been confirmed for the latest commits.**
 
-## Draft-only, not production features
-- `api/planck_separation.py` and `api/planck_bridge.js` accept an **opaque** 1536-bit value, but do not encode it from six faces or authenticate that derivation.
-- The six-face-to-1536-bit system-state encoding is **UNIMPLEMENTED**. Do not assume six 256-bit segments.
-- `first_trajectory` and `firstTrajectory` require eight externally supplied expressions. Generation of temporal tentacles 7 and 8, and computation of all eight tip geometries from trajectory, are **UNIMPLEMENTED**.
-- The opt-in bridge does not yet bind every native `StructuralMeltingConsumer` trajectory point or attachment receipt to an atomic snapshot geometry hash.
-- The cube remains fixed as the historical geometry; no fourth spatial axis is authorized.
+## Unimplemented or unknown
+- The six-face-to-1536-bit encoding is **UNIMPLEMENTED**. The experimental bridge accepts an opaque 384-hex-character value, without verifying its derivation. Do not infer six 256-bit pieces.
+- Automatic derivation of temporal tentacles 7 and 8 and generation of eight tip geometries are **UNIMPLEMENTED**. Draft APIs accept externally supplied expressions.
+- Whether trajectory is a single conceptual Planck-gap transition, and whether the six tentacles remain seated in the cube, are current **research hypotheses**, not engine results.
+- **Planck Threshold Non-Assumption (proposed):** a pre-gap invariant cannot be assumed to persist across the gap. Post-gap claims require independent checks; otherwise classify UNKNOWN.
+- Planck terminology is conceptual; no physical Planck-scale discontinuity is demonstrated.
 
-## Proposed minimal integration
-Capture exactly six named commitments and fixed origin in a single immutable separation event; hash its canonical geometry content separately from temporal identity and receipt metadata. Reject wrong or missing geometry hash in subsequent trajectory points. Preserve backward compatibility only where explicitly documented; do not silently treat legacy separation as a verified snapshot.
+## Public research preview
+Five linked, mobile-friendly explanatory HTML pages are staged under `docs/research-pages/`, with one shared stylesheet. They are draft files only, not a live-site update.
 
-These are status statements, not evidence of execution or a production readiness claim.
+## Release boundary
+No PR merge, native firing, deployment, DNS change or production write has been authorized by these draft commits. Receipts remain UNVERIFIED and the native gate remains CLOSED.
