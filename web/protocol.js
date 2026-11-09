@@ -191,15 +191,28 @@
     MELTING_ATTACHED: "MELTING_ATTACHED",
   });
 
+  const PLANCK_FACES = Object.freeze(["tap", "surface", "gain", "habitat", "engine", "business"]);
+  const PLANCK_ORIGIN = Object.freeze([1024, 1024, 0]);
+
+  function deepFreezePlanck(value) {
+    if (value && typeof value === "object") {
+      Object.values(value).forEach(deepFreezePlanck);
+      Object.freeze(value);
+    }
+    return value;
+  }
+
   class StructuralMeltingConsumer {
     constructor() {
       this.usedRunIds = new Set();
+      this.usedSeparationIds = new Set();
       this.reset();
     }
 
     reset() {
       this.runId = null;
       this.state = null;
+      this.separationSnapshot = null;
       this.separationId = null;
       this.trajectoryId = null;
       this.separationTimestamp = null;
@@ -221,14 +234,54 @@
 
     completeSeparation(runId, separationId) {
       if (this.state !== STRUCTURAL_MELTING_STATES.ASSEMBLY_READY ||
-          runId !== this.runId || typeof separationId !== "string" || !separationId) {
+          runId !== this.runId || typeof separationId !== "string" || !separationId ||
+          this.usedSeparationIds.has(separationId)) {
         return false;
       }
+      this.usedSeparationIds.add(separationId);
       this.separationId = separationId;
       this.separationTimestamp = Date.now();
       this.lastTimestamp = this.separationTimestamp;
       this._transition(STRUCTURAL_MELTING_STATES.SEPARATION_COMPLETE);
       return true;
+    }
+
+    // Opt-in, fail-closed atomic six-face separation. Legacy separation remains
+    // simulation-only and does not claim a Planck snapshot.
+    async completeSeparationWithSnapshot(runId, separationId, faceCommitments) {
+      if (this.state !== STRUCTURAL_MELTING_STATES.ASSEMBLY_READY ||
+          runId !== this.runId || typeof separationId !== "string" || !separationId ||
+          this.usedSeparationIds.has(separationId)) return false;
+      try {
+        if (!faceCommitments || Object.getPrototypeOf(faceCommitments) !== Object.prototype ||
+            canonicalJSON(Object.keys(faceCommitments).sort()) !== canonicalJSON([...PLANCK_FACES].sort()) ||
+            !PLANCK_FACES.every((key) => typeof faceCommitments[key] === "string" &&
+              faceCommitments[key].length > 0)) return false;
+        const geometry = canonicalValue({
+          origin: PLANCK_ORIGIN,
+          faceCommitments: Object.fromEntries(PLANCK_FACES.map((key) => [key, faceCommitments[key]])),
+        });
+        const geometryHash = await sha512(geometry);
+        // No state transition before all validation and hashing completes.
+        if (this.state !== STRUCTURAL_MELTING_STATES.ASSEMBLY_READY ||
+            this.usedSeparationIds.has(separationId)) return false;
+        const timestamp = Date.now();
+        const snapshot = deepFreezePlanck({
+          schemaVersion: 1, runId, separationId,
+          origin: geometry.origin,
+          faceCommitments: geometry.faceCommitments,
+          geometryHash, timestamp,
+        });
+        this.separationSnapshot = snapshot;
+        this.usedSeparationIds.add(separationId);
+        this.separationId = separationId;
+        this.separationTimestamp = timestamp;
+        this.lastTimestamp = timestamp;
+        this._transition(STRUCTURAL_MELTING_STATES.SEPARATION_COMPLETE);
+        return true;
+      } catch (_) {
+        return false;
+      }
     }
 
     beginTrajectoryPlotting(runId, trajectoryId) {
@@ -266,6 +319,7 @@
             point.runId !== this.runId ||
             point.trajectoryId !== this.trajectoryId ||
             point.separationId !== this.separationId ||
+            (this.separationSnapshot && point.geometryHash !== this.separationSnapshot.geometryHash) ||
             !Number.isSafeInteger(point.sequence) ||
             point.sequence <= this.lastSequence ||
             !Number.isFinite(point.timestamp) ||
@@ -294,6 +348,7 @@
         trajectoryId: this.trajectoryId,
         plotting: this.plotting,
         points: this.points,
+        ...(this.separationSnapshot ? { geometryHash: this.separationSnapshot.geometryHash } : {}),
       });
     }
 
@@ -307,6 +362,7 @@
         separationId: attachment.separationId,
         trajectoryId: attachment.trajectoryId,
         attachedAt: attachment.timestamp,
+        ...(this.separationSnapshot ? { geometryHash: this.separationSnapshot.geometryHash } : {}),
       });
     }
 
