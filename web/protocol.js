@@ -264,7 +264,7 @@
         const geometryHash = await sha512(geometry);
         // No state transition before all validation and hashing completes.
         if (this.state !== STRUCTURAL_MELTING_STATES.ASSEMBLY_READY ||
-            this.usedSeparationIds.has(separationId)) return false;
+            this.usedSeparationIds.has(separationId) || this.runId !== runId) return false;
         const timestamp = Date.now();
         const snapshot = deepFreezePlanck({
           schemaVersion: 1, runId, separationId,
