@@ -106,5 +106,16 @@ footer { text-align: center; padding: 1.4rem; border-top: 1px solid #27324b; }
   color: #a8c7dc;
   letter-spacing: 0.04em;
 }
-.human-observation-glass #sphere { pointer-events: none; user-select: none; }
-.human-observation-glass #app-frames { pointer-events: none; user-select: none; }
+/* The projection pane is optically readable but is not an input surface. */
+.human-observation-glass { position: relative; overflow: hidden; isolation: isolate; }
+.human-observation-glass::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(113deg, rgba(191,228,243,.09) 1%, transparent 30%, rgba(218,244,255,.045) 46%, transparent 70%);
+  z-index: 1;
+}
+.human-observation-glass .sphere-wrap,
+.human-observation-glass #sphere { pointer-events: none; user-select: none; touch-action: none; }
+.human-observation-glass #sphere { cursor: default; }
+.glass-heading, .glass-caption, .glass-boundary { position: relative; z-index: 2; }
+/* App frames are independent playable apps, NOT descendants of the read-only glass. */
