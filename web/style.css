@@ -78,3 +78,33 @@ footer { text-align: center; padding: 1.4rem; border-top: 1px solid #27324b; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; }
 }
+
+/* Human observation glass is a projection boundary, not an execution surface. */
+.human-observation-glass {
+  border: 1px solid #668eac;
+  border-radius: 1rem;
+  padding: 0.85rem;
+  background: linear-gradient(140deg, rgba(130,184,207,0.09), rgba(5,14,28,0.4) 55%, rgba(120,149,181,0.06));
+  box-shadow: inset 0 0 0 1px rgba(175,213,239,0.12), inset 0 0 36px rgba(114,175,203,0.06);
+}
+.glass-heading {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  letter-spacing: 0.1em;
+  font-size: 0.68rem;
+  color: #c0e2ee;
+  font-weight: 700;
+}
+.glass-caption { color: #c6d3df; font-size: 0.84rem; line-height: 1.5; }
+.glass-boundary {
+  border-top: 1px solid rgba(153,199,219,0.3);
+  padding-top: 0.7rem;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: #a8c7dc;
+  letter-spacing: 0.04em;
+}
+.human-observation-glass #sphere { pointer-events: none; user-select: none; }
+.human-observation-glass #app-frames { pointer-events: none; user-select: none; }
