@@ -38,15 +38,16 @@
         <div class="layout">
           <section class="card">
             <h2>Shared sphere</h2>
-            <div class="human-observation-glass" role="group" aria-label="Read-only human observation window. No operations through this surface.">
-              <div class="glass-heading"><span>HUMAN FRAME · OBSERVATION ONLY</span><span>SENTINEL LINEAGE FIXED</span></div>
+            <div class="human-observation-glass" role="img" aria-label="Glazed, read-only human-frame projection of geometry. The observer has no operation on the source.">
+              <div class="glass-heading"><span>HUMAN FRAME · GLAZED VIEWPORT</span><span>SENTINEL LINEAGE FIXED</span></div>
               <div class="sphere-wrap">
                 <svg id="sphere" viewBox="0 0 420 360" role="img" aria-label="Read-only projection: eight geometry arms and six reference ports. Not an operation on the source."></svg>
               </div>
-              <p class="glass-caption">The visible field is an instrument-limited projection, not the source. Unseen stars require instruments; fine structure requires magnification. One sampled tree cannot establish every tree's rings. An interpretation is not an invariant.</p>
-              <p class="glass-boundary">NO OBSERVER OPERATION THROUGH THE GLASS · Sentinel provenance is independent of visibility and interpretation.</p>
+              <p class="glass-caption">A human sees through a limited aperture. Telescopes, microscopes, radiographs and memories extend that aperture but never turn an interpretation into provenance. One tree's rings cannot define every tree. Observation may inform a separate sandbox model; the stream itself is unchanged.</p>
+              <p class="glass-boundary">NO OBSERVER OPERATION · NO CLAIM OF INVARIANCE FROM RESEMBLANCE · Sentinel lineage is independent of the visible window.</p>
             </div>
             <p id="geometry-report" class="muted">Geometry checks are pending.</p>
+            <p class="muted">External projection controls: change the view only, not the read-only stream.</p>
             <div class="control-grid">
               <label>View rotation yaw <output id="view-yaw-value">0°</output>
                 <input id="view-yaw" type="range" min="-180" max="180" value="0">
@@ -66,7 +67,8 @@
             <p id="incidence-report" class="muted">Selected-arm incidence appears for the cube model.</p>
           </section>
           <section class="card">
-            <h2>Shared centre and Sentinel</h2>
+            <h2>Separate browser simulation · not the glass</h2>
+            <p class="muted">These existing controls change local simulated snapshots only. They are not observer operations through Sentinel lineage or native Zero execution.</p>
             <div class="control-grid">
               <label>Geometry model
                 <select id="geometry-model">
