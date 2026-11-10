@@ -10,6 +10,11 @@ class ZeroDataTriggerReservationTests(unittest.TestCase):
         self.assertEqual(RESERVATION.direction, "SOURCE_TO_OBSERVER")
         self.assertFalse(RESERVATION.observer_write_authority)
 
+    def test_not_daemongate_sandbox_pulse(self):
+        self.assertEqual(RESERVATION.scope, "ZERO_DATA_NATIVE_TRIGGER_RESERVATION")
+        self.assertEqual(RESERVATION.distinct_from,
+                         "DAEMONGATE_DOWNSTREAM_SANDBOX_PULSE")
+
     def test_cannot_fire(self):
         self.assertFalse(RESERVATION.execution_connected)
         self.assertEqual(RESERVATION.native_gate, "CLOSED")
