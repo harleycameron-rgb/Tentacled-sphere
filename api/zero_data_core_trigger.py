@@ -6,12 +6,16 @@ A future true-invariance verifier needs an independently reviewed contract,
 measured evidence and authorization before ANY execution adapter can be added.
 
 This file is a fail-closed proposal, not the protected native Zero core.
+It is NOT the downstream DaemonGate sandbox pulse module. Observations may
+feed a separate modeling pathway without giving this reservation authority.
 """
 from dataclasses import dataclass
 from typing import Final
 
 @dataclass(frozen=True)
 class InvariantTriggerReservation:
+    scope: str = "ZERO_DATA_NATIVE_TRIGGER_RESERVATION"
+    distinct_from: str = "DAEMONGATE_DOWNSTREAM_SANDBOX_PULSE"
     lineage_origin: str = "Sentinel"
     direction: str = "SOURCE_TO_OBSERVER"
     observer_write_authority: bool = False
