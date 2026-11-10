@@ -12,3 +12,7 @@ Counterflow can increase velocity; it is an experimental operator, not a stabili
 All gates remain CLOSED, sphereWrites false and receiptTrust UNVERIFIED.
 
 Run `python -m unittest discover -s tests -p test_trajectory_contract.py -v`.
+
+Intended outward-looking app behaviour and shared-core acceptance requirements are
+recorded in [Outward geometry and shared core](OUTWARD_GEOMETRY_SHARED_CORE.md).
+That architecture clarification does not add integration to this research model.
