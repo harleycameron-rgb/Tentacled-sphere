@@ -314,7 +314,6 @@
     let sentinelReceipt = null;
     let undoConfiguration = null;
     let operationQueue = Promise.resolve();
-    let feedTimer = null;
     const structuralConsumer = new P.StructuralMeltingConsumer();
 
     const initialConfiguration = {
@@ -876,18 +875,19 @@
           vector: G.normalize(feed.vector),
           source: feed.source,
         };
-        if (feedTimer !== null) clearTimeout(feedTimer);
-        feedTimer = setTimeout(() => runSerial(() => ignite(readControls())), 200);
+        // Device input updates its own display and is staged for explicit review.
+        // It never triggers ignition or acquires firing authority.
+        setText("home-status", `Input received from ${sourceApp}; frame preview updated. Actual-input trigger remains unarmed.`);
+        homeStatus.classList.remove("error");
       } else if (event.data.type === "sphere:feed-clear" &&
           event.data.appId === sourceApp) {
         if (!feeds[sourceApp] || event.data.sequence <= feeds[sourceApp].sequence) return;
         delete feeds[sourceApp];
-        if (feedTimer !== null) clearTimeout(feedTimer);
-        feedTimer = setTimeout(() => runSerial(() => ignite(readControls())), 0);
+        setText("home-status", `Input cleared from ${sourceApp}; no ignition or firing action occurred.`);
+        homeStatus.classList.remove("error");
       }
     });
     window.addEventListener("pagehide", () => {
-      if (feedTimer !== null) clearTimeout(feedTimer);
       structuralConsumer.stopPlotting();
       for (const frame of frames.values()) frame.contentWindow?.postMessage(
         { type: "sphere:deactivate" }, location.origin);
