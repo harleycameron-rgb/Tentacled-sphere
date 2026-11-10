@@ -38,8 +38,13 @@
         <div class="layout">
           <section class="card">
             <h2>Shared sphere</h2>
-            <div class="sphere-wrap">
-              <svg id="sphere" viewBox="0 0 420 360" role="img" aria-label="Eight geometry arms and six dual reference ports"></svg>
+            <div class="human-observation-glass" role="group" aria-label="Read-only human observation window. No operations through this surface.">
+              <div class="glass-heading"><span>HUMAN FRAME · OBSERVATION ONLY</span><span>SENTINEL LINEAGE FIXED</span></div>
+              <div class="sphere-wrap">
+                <svg id="sphere" viewBox="0 0 420 360" role="img" aria-label="Read-only projection: eight geometry arms and six reference ports. Not an operation on the source."></svg>
+              </div>
+              <p class="glass-caption">The visible field is an instrument-limited projection, not the source. Unseen stars require instruments; fine structure requires magnification. One sampled tree cannot establish every tree's rings. An interpretation is not an invariant.</p>
+              <p class="glass-boundary">NO OBSERVER OPERATION THROUGH THE GLASS · Sentinel provenance is independent of visibility and interpretation.</p>
             </div>
             <p id="geometry-report" class="muted">Geometry checks are pending.</p>
             <div class="control-grid">
@@ -118,7 +123,11 @@
         <section class="card">
           <h2>Eight app views</h2>
           <div id="app-tabs" class="app-tabs"></div>
-          <div id="app-frames"></div>
+          <div class="human-observation-glass" role="group" aria-label="Read-only integrated app windows">
+            <div class="glass-heading"><span>OBSERVATION GLASS</span><span>NO WRITE THROUGH VIEW</span></div>
+            <div id="app-frames" inert></div>
+            <p class="glass-boundary">The integrated windows are non-interactive projections. Open the individual app page for its separate local simulation controls.</p>
+          </div>
         </section>
       </section>
       <section class="intro">
