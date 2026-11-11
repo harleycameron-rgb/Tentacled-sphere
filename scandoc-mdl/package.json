@@ -1,0 +1,1 @@
+{"name":"scandoc-mdl-unified","version":"1.0.0","private":true,"type":"module","engines":{"node":">=24"},"scripts":{"test":"node --test --test-isolation=none test/*.test.js","start":"node src/server.js"}}
