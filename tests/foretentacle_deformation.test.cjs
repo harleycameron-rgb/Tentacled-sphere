@@ -1,0 +1,16 @@
+const assert = require("node:assert/strict");
+const { deriveDeformation } = require("../web/foretentacle-deformation.js");
+const geometry = { origin: [1024, 1024, 0], recursionScale: 0.5 };
+const trajectory = { separationComplete: true, meltingAttached: true, liveGate: "CLOSED", displacement: [2, 1, 0], previousDisplacement: [1, 1, 0], logicalTick: 2, previousLogicalTick: 1 };
+const a = deriveDeformation(trajectory, geometry);
+assert.deepEqual(a, deriveDeformation(trajectory, geometry), "deterministic");
+assert.equal(a.fragmentation, 0.5);
+assert.equal(a.coherence, 0.5);
+assert.equal(a.gate, "CLOSED");
+assert.throws(() => deriveDeformation({ ...trajectory, meltingAttached: false }, geometry));
+assert.throws(() => deriveDeformation({ ...trajectory, liveGate: "OPEN" }, geometry));
+assert.throws(() => deriveDeformation({ ...trajectory, displacement: [NaN, 0, 0] }, geometry));
+assert.throws(() => deriveDeformation({ ...trajectory, logicalTick: 1 }, geometry));
+assert.throws(() => deriveDeformation(trajectory, { ...geometry, origin: [0, 0, 0] }));
+assert.equal(deriveDeformation({ ...trajectory, displacement: [1, 1, 0] }, geometry).fragmentation, 0);
+console.log("Foretentacle deformation contract assertions passed");
