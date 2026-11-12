@@ -1,0 +1,47 @@
+✔ Python HTTP API vectors enter the browser coupling model unchanged (135.053103ms)
+✔ all seven sound generators initialize locally and stop their resources (8.014233ms)
+✔ live sound tracks valid geometry and stop closes the context (1.22552ms)
+✔ one firing and trajectory contract drives all eight stubs, reset disarms (5.404221ms)
+✔ reject prefire, wrong authority, mismatched event, stale, nonfinite and forged verification (2.103464ms)
+✔ shared same-origin transport broadcasts once without receiver echoes (1.205955ms)
+✔ cube-octahedron model has the specified vertices, incidence, and edges (7.007284ms)
+✔ all paired spherical edge midpoints and great-circle crossings verify (0.868438ms)
+✔ shared rigid rotations preserve duality and every arm-pair distance (141.733119ms)
+✔ harmonic shifts preserve radii and change 25/28 arm-pair distances (24.467271ms)
+✔ undo derives the original baseline without accumulating pulse rotations (0.864283ms)
+✔ API vectors are checked and model ordering stays stable (1.3412ms)
+✔ seven: every selectable state, controls, pulse, pause, reset and progression (101.661916ms)
+✔ octopus: every selectable state, controls, pulse, pause, reset and progression (81.816599ms)
+✔ seven stages have distinct numerical agency and Surface hardening is durable (1.941719ms)
+✔ read-only history contains actual past states; no missing or future sample is invented (9.117673ms)
+✔ versioned state adapter accepts all eight apps and refuses false verification, stale data and mutation (3.483615ms)
+✔ local link transfers real state without backend and disconnect stops transport (0.846476ms)
+✔ explicit Surface sequence, six unique events, geometry/temporal separation and closed engine (18.409906ms)
+✔ hashes are canonical, tamper-sensitive, representation-only and reset cancels pending hardening (1.640076ms)
+✔ canonical SHA-512 ignores object insertion order and rejects malformed values (11.477813ms)
+✔ matching acknowledgements complete once; tampered, stale, and altered retries fail (9.906189ms)
+✔ app handlers reject altered, stale, skipped, and mismatched snapshots (2.902609ms)
+✔ device feeds require a fresh monotonic sequence, timestamp, and nonzero finite vector (0.468777ms)
+✔ Structural Melting attaches only after separation and plotting for the current run (2.840151ms)
+✔ Skylite adapter: tap (13.84556ms)
+✔ Skylite adapter: surface (2.205691ms)
+✔ Skylite adapter: spiritlevel (6.326863ms)
+✔ Skylite adapter: gain (1.025177ms)
+✔ Skylite adapter: habitat (4.239656ms)
+✔ Skylite adapter: time (4.344564ms)
+✔ Skylite adapter: space (2.192858ms)
+✔ Skylite adapter: lineage (2.446301ms)
+✔ attenuation follows declared first-order response and is frame-rate consistent (12.485234ms)
+✔ reported sample processing is calibrated once and integrated by sample time, not render frames (13.400448ms)
+✔ reported orientation rotates acceleration into the calibrated session frame (0.462406ms)
+✔ sphere/paraboloid curvature is explicit, scaled and not a physical observation (1.284699ms)
+✔ pulse identities survive views and differ across reset sessions; history is retrospective (1.048668ms)
+✔ sensor permissions, gravity-only rejection, listener cleanup and pending cancellation (1.908093ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1170.15969

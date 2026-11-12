@@ -1,0 +1,10 @@
+PASS desktop: 7 selections, actual touch/drag, actions, pause/reset, layout and no external requests
+PASS desktop: 8 selections, actual touch/drag, actions, pause/reset, layout and no external requests
+PASS iPhone 13: 7 selections, actual touch/drag, actions, pause/reset, layout and no external requests
+PASS iPhone 13: 8 selections, actual touch/drag, actions, pause/reset, layout and no external requests
+PASS Reduced-motion freezes automatic visual frames while recorded time advances; explicit automatic progression works
+PASS Explicit six-event local hardening/validation/activation never writes centre or opens engine gate
+PASS Cockpit controls propagate numerically to all eight actual app adapters; original API geometry remains intact
+PASS Both standalone instruments start and tick offline without backend services
+PASS Permission denial/manual fallback, granted orientation and Web Audio cleanup on stop
+9 browser acceptance scenarios passed; iPhone is emulated Chromium, not physical Safari.

@@ -1,0 +1,7 @@
+PASS desktop: eight adapters, manual attenuation, curvature, touch/drag, pause/reset and responsive layout
+PASS iPhone 13: eight adapters, manual attenuation, curvature, touch/drag, pause/reset and responsive layout
+PASS Mocked permission denial, calibrated sample-time integration, reported/derived labels, unavailable IR and stop cleanup
+PASS Reduced motion suppresses automatic drawing while numerical sampling continues
+PASS Adaptive shell connects to the actual legacy stub through the versioned local adapter
+PASS All eight query-selected Skylite profiles load and run offline
+6 Skylite browser scenarios passed; sensor events are mocks and iPhone is Chromium emulation.

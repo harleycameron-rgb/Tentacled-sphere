@@ -85,12 +85,14 @@
       appStatus.textContent = `Loaded API arm ${appIndex} (${appId}). Device geometry is optional and app-local.`;
       if (appId === "time") document.getElementById("start-clock").hidden = false;
       positionOutput.textContent = JSON.stringify({ vector: currentVector, source: "API baseline" });
+      window.dispatchEvent(new CustomEvent("scandoc:app-state", { detail: { appId, vector: [...currentVector], kind: "API_GEOMETRY_UNVERIFIED" } }));
     }
 
     function updatePosition(position, source) {
       positionOutput.textContent = JSON.stringify({ vector: position, source }, null, 2);
       currentVector = G.normalize(position);
       audio.updateVector(currentVector);
+      window.dispatchEvent(new CustomEvent("scandoc:app-state", { detail: { appId, vector: [...currentVector], kind: source === "synthetic-clock" ? "SIMULATED" : "API_GEOMETRY_UNVERIFIED" } }));
       setText("sound-source", source === "synthetic-clock"
         ? "Live sound is following a synthetic local-clock vector, not a device measurement."
         : "Live sound uses the accepted API or shared geometry arm when device geometry is absent.");
@@ -924,3 +926,4 @@
     });
   }
 })();
+

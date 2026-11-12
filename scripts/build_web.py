@@ -58,6 +58,17 @@ def build(output: Path, check: bool = False) -> bool:
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source, target)
             print(f"Copied {display_path(target)}")
+    for source in sorted((ROOT / "instruments").glob("*")):
+        if source.suffix not in (".html", ".css", ".js"):
+            continue
+        target = output / "instruments" / source.name
+        if check:
+            if not target.is_file() or target.read_bytes() != source.read_bytes():
+                print(f"Out of date: {display_path(target)}")
+                correct = False
+        elif source.resolve() != target.resolve():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, target)
     return correct
 
 
@@ -68,3 +79,4 @@ if __name__ == "__main__":
     arguments = parser.parse_args()
     if not build(arguments.output.resolve(), arguments.check):
         raise SystemExit(1)
+

@@ -1,0 +1,30 @@
+✔ Python HTTP API vectors enter the browser coupling model unchanged (208.727592ms)
+✔ all seven sound generators initialize locally and stop their resources (8.562498ms)
+✔ live sound tracks valid geometry and stop closes the context (0.719349ms)
+✔ cube-octahedron model has the specified vertices, incidence, and edges (4.918941ms)
+✔ all paired spherical edge midpoints and great-circle crossings verify (0.866755ms)
+✔ shared rigid rotations preserve duality and every arm-pair distance (166.926155ms)
+✔ harmonic shifts preserve radii and change 25/28 arm-pair distances (28.547354ms)
+✔ undo derives the original baseline without accumulating pulse rotations (0.367845ms)
+✔ API vectors are checked and model ordering stays stable (0.804855ms)
+✔ seven: every selectable state, controls, pulse, pause, reset and progression (100.773433ms)
+✔ octopus: every selectable state, controls, pulse, pause, reset and progression (77.231563ms)
+✔ seven stages have distinct numerical agency and Surface hardening is durable (2.248291ms)
+✔ read-only history contains actual past states; no missing or future sample is invented (8.952787ms)
+✔ versioned state adapter accepts all eight apps and refuses false verification, stale data and mutation (3.884753ms)
+✔ local link transfers real state without backend and disconnect stops transport (0.72887ms)
+✔ explicit Surface sequence, six unique events, geometry/temporal separation and closed engine (18.317038ms)
+✔ hashes are canonical, tamper-sensitive, representation-only and reset cancels pending hardening (2.261778ms)
+✔ canonical SHA-512 ignores object insertion order and rejects malformed values (13.413272ms)
+✔ matching acknowledgements complete once; tampered, stale, and altered retries fail (17.422265ms)
+✔ app handlers reject altered, stale, skipped, and mismatched snapshots (3.608649ms)
+✔ device feeds require a fresh monotonic sequence, timestamp, and nonzero finite vector (0.458849ms)
+✔ Structural Melting attaches only after separation and plotting for the current run (4.219575ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1116.87596

@@ -1,0 +1,60 @@
+.........127.0.0.1 - - [07/Nov/2026 11:21:16] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /apps/tap.html HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /tap HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /tap/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /apps/surface.html HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /surface HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /surface/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /apps/spiritlevel.html HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /spiritlevel HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /spiritlevel/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /apps/gain.html HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /gain HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /gain/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /apps/habitat.html HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /habitat HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /habitat/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /apps/time.html HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /time HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /time/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /apps/space.html HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /space HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /space/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /apps/lineage.html HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /lineage HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /lineage/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 11:21:16] "GET /api/tentacled-sphere?seed=1.0&delta=0.1137 HTTP/1.1" 200 -
+...............................
+----------------------------------------------------------------------
+Ran 40 tests in 1.114s
+
+OK
+Generated /tmp/tmpdq5kd6ul/index.html
+Generated /tmp/tmpdq5kd6ul/apps/tap.html
+Generated /tmp/tmpdq5kd6ul/apps/surface.html
+Generated /tmp/tmpdq5kd6ul/apps/spiritlevel.html
+Generated /tmp/tmpdq5kd6ul/apps/gain.html
+Generated /tmp/tmpdq5kd6ul/apps/habitat.html
+Generated /tmp/tmpdq5kd6ul/apps/time.html
+Generated /tmp/tmpdq5kd6ul/apps/space.html
+Generated /tmp/tmpdq5kd6ul/apps/lineage.html
+Copied /tmp/tmpdq5kd6ul/web/geometry.js
+Copied /tmp/tmpdq5kd6ul/web/protocol.js
+Copied /tmp/tmpdq5kd6ul/web/audio.js
+Copied /tmp/tmpdq5kd6ul/web/app.js
+Copied /tmp/tmpdq5kd6ul/web/style.css
+Out of date: /tmp/tmpdq5kd6ul/apps/tap.html
+Generated /tmp/tmphlr1k2zu/index.html
+Generated /tmp/tmphlr1k2zu/apps/tap.html
+Generated /tmp/tmphlr1k2zu/apps/surface.html
+Generated /tmp/tmphlr1k2zu/apps/spiritlevel.html
+Generated /tmp/tmphlr1k2zu/apps/gain.html
+Generated /tmp/tmphlr1k2zu/apps/habitat.html
+Generated /tmp/tmphlr1k2zu/apps/time.html
+Generated /tmp/tmphlr1k2zu/apps/space.html
+Generated /tmp/tmphlr1k2zu/apps/lineage.html
+Copied /tmp/tmphlr1k2zu/web/geometry.js
+Copied /tmp/tmphlr1k2zu/web/protocol.js
+Copied /tmp/tmphlr1k2zu/web/audio.js
+Copied /tmp/tmphlr1k2zu/web/app.js
+Copied /tmp/tmphlr1k2zu/web/style.css

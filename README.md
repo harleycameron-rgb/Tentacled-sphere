@@ -209,3 +209,23 @@ camera, and audible output still require real-device verification. The
 prepared zip/patch named in the task was not present in the inspected
 repository/environment, so no package provenance or source commit pin is
 claimed. No DOI or Zenodo publication is claimed.
+
+## Interactive instruments (feature branch)
+
+The additive standalone pages are `/instruments/seven-stage.html` and
+`/instruments/octopus.html`. Both run locally without backend services.
+Opt-in adapters connect them to the eight existing applications while keeping
+simulated views separate from accepted API geometry. The engine gate remains
+CLOSED and the centre remains unwritten.
+
+See [integration map](docs/instruments/INTEGRATION_MAP.md),
+[state contract](docs/instruments/STATE_INTERFACE.md),
+[test and private preview instructions](docs/instruments/TESTING_AND_PREVIEW.md),
+and [readiness evidence](docs/instruments/READINESS.md).
+
+The [adaptive Skylite shell](docs/instruments/SKYLITE.md) is available at
+`/instruments/skylite.html?app=tap` and adapts to all eight existing app IDs.
+It provides manual and optional reported sensor input, calibrated relative
+velocity estimation, explicit Surface curvature and numerical attenuation.
+Infrared and trusted engine execution remain unavailable; no production
+publication is included in this feature branch.
